@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Biblioteca Chinoppo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: una sola columna de lectura (~68ch) con una ficha técnica lateral en escritorio; los pasos son la columna vertebral numerada. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#152033; --muted:#566377;
+  --line:#d6dce6; --accent:#1c5fd4; --accent-soft:#e3ecfb; --warn:#9a5b00; --warn-soft:#fbf0dc;
+  --code-bg:#eef1f6;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0d1420; --surface:#141d2c; --ink:#e4e9f2; --muted:#98a4b8;
+  --line:#26334a; --accent:#6c9dff; --accent-soft:#1a2a47; --warn:#f0b65a; --warn-soft:#2e2412;
+  --code-bg:#0a101a; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0d1420; --surface:#141d2c; --ink:#e4e9f2; --muted:#98a4b8;
+  --line:#26334a; --accent:#6c9dff; --accent-soft:#1a2a47; --warn:#f0b65a; --warn-soft:#2e2412;
+  --code-bg:#0a101a; color-scheme:dark }
+
+body{background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.1rem,6vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:800}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+.eyebrow{font:600 .75rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:1.15rem;color:var(--muted);max-width:62ch}
+section{display:flex;flex-direction:column;gap:16px}
+code{font:400 .88em var(--mono);background:var(--code-bg);padding:.1em .35em;border-radius:4px;overflow-wrap:anywhere}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font:400 .85rem/1.55 var(--mono)}
+pre code{background:none;padding:0}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.note{border-left:3px solid var(--warn);background:var(--warn-soft);padding:12px 16px;border-radius:0 8px 8px 0}
+.note strong{color:var(--warn)}
+
+/* flujo */
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;counter-reset:f}
+.flow div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:.92rem;line-height:1.4}
+.flow b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:4px;color:var(--accent)}
+@media (max-width:640px){.flow{grid-template-columns:1fr 1fr}}
+
+/* equipos */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 .72rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--code-bg)}
+td:first-child{font-weight:600;white-space:nowrap}
+.tag{display:inline-block;font:600 .7rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.tag.opt{background:var(--code-bg);color:var(--muted)}
+
+/* pasos */
+.steps{list-style:none;padding:0;gap:0;counter-reset:s}
+.steps>li{counter-increment:s;display:grid;grid-template-columns:52px minmax(0,1fr);gap:0 16px;padding-bottom:36px;position:relative}
+.steps>li::before{content:counter(s);grid-row:1/3;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  font:800 1.2rem/1 var(--display);background:var(--accent);color:var(--bg)}
+.steps>li::after{content:"";position:absolute;left:21px;top:50px;bottom:6px;width:2px;background:var(--line)}
+.steps>li:last-child::after{display:none}
+.steps>li>h3{align-self:center;min-height:44px;display:flex;align-items:center}
+.steps>li>div{display:flex;flex-direction:column;gap:12px;min-width:0}
+.where{font:600 .78rem/1 var(--mono);color:var(--muted)}
+
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.keys div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.keys kbd{font:600 .8rem var(--mono);color:var(--accent);display:block}
+
+dl{margin:0;display:flex;flex-direction:column;gap:14px}
+dt{font-weight:600}
+dd{margin:2px 0 0;color:var(--muted)}
+footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);padding-top:20px}
+</style></head><body>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <span class="eyebrow">Guía paso a paso · Chinoppo M9201</span>
+  <h1>Biblioteca Chinoppo</h1>
+  <p class="lede">Cómo convertir un clon de Oppo UDP-203 sin lector de discos en un reproductor con biblioteca de películas y series al estilo de los reproductores R_volution: carátulas, formatos (4K, Dolby Vision, Atmos), temporadas y reproducción desde el NAS con un solo botón del control.</p>
+</header>
+
+<section>
+  <h2>La idea, en corto</h2>
+  <p>El Chinoppo sabe reproducir discos Blu-ray con <b>BD-Live</b>, que son discos con un programa Java dentro y permiso para usar la red. Hicimos un "disco" propio (un archivo <code>.iso</code> que vive en una memoria USB). Al abrirlo, ese programa pide las carátulas a un pequeño servicio en el servidor de casa y las muestra como un muro de pósters. Cuando eliges una película, el servicio le ordena al Chinoppo que la reproduzca desde el NAS.</p>
+  <div class="flow">
+    <div><b>Control</b>Eliges una película en el muro de carátulas.</div>
+    <div><b>Disco Biblioteca</b>Programa Java (BD-J) que pide carátulas y avisa qué elegiste.</div>
+    <div><b>Servicio :8095</b>En el servidor. Lee el NAS, consulta TMDb, detecta formatos y crea las carátulas.</div>
+    <div><b>Chinoppo</b>Recibe la orden por su API, monta la carpeta del NAS y reproduce.</div>
+  </div>
+</section>
+
+<section>
+  <h2>Equipos que usamos en las pruebas</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Equipo</th><th>Para qué sirve</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>Chinoppo M9201</td><td>Clon del Oppo UDP-203 sin lector (MediaTek MT8581, 4 núcleos, 1.5 GB RAM). Con el firmware liberado <code>20XRU-65-0131</code>. Es el reproductor.</td><td><span class="tag">Necesario</span></td></tr>
+      <tr><td>Synology DS423+</td><td>NAS con DSM 7.3. Guarda las películas y las comparte por NFS.</td><td><span class="tag">Necesario</span></td></tr>
+      <tr><td>Servidor Linux con Docker</td><td>El "homelab". Corre el servicio de la biblioteca (puerto 8095) y, si quieres, Artwork Studio (puerto 3001). Sirve cualquier PC o mini PC que esté siempre encendido.</td><td><span class="tag">Necesario</span></td></tr>
+      <tr><td>PC con Windows 11 + WSL Ubuntu</td><td>Solo para compilar el disco <code>Biblioteca.iso</code> con bdj-sdk. Se usa una vez, o cada vez que cambies la IP del servidor.</td><td><span class="tag">Necesario</span></td></tr>
+      <tr><td>Memoria USB (Kingston DataTraveler)</td><td>Formateada en FAT32. Lleva el disco y los scripts de arranque. Se queda conectada al Chinoppo.</td><td><span class="tag">Necesario</span></td></tr>
+      <tr><td>Clave de TMDb</td><td>Gratis en themoviedb.org. De ahí salen carátulas, fondos, sinopsis y temporadas.</td><td><span class="tag">Necesario</span></td></tr>
+      <tr><td>Denon AVC-X3800H</td><td>Receptor A/V. Decodifica Atmos, TrueHD y DTS:X. El HDMI trasero del Chinoppo es de solo audio y sirve para el receptor.</td><td><span class="tag opt">Opcional</span></td></tr>
+      <tr><td>Hisense PX3 Pro</td><td>Proyector. En este proyecto solo aporta la imagen; cualquier TV o proyector con HDMI funciona igual.</td><td><span class="tag opt">Opcional</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note"><strong>Antes de empezar.</strong> Todos los equipos deben estar en la misma red y con IP fija (resérvalas en el router). En esta guía usamos los ejemplos <code>Chinoppo 192.168.1.16</code>, <code>NAS 192.168.1.17</code> y <code>servidor 192.168.1.201</code>. Cámbialos por los tuyos donde se indica.</p>
+</section>
+
+<section>
+  <h2>Pasos</h2>
+  <ol class="steps">
+
+    <li><h3>Prepara el Chinoppo</h3><div>
+      <span class="where">En el reproductor</span>
+      <ul>
+        <li>Instala el firmware liberado <code>20XRU-65-0131</code> (versión RU). Es el que permite ejecutar scripts desde la USB (AutoScript). Cambiar el firmware siempre tiene riesgo: hazlo bajo tu responsabilidad y siguiendo las instrucciones de la comunidad del firmware.</li>
+        <li>En <b>Configuración → Red</b>, pon <b>Acceso red BD-Live</b> en <b>Activado</b>. Sin esto, el disco no puede pedir las carátulas.</li>
+        <li>Reserva una IP fija para el reproductor en el router.</li>
+      </ul>
+    </div></li>
+
+    <li><h3>Comparte las películas por NFS</h3><div>
+      <span class="where">En el NAS (Synology)</span>
+      <ul>
+        <li>Activa NFS en <b>Panel de control → Servicios de archivos</b>.</li>
+        <li>En la carpeta compartida (la nuestra es <code>Plex</code>), agrega permisos NFS de lectura para la IP del Chinoppo y la del servidor.</li>
+        <li>Organiza por carpetas, una por sección. Nosotros usamos <code>Library/Movies</code>, <code>Library/ATMOS</code>, <code>Library/3D</code>, <code>Library/CONCIERTOS</code> y <code>Library/SERIES</code>. Las series van como <code>Serie/Season 01/…</code>.</li>
+        <li>Acepta MKV, MP4, M2TS, ISO y carpetas BDMV.</li>
+      </ul>
+    </div></li>
+
+    <li><h3>Instala el servicio en el servidor</h3><div>
+      <span class="where">En el servidor Linux</span>
+      <p>Monta el NAS en el servidor (solo lectura basta):</p>
+<pre><code># /etc/fstab
+192.168.1.17:/volume1/Plex/Library  /mnt/nas/media  nfs  ro,defaults  0 0</code></pre>
+      <p>Clona o descarga este repositorio en el servidor. Luego ajusta tres cosas:</p>
+      <ul>
+        <li><code>.env</code>: además de la clave, pon <code>CHINOPPO_IP</code>, <code>NFS_SERVER</code>, <code>NFS_FOLDER</code> y <code>MEDIA_PATH</code>.</li>
+        <li><code>.env</code>: cópialo de <code>.env.example</code> y pon tu <code>TMDB_API_KEY</code> y tu zona horaria (<code>TZ</code>). No compartas esta clave.</li>
+        
+      </ul>
+<pre><code>cd biblioteca-chinoppo
+docker compose up -d --build</code></pre>
+      <p>Abre <code>http://IP-DEL-SERVIDOR:8095</code> en el navegador. Ahí configuras las carpetas (nombre, ícono, si son películas o series). La primera vez tarda en analizar la colección, porque baja carátulas de TMDb y detecta el formato de cada archivo. Desde esa misma página corriges las películas mal identificadas.</p>
+    </div></li>
+
+    <li><h3>Compila el disco Biblioteca.iso</h3><div>
+      <span class="where">En la PC con Windows</span>
+      <ul>
+        <li>Instala WSL con Ubuntu y, dentro, <b>bdj-sdk</b> en <code>~/bdj/bdj-sdk</code>, siguiendo su README (incluye el JDK que necesita).</li>
+        <li>Edita <code>disc/src/org/biblio/Net.java</code> y cambia la dirección del servicio por la de tu servidor:</li>
+      </ul>
+<pre><code>static final String BASE = "http://192.168.1.201:8095";</code></pre>
+      <p>Desde Git Bash, en la carpeta del proyecto:</p>
+<pre><code>bash disc/build.sh</code></pre>
+      <p>El resultado queda en <code>disc/out/Biblioteca.iso</code>. Si un día cambias la IP del servidor, repite este paso.</p>
+    </div></li>
+
+    <li><h3>Prepara la memoria USB</h3><div>
+      <span class="where">En la PC, luego en el Chinoppo</span>
+      <p>Formatea en FAT32 y deja esto en la raíz:</p>
+<pre><code>Biblioteca.iso          ← el disco del paso 4
+AutoScript/             ← copia de tools/autoscript/AutoScript
+   AutoScript.TSS       (el firmware lo ejecuta al encender)
+   arrancar.sh
+   vigilante.sh         (abre la Biblioteca solo)
+   consola              (lee el registro del menú)
+   ssh.sh, ssh/         (opcional)</code></pre>
+      <ul>
+        <li>En <code>vigilante.sh</code>, función <code>wake()</code>, cambia <code>192.168.1.16</code> por la IP de tu Chinoppo.</li>
+        <li><b>SSH (opcional):</b> pon <em>tu</em> llave pública en <code>AutoScript/ssh/authorized_keys</code>, borrando la que trae, y crea un archivo vacío llamado <code>SSH</code> en la raíz. Solo entra con llave, nunca con contraseña.</li>
+        <li>Para detener el vigilante sin quitar la USB, crea un archivo llamado <code>PARAR</code> en la raíz.</li>
+      </ul>
+      <p>Conecta la USB al Chinoppo y déjala puesta.</p>
+    </div></li>
+
+    <li><h3>Primer encendido</h3><div>
+      <span class="where">Frente a la pantalla</span>
+      <ul>
+        <li>Enciende el Chinoppo. Unos 40 segundos después se abre la Biblioteca sola; la primera vez Java arranca en frío.</li>
+        <li>Si sales al menú, el ícono <b>Disco</b> vuelve a abrirla al instante. También se abre sola al despertar del standby.</li>
+        <li>Si no abre, revisa en la USB los archivos <code>autoscript_ok.txt</code> y <code>vigilante.log</code>.</li>
+      </ul>
+      <div class="keys">
+        <div><kbd>Flechas</kbd>Moverse por el muro</div>
+        <div><kbd>OK</kbd>Ver detalle / reproducir</div>
+        <div><kbd>Colores</kbd>Cambiar de sección</div>
+        <div><kbd>POP-UP</kbd>Menú</div>
+      </div>
+      <p style="color:var(--muted);font-size:.92rem">RETURN, TOP MENU e INFO no le llegan al disco: el reproductor se las queda.</p>
+    </div></li>
+
+    <li><h3>Extras (opcionales)</h3><div>
+      <span class="where">Cuando lo básico ya funcione</span>
+      <ul>
+        <li><b>Artwork Studio</b> (Next.js, puerto 3001): para elegir pósters, subir carátulas propias, pósters por temporada, estuche UHD/Blu-ray y franja de formato. Lo que ahí elijas es lo que aparece en la Biblioteca.</li>
+        <li><b>Barra del menú oscura</b>: cambia la imagen de la barra de íconos del menú principal. Modifica archivos del sistema por SSH y depende del parche de Dolby Vision, así que es lo último que conviene hacer.</li>
+      </ul>
+    </div></li>
+
+    <li><h3>Extra: Dolby Vision en archivos MKV</h3><div>
+      <span class="where">Con una segunda memoria USB</span>
+      <p>De fábrica, el Chinoppo reproduce los MKV con Dolby Vision como HDR10 normal. El parche <b>oppo-dv-mkv</b> de fandangos (<a href="https://github.com/fandangos/oppo-dv-mkv" target="_blank" rel="noopener">github.com/fandangos/oppo-dv-mkv</a>) hace que la TV o el proyector reciban Dolby Vision real. Funciona con los perfiles 5, 7 (FEL y MEL) y 8. Nosotros instalamos la <b>v1.7.0</b>, versión <code>mkv-only</code>, sobre el firmware RU 65-0131. Lo probamos con <i>It: Capítulo 2</i> y <i>Game of Thrones</i>, y en las dos se activó Dolby Vision.</p>
+      <p class="note"><strong>Úsalo bajo tu propio riesgo.</strong> El parche cambia cómo arranca el reproductor. Lee el README del proyecto antes de instalar. Si entras al menú de fábrica, nunca presiones "Fmt buda" ni "Fmt apda", porque formatean la memoria interna.</p>
+      <ol>
+        <li>En la página de <b>Releases</b> del proyecto, baja el zip que quieras. Hay varias versiones:
+          <ul>
+            <li><code>mkv-only</code>: solo el parche de Dolby Vision. Es el que usamos primero.</li>
+            <li><code>mkv-subtitles</code>: además mejora los subtítulos (con suavizado, mejor contorno y tono gris en HDR/DV). <b>Es el que recomendamos.</b> Baja siempre la versión más reciente; la última es la v1.7.1.</li>
+            <li><code>full</code>: además agrega el atajo al menú de fábrica.</li>
+            <li><code>check</code>: solo revisa si tu reproductor es compatible, sin instalar nada.</li>
+          </ul>
+        </li>
+        <li>Usa <b>otra memoria USB en FAT32</b>, no la de la Biblioteca, porque las dos llevan su propia carpeta <code>AutoScript</code>. Copia en la raíz el contenido del zip: la carpeta <code>AutoScript</code> y el <code>README.txt</code>.</li>
+        <li>Apaga el Chinoppo. Quita la USB de la Biblioteca y cualquier otro almacenamiento USB. Conecta la memoria del parche en el <b>puerto USB trasero</b> y enciéndelo.</li>
+        <li>Espera unos 30 segundos con el menú principal en pantalla. Apaga el reproductor y quita la memoria.</li>
+        <li>En la PC, abre <code>oppo-dv-mkv-result.txt</code> en la memoria. La primera línea debe decir <code>INSTALLED</code>. Si dice <code>FAILED</code> o <code>NOTHING TO INSTALL</code>, no se cambió nada; revisa el <code>oppo-dv-mkv.log</code>.</li>
+        <li>Vuelve a conectar la USB de la Biblioteca y enciende. El parche queda activo en cada arranque.</li>
+      </ol>
+      <ul>
+        <li>En la TV o proyector, usa Dolby Vision en modo <b>TV-led</b>, que es el normal. El parche no se probó en modo player-led ni en baja latencia.</li>
+        <li>Para quitarlo, usa el zip <code>uninstall</code> de la misma forma. El log debe terminar en <code>UNINSTALLED</code>.</li>
+        <li>Trae su propio seguro. Si el reproductor no logra arrancar bien dos veces seguidas (más de 90 segundos encendido), se salta el parche un arranque y luego lo vuelve a intentar. Ten en cuenta que el standby de este reproductor es un apagado real, así que dos encendidos y apagados rápidos también cuentan.</li>
+        <li>No requiere cambios en la Biblioteca. La franja de formato ya muestra "DV" cuando el archivo lo trae.</li>
+      </ul>
+    </div></li>
+
+  </ol>
+</section>
+
+<section>
+  <h2>Lo que hay que saber</h2>
+  <dl>
+    <dt>La primera película de una carpeta tarda unos 40 segundos</dt>
+    <dd>El Chinoppo monta la carpeta del NAS antes de reproducir, y solo puede tener una montada a la vez. Las siguientes películas de la misma carpeta arrancan rápido. No se puede montar por adelantado mientras la Biblioteca está abierta; el reproductor lo rechaza.</dd>
+    <dt>El standby apaga de verdad</dt>
+    <dd>Al apagar se corta la corriente de la USB. El vigilante la detecta cuando vuelve y reabre la Biblioteca. Si apagas a media película, el servicio la cierra y regresa a la Biblioteca.</dd>
+    <dt>Un solo "play" a la vez</dt>
+    <dd>Dos órdenes de reproducción al mismo tiempo traban la API del reproductor. Por eso el servicio y el vigilante descartan las pulsaciones repetidas.</dd>
+    <dt>Si cambias de entrada en la TV o proyector y la imagen se ve rara</dt>
+    <dd>Con 3D nos pasó: regresar a la entrada HDMI lo arregló. Es un tema del proyector, no de la Biblioteca.</dd>
+  </dl>
+</section>
+
+<footer>Hecho y probado en casa con los equipos de la tabla. Los números de IP, rutas y carpetas son los de nuestra red: cámbialos por los tuyos.</footer>
+</div>
+
+</body></html>

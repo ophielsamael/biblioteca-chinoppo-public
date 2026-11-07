@@ -1,0 +1,24 @@
+# Biblioteca Chinoppo — interfaz de pósters para el Chinoppo (puerto 8095)
+# Configura .env (copia de .env.example) y luego:  docker compose up -d --build
+services:
+  biblioteca:
+    build: .
+    image: biblioteca-chinoppo:latest
+    container_name: biblioteca-chinoppo
+    network_mode: host          # habla UDP/HTTP con el Chinoppo y el disco BD-J llega por la LAN
+    env_file: .env              # TMDB_API_KEY, IPs, TZ (ignorado por git)
+    volumes:
+      - biblioteca_data:/app/data
+      # donde el servidor monta el NAS (MEDIA_PATH en .env); solo lectura: el servicio no escribe en el NAS
+      - ${MEDIA_PATH:-/mnt/nas/media}:/media/Plex:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8095/d/folders')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  biblioteca_data:
+    name: biblioteca_data

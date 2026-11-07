@@ -1,0 +1,24 @@
+#!/bin/sh
+# Biblioteca theme: dark home icon bar and slate focus tiles. Installed as /mnt/ubi_boot/bdpprog.prev; the oppo-dv-mkv boot wrapper
+# (/mnt/ubi_boot/bdpprog) runs it in place of the player, after it has turned /res into a directory of symlinks.
+# The player mmaps /res/image_mediacenter.bin at start, so the swap must happen here, before bdpprog.1 runs.
+# Fail-safes (each one leaves the stock bar):
+#  - the file's md5 does not match, or /res is still the stock symlink (DV patches skipped)
+#  - $T/off exists: the manual off switch
+#  - 2 boots in a row that never lasted 90 s -> stock bar for one boot, then it is tried again
+#    (standby is a real power-off on this player, so two quick on/offs must not disable it for good;
+#    a theme that crashed the player is caught anyway: the DV wrapper then boots without /res links)
+T=/mnt/ubi_boot/tema
+F=$T/image_mediacenter.bin
+MD5=f60294e1245e98a45bef398f6d539739
+N=$(cat $T/bootcount 2>/dev/null); N=${N:-0}
+case "$N" in *[!0-9]*) N=9;; esac
+if [ "$N" -ge 2 ]; then
+  rm -f $T/bootcount
+  echo "$(date) 2 short boots -> stock bar for this boot" >> $T/tema.log; sync
+elif [ ! -e $T/off ] && [ -d /res ] && [ ! -L /res ] && [ "$(md5sum $F 2>/dev/null | cut -d' ' -f1)" = $MD5 ]; then
+  echo $((N+1)) > $T/bootcount; sync
+  ln -sf $F /res/image_mediacenter.bin
+  (sleep 90; rm -f $T/bootcount; sync) &
+fi
+exec /usr/local/bin/bdpprog.1 "$@"
