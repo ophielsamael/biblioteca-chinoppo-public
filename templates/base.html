@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biblioteca Chinoppo</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: system-ui, sans-serif; background: #0b0b10; color: #eee; margin: 0; padding: 16px; max-width: 900px; margin-inline: auto; }
+  .hint { background: #2a2214; border: 1px solid #c47a00; padding: 10px 12px; border-radius: 8px; margin-bottom: 18px; }
+  table { width: 100%; border-collapse: collapse; }
+  td, th { padding: 8px 6px; border-bottom: 1px solid #222; text-align: left; vertical-align: middle; }
+  img.icon { width: 40px; height: 40px; background: #1d1d24; border-radius: 8px; }
+  input, select, button { background: #1d1d24; color: #eee; border: 1px solid #333; border-radius: 6px; padding: 6px 8px; font: inherit; }
+  button { cursor: pointer; }
+  form.inline { display: inline; }
+  fieldset { border: 1px solid #333; border-radius: 8px; margin-top: 20px; }
+  .gallery label { display: inline-flex; flex-direction: column; align-items: center; margin: 4px; font-size: 12px; }
+  .gallery img { width: 36px; height: 36px; background: #1d1d24; border-radius: 6px; padding: 4px; }
+</style>
+</head>
+<body>
+<h1>Biblioteca Chinoppo</h1>
+<div class="hint">Para usar la Biblioteca activa en el Chinoppo: <b>Setup → Red → Acceso red BD-Live = Activado</b>.</div>
+{% block content %}{% endblock %}
+</body>
+</html>

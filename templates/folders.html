@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="post" action="/settings">
+  <label><input type="checkbox" name="autoopen" value="1" {% if autoopen %}checked{% endif %} onchange="this.form.submit()">
+    Abrir la Biblioteca al encender el Chinoppo</label>
+</form>
+<h2>Carpetas del menú</h2>
+<table>
+  <tr><th></th><th>Nombre</th><th>Ruta</th><th>Tipo</th><th>Orden</th><th>Títulos</th><th></th></tr>
+  {% for f, n in folders %}
+  <tr>
+    <td><img class="icon" src="/d/img/icon?folder={{ f.id }}" alt=""></td>
+    <td>{{ f.name }}</td><td>{{ f.path }}</td>
+    <td>{{ "Películas" if f.kind == "movies" else "Series" }}</td><td>{{ f.order }}</td><td>{{ n }}</td>
+    <td><form class="inline" method="post" action="/folders/{{ f.id }}/delete"
+              onsubmit="return confirm('¿Quitar {{ f.name }} del menú? No se borra nada del NAS.')">
+        <button>Quitar</button></form></td>
+  </tr>
+  {% endfor %}
+</table>
+<form method="post" action="/rescan" style="margin-top:12px"><button>Re-escanear el NAS</button></form>
+
+<fieldset>
+  <legend>Añadir o editar carpeta (mismo id = editar)</legend>
+  <form method="post" action="/folders" enctype="multipart/form-data">
+    <p><label>Id <input name="id" required pattern="[a-z0-9_-]{1,32}" placeholder="atmos"></label>
+       <label>Nombre <input name="name" required placeholder="ATMOS"></label></p>
+    <p><label>Ruta en el NAS (dentro de Plex) <input name="path" id="path" required placeholder="Library/ATMOS" size="30"></label>
+       <button type="button" onclick="pick.open()">Elegir…</button></p>
+    <div id="picker" class="picker" hidden>
+      <div class="picker-bar"><button type="button" id="picker-up">⬆ Subir</button> <b id="picker-where"></b>
+        <button type="button" id="picker-use">Usar esta carpeta</button> <button type="button" onclick="pick.close()">Cerrar</button></div>
+      <ul id="picker-list"></ul>
+    </div>
+    <p><label>Tipo <select name="kind"><option value="movies">Películas</option><option value="series">Series</option></select></label>
+       <label>Orden <input name="order" type="number" value="{{ folders|length }}" style="width:5em"></label></p>
+    <p>Icono:</p>
+    <div class="gallery">
+      {% for g in gallery %}
+      <label><img src="/static/icons/{{ g }}" alt=""><input type="radio" name="icon" value="{{ g }}" {% if loop.first %}checked{% endif %}>{{ g[:-4] }}</label>
+      {% endfor %}
+    </div>
+    <p><label>…o sube uno propio (PNG/JPG) <input type="file" name="icon_upload" accept="image/png,image/jpeg"></label></p>
+    <button>Guardar</button>
+  </form>
+</fieldset>
+<style>
+  .picker { border: 1px solid #333; border-radius: 8px; padding: 8px; margin: 8px 0; background: #121218; }
+  .picker-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+  .picker ul { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow-y: auto; }
+  .picker li { padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+  .picker li:hover { background: #1d1d24; }
+  .picker li::before { content: "📁 "; }
+</style>
+<script>
+// Folder picker for "Ruta en el NAS": walks the NAS through /browse, one level at a time.
+const pick = {
+  where: "",
+  async go(path, quiet) {
+    const r = await fetch("/browse?path=" + encodeURIComponent(path));
+    if (!r.ok) { if (!quiet) alert("No se puede abrir esa carpeta"); return false; }
+    const d = await r.json();
+    pick.where = d.path;
+    document.getElementById("picker-where").textContent = "Plex/" + d.path;
+    const ul = document.getElementById("picker-list");
+    ul.replaceChildren(...d.dirs.map(name => {
+      const li = document.createElement("li");
+      li.textContent = name;
+      li.onclick = () => pick.go(d.path ? d.path + "/" + name : name);
+      return li;
+    }));
+    if (!d.dirs.length) ul.innerHTML = "<li style='opacity:.6'>(sin subcarpetas)</li>";
+    return true;
+  },
+  open() {
+    document.getElementById("picker").hidden = false;
+    const cur = document.getElementById("path").value.trim().replace(/^\/+|\/+$/g, "");
+    pick.go(cur, true).then(ok => ok || pick.go(""));   // the typed path, else the NAS root
+  },
+  close() { document.getElementById("picker").hidden = true; },
+};
+document.getElementById("picker-up").onclick = () => pick.go(pick.where.split("/").slice(0, -1).join("/"));
+document.getElementById("picker-use").onclick = () => {
+  if (!pick.where) return;
+  const f = document.forms[document.forms.length - 1];
+  f.path.value = pick.where;
+  const last = pick.where.split("/").pop();
+  if (!f.name.value) f.name.value = last;    // fill the empty fields from the folder name
+  if (!f.id.value) f.id.value = last.toLowerCase().normalize("NFD").replace(/[^a-z0-9_-]+/g, "").slice(0, 32);
+  pick.close();
+};
+</script>
+{% endblock %}

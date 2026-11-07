@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+data/
+.venv/
+disc/out/
+.superpowers/
+.pytest_cache/
+tools/autoscript/AutoScript/ssh/hostkey
+tools/autoscript/AutoScript/ssh/authorized_keys
+tools/autoscript/AutoScript/ssh/dropbear
+tools/autoscript/AutoScript/ssh/dropbearkey
+tools/autoscript/AutoScript/consola
