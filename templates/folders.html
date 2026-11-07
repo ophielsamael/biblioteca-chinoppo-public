@@ -1,9 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
+{% if no_key %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ Falta tu clave de TMDb: sin ella no hay carátulas.
+  Ponla en <b>TMDB_API_KEY</b> del compose.yaml y vuelve a crear el proyecto.</p>{% endif %}
+{% if no_media %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ No veo ninguna carpeta de tu NAS.
+  Revisa la línea de <b>volumes</b> del compose.yaml (<code>/volume1/TU_CARPETA:/media/Plex:ro</code>).</p>{% endif %}
 <form method="post" action="/settings">
   <label><input type="checkbox" name="autoopen" value="1" {% if autoopen %}checked{% endif %} onchange="this.form.submit()">
     Abrir la Biblioteca al encender el Chinoppo</label>
 </form>
+<h2>Archivos para la memoria USB</h2>
+<p>Descarga el ZIP, descomprímelo y copia su contenido (<code>Biblioteca.iso</code> y la carpeta <code>AutoScript</code>)
+  a la raíz de una memoria USB en FAT32. Ya va configurado con este servidor (<code>{{ service_url }}</code>) y
+  con tu Chinoppo (<code>{{ chinoppo_ip }}</code>). Si cambias alguna de esas IPs, vuelve a descargarlo.</p>
+<p><a href="/usb.zip" style="display:inline-block;background:#2b5cd6;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">Descargar archivos para la USB</a></p>
+
 <h2>Carpetas del menú</h2>
 <table>
   <tr><th></th><th>Nombre</th><th>Ruta</th><th>Tipo</th><th>Orden</th><th>Títulos</th><th></th></tr>

@@ -23,5 +23,7 @@ COPY --chown=biblio:biblio app.py ./
 COPY --chown=biblio:biblio biblio ./biblio
 COPY --chown=biblio:biblio templates ./templates
 COPY --chown=biblio:biblio static ./static
+# the files of the USB ZIP (biblio/usbpack.py)
+COPY --chown=biblio:biblio tools/autoscript/AutoScript ./tools/autoscript/AutoScript
 USER biblio
 CMD ["python", "app.py"]

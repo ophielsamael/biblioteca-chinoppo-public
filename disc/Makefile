@@ -17,7 +17,8 @@ JFLAGS    := -Xlint:-options -source 1.3 -target 1.3 -encoding UTF-8
 TMPL_DIRS  := $(shell find $(BDJSDK_HOME)/resources/AVCHD/ -type d)
 TMPL_FILES := $(shell find $(BDJSDK_HOME)/resources/AVCHD/ -type f)
 DISC_DIRS  := $(patsubst $(BDJSDK_HOME)/resources/AVCHD%,discdir%,$(TMPL_DIRS)) discdir/BDMV/JAR
-DISC_FILES := $(patsubst $(BDJSDK_HOME)/resources/AVCHD%,discdir%,$(TMPL_FILES)) discdir/BDMV/JAR/00000.jar
+DISC_FILES := $(patsubst $(BDJSDK_HOME)/resources/AVCHD%,discdir%,$(TMPL_FILES)) discdir/BDMV/JAR/00000.jar \
+              discdir/BIBLIO.TXT discdir/BDMV/JAR/BIBLIO.TXT
 
 all: $(DISC_LABEL).iso
 
@@ -36,6 +37,11 @@ discdir/BDMV/JAR/00000.jar: discdir $(SOURCES)
 	cp src/org/homebrew/bluray.MyXlet.perm classes/org/homebrew/
 	$(JAR) cf $@ -C classes .
 	$(BDSIGNER) -keystore $(BDJSDK_HOME)/resources/sig.ks $@
+
+# Service address placeholder: the service overwrites it inside the ISO (biblio/usbpack.py).
+# 4 KB so UDF stores it as a normal extent, not inside the (checksummed) file entry.
+discdir/BIBLIO.TXT discdir/BDMV/JAR/BIBLIO.TXT: discdir
+	{ printf 'BIBLIO_URL=http://0.0.0.0:8095\n'; head -c 4064 /dev/zero | tr '\0' ' '; } > $@
 
 discdir/%: discdir
 	cp $(BDJSDK_HOME)/resources/AVCHD/$* $@

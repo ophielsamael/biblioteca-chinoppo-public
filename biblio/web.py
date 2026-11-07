@@ -5,7 +5,7 @@ from pathlib import Path
 from flask import Blueprint, Response, abort, current_app, redirect, render_template, request
 from PIL import Image, ImageOps
 
-from biblio import formats, images
+from biblio import formats, images, usbpack
 from biblio.config import Folder, load_folders, save_folders
 
 web_bp = Blueprint("web", __name__)
@@ -19,7 +19,31 @@ def index():
     folders = [(f, cat.count(f.id)) for f in load_folders(s.data_dir)]
     gallery = sorted(p.name for p in STATIC_ICONS.glob("*.png"))
     return render_template("folders.html", folders=folders, gallery=gallery,
-                           autoopen=cat.get_state("autoopen") != "0")
+                           autoopen=cat.get_state("autoopen") != "0",
+                           service_url=_service_url(), chinoppo_ip=s.chinoppo_ip,
+                           no_key=not s.tmdb_key, no_media=not (Path(s.media_root).is_dir() and any(Path(s.media_root).iterdir())))
+
+
+def _service_url() -> str:
+    """This service as the player must reach it: the host the browser used, as an IP."""
+    import socket
+    host = request.host.rsplit(":", 1)[0].strip("[]")
+    try:
+        host = socket.gethostbyname(host)
+    except OSError:
+        pass
+    return f"http://{host}:{current_app.config['SETTINGS'].port}"
+
+
+@web_bp.get("/usb.zip")
+def usb_zip():
+    s = current_app.config["SETTINGS"]
+    url = _service_url()
+    if url.split("//")[1].startswith("127."):
+        abort(400, "Abre esta página con la IP del servidor (no localhost) y vuelve a descargar.")
+    data = usbpack.build_zip(url, s.chinoppo_ip)
+    return Response(data, mimetype="application/zip",
+                    headers={"Content-Disposition": "attachment; filename=Biblioteca-USB.zip"})
 
 
 @web_bp.post("/settings")

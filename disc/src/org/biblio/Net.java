@@ -1,16 +1,52 @@
 package org.biblio;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
 /** HTTP GET to the homelab service. Needs "Acceso red BD-Live" = Activado on the Chinoppo. */
 public final class Net {
-    /** EDIT THIS: the address of the server running the Biblioteca service (port 8095). */
-    public static final String BASE = "http://192.168.1.201:8095";
+    /** The service address, from BIBLIO.TXT on this disc ("BIBLIO_URL=http://ip:8095"). The service
+     *  writes it into the ISO when you download the USB files from its web page, so the same disc
+     *  works for everyone. The file is padded past 2 KB so UDF keeps it out of the file entry. */
+    public static final String BASE = load();
+    static String where = "?";
 
     private Net() {}
+
+    private static String load() {
+        String root = System.getProperty("bluray.vfs.root");
+        String[] paths = { root + "/BIBLIO.TXT", root + "/BDMV/JAR/BIBLIO.TXT", "BIBLIO.TXT" };
+        for (int i = 0; i < paths.length; i++) {
+            FileInputStream in = null;
+            try {
+                in = new FileInputStream(paths[i]);
+                byte[] buf = new byte[256];
+                int n = in.read(buf);
+                String s = n > 0 ? new String(buf, 0, n, "US-ASCII") : "";
+                int k = s.indexOf("BIBLIO_URL=");
+                if (k >= 0) {
+                    String url = s.substring(k + 11).trim();
+                    int nl = url.indexOf('\n');
+                    if (nl >= 0) url = url.substring(0, nl).trim();
+                    if (url.startsWith("http://") && url.indexOf("0.0.0.0") < 0) {
+                        where = paths[i];
+                        return url;
+                    }
+                    where = "sin configurar";
+                    return "";
+                }
+            } catch (Throwable ignored) {
+                // next candidate
+            } finally {
+                if (in != null) try { in.close(); } catch (IOException ignored) {}
+            }
+        }
+        where = "no encontrado (" + root + ")";
+        return "";
+    }
 
     public static byte[] bytes(String path) throws IOException {
         InputStream in = null;
@@ -49,6 +85,9 @@ public final class Net {
     public static String message(IOException e) {
         if ("BDLIVE".equals(e.getMessage())) {
             return "Activa BD-Live: Setup > Red > Acceso red BD-Live = Activado";
+        }
+        if (BASE.length() == 0) {
+            return "Disco sin servidor (" + where + "): descargalo desde la pagina :8095";
         }
         return "Sin conexion con el servidor (" + BASE + ")";
     }

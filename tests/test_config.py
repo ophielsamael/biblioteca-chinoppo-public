@@ -11,6 +11,7 @@ def test_network_from_env():
     s = load_settings({"CHINOPPO_IP": "10.0.0.5", "NFS_SERVER": "10.0.0.9", "NFS_FOLDER": "volume2/Video"})
     assert (s.chinoppo_ip, s.nfs_server, s.nfs_folder) == ("10.0.0.5", "10.0.0.9", "volume2/Video")
     assert load_settings({}).chinoppo_ip == "192.168.1.16"
+    assert load_settings({"TMDB_API_KEY": "pon_aqui_tu_clave_de_tmdb"}).tmdb_key == ""
 
 
 def test_roundtrip(tmp_path):
