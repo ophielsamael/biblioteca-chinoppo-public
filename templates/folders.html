@@ -2,8 +2,10 @@
 {% block content %}
 {% if no_key %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ Falta tu clave de TMDb: sin ella no hay carátulas.
   Ponla en <b>TMDB_API_KEY</b> del compose.yaml y vuelve a iniciar la aplicación.</p>{% endif %}
-{% if no_media %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ No veo ninguna carpeta de tu NAS.
+{% if media_problem == "empty" %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ No veo ninguna carpeta de tu NAS.
   Revisa la línea de <b>volumes</b> del compose.yaml (<code>RUTA_DE_TU_CARPETA:/media/Plex:ro</code>).</p>{% endif %}
+{% if media_problem == "forbidden" %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ El NAS no me deja leer tu carpeta.
+  En el compose.yaml debe estar la línea <code>user: "0:0"</code> (debajo de <code>network_mode: host</code>). Agrégala y vuelve a iniciar la aplicación.</p>{% endif %}
 <form method="post" action="/settings">
   <label><input type="checkbox" name="autoopen" value="1" {% if autoopen %}checked{% endif %} onchange="this.form.submit()">
     Abrir la Biblioteca al encender el Chinoppo</label>
