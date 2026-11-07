@@ -153,7 +153,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       </ul>
 <pre><code>cd biblioteca-chinoppo
 docker compose up -d --build</code></pre>
-      <p>Abre <code>http://IP-DEL-SERVIDOR:8095</code> en el navegador. Ahí configuras las carpetas (nombre, ícono, si son películas o series). La primera vez tarda en analizar la colección, porque baja carátulas de TMDb y detecta el formato de cada archivo. Desde esa misma página corriges las películas mal identificadas.</p>
+      <p><b>La página de configuración la sirve el propio servicio.</b> En cuanto el contenedor arranca, abre en el navegador de cualquier PC o celular de tu red <code>http://IP-DEL-SERVIDOR:8095</code>, donde <code>IP-DEL-SERVIDOR</code> es la IP de la máquina donde corriste <code>docker compose</code> (por ejemplo <code>http://192.168.1.201:8095</code>). Ahí:</p><ul><li>Quita las carpetas de ejemplo que no tengas (3D, ATMOS, Conciertos, Movies, Series) y agrega las tuyas: nombre, ruta en el NAS (con el botón <b>Elegir…</b> navegas las carpetas), tipo e ícono.</li><li><b>Re-escanear el NAS</b> busca archivos nuevos.</li><li>En <code>/match</code> corriges una película mal reconocida.</li></ul><p>La primera vez tarda en analizar la colección, porque baja carátulas de TMDb y detecta el formato de cada archivo. Si la página no abre, revisa con <code>docker compose logs -f</code> que el contenedor esté corriendo.</p>
     </div></li>
 
     <li><h3>Compila el disco Biblioteca.iso</h3><div>

@@ -50,7 +50,13 @@ Luego:
 cp .env.example .env      # pon tu clave de TMDb, las IPs y MEDIA_PATH
 docker compose up -d --build
 ```
-Abre `http://IP-DEL-SERVIDOR:8095`, configura las secciones y espera el primer análisis.
+**La página de configuración la sirve el propio servicio.** En cuanto el contenedor arranca, abre en el navegador de cualquier PC o celular de tu red `http://IP-DEL-SERVIDOR:8095`, donde `IP-DEL-SERVIDOR` es la IP de la máquina donde corriste `docker compose`. Por ejemplo, `http://192.168.1.201:8095`. Ahí puedes:
+
+- **Carpetas del menú:** vienen unas de ejemplo (3D, ATMOS, Conciertos, Movies, Series). Quita las que no tengas con **Quitar**. Agrega las tuyas con el formulario: nombre, ruta dentro del NAS (el botón **Elegir…** te deja navegar las carpetas), tipo (películas o series) e ícono.
+- **Re-escanear el NAS:** vuelve a buscar archivos nuevos.
+- **Corregir identificaciones:** desde `/match` cambias una película mal reconocida.
+
+La primera vez el servicio tarda en analizar la colección, porque baja carátulas de TMDb y detecta el formato de cada archivo. Si la página no abre, revisa con `docker compose logs -f` que el contenedor esté corriendo.
 
 ### 4. Disco
 - Instala **bdj-sdk** en WSL Ubuntu, en `~/bdj/bdj-sdk`. Se probó con el commit `9c48049`.
