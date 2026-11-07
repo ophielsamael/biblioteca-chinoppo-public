@@ -6,12 +6,13 @@ services:
     image: biblioteca-chinoppo:latest
     container_name: biblioteca-chinoppo
     network_mode: host          # habla con el Chinoppo por la red de casa
+    user: "0:0"                 # para poder leer tus carpetas con los permisos del NAS (solo lectura, ver volumes)
     environment:
       TMDB_API_KEY: "pon_aqui_tu_clave_de_tmdb"   # <-- tu clave de TMDb (la "Clave de la API")
       CHINOPPO_IP: "192.168.1.16"                  # <-- IP de tu Chinoppo
       NFS_SERVER: "192.168.1.17"                   # <-- IP de tu NAS
       NFS_FOLDER: "volume1/Plex"                   # <-- la carpeta como la ves en el Chinoppo (Red > NFS), sin la / del inicio
-      TZ: "America/Mexico_City"                    # <-- tu zona horaria
+      TZ: "America/Mexico_City"                    # <-- tu zona horaria: Europe/Madrid, Europe/Rome, America/Bogota...
     volumes:
       - biblioteca_data:/app/data
       # La misma carpeta, como la ve el NAS, en solo lectura (el servicio nunca escribe en ella).

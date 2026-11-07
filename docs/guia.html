@@ -156,7 +156,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       <span class="where">En el Chinoppo y en la página de administración de tu NAS</span>
       <ul>
         <li><b>IP del NAS:</b> es la dirección con la que entras a administrarlo desde el navegador (por ejemplo <code>192.168.1.17</code>). Anótala.</li>
-        <li><b>La carpeta, como la ve el Chinoppo:</b> en el Chinoppo entra a <b class="ui">Red → NFS</b> y elige tu NAS. Anota el nombre de la carpeta donde están tus películas tal como aparece, por ejemplo <code>/volume1/Plex</code> o <code>/share/Peliculas</code>. Respeta mayúsculas.</li>
+        <li><b>La carpeta, como la ve el Chinoppo:</b> en el Chinoppo entra a <b class="ui">Red → NFS</b> y elige tu NAS. Anota la carpeta <b>compartida</b> que aparece ahí, la de primer nivel, por ejemplo <code>/volume1/Plex</code> o <code>/share/Peliculas</code>. Respeta mayúsculas. Si tus películas están más adentro (como <code>Plex/Library/Movies</code>), no importa: esas subcarpetas las eliges después, en el paso 7.</li>
         <li><b>La misma carpeta, como la ve el NAS:</b> casi siempre es igual a la anterior. Si no estás seguro, búscala en el administrador de archivos del NAS. Ejemplos comunes:
           <div class="tbl" style="margin-top:6px"><table>
             <thead><tr><th>NAS</th><th>Ruta de una carpeta llamada “Plex”</th></tr></thead>
@@ -198,7 +198,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
 CHINOPPO_IP: "<b>IP del Chinoppo</b>"
 NFS_SERVER: "<b>IP del NAS</b>"
 NFS_FOLDER: "<b>volume1/Plex</b>"        ← carpeta como la ve el Chinoppo, SIN la / del inicio
-TZ: "America/Mexico_City"
+TZ: "<b>America/Mexico_City</b>"         ← tu zona: Europe/Madrid, Europe/Rome, America/Bogota…
 ...
 - <b>/volume1/Plex</b>:/media/Plex:ro    ← carpeta como la ve el NAS; deja igual lo de :/media/Plex:ro</code></pre>
           Deja las comillas.</li>

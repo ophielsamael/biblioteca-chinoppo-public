@@ -21,7 +21,17 @@ def index():
     return render_template("folders.html", folders=folders, gallery=gallery,
                            autoopen=cat.get_state("autoopen") != "0",
                            service_url=_service_url(), chinoppo_ip=s.chinoppo_ip,
-                           no_key=not s.tmdb_key, no_media=not (Path(s.media_root).is_dir() and any(Path(s.media_root).iterdir())))
+                           no_key=not s.tmdb_key, media_problem=_media_problem(Path(s.media_root)))
+
+
+def _media_problem(root: Path) -> str:
+    """'' when the NAS folder is readable, else what the page should warn about."""
+    try:
+        return "" if any(root.iterdir()) else "empty"
+    except PermissionError:
+        return "forbidden"
+    except OSError:
+        return "empty"
 
 
 def _service_url() -> str:
