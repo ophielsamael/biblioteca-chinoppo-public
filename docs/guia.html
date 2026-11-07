@@ -93,7 +93,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
 <header style="display:flex;flex-direction:column;gap:14px">
   <span class="eyebrow">Guía paso a paso · Chinoppo M9201</span>
   <h1>Biblioteca Chinoppo</h1>
-  <p class="lede">Hoy, para ver una película, entras a <b>Red</b> en el Chinoppo y buscas la carpeta. Con esta guía, al encenderlo te aparece un muro de carátulas, como en los reproductores R_volution: eliges con el control y empieza la película. No hace falta saber programar ni usar la terminal.</p>
+  <p class="lede">Hoy, para ver una película, entras a <b>Red</b> en el Chinoppo y buscas la carpeta en tu NAS. Con esta guía, al encenderlo te aparece un muro de carátulas, como en los reproductores R_volution: eliges con el control y empieza la película. No hace falta saber programar ni usar la terminal.</p>
 </header>
 
 <section>
@@ -114,18 +114,19 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
     <thead><tr><th>Qué</th><th>Detalle</th><th></th></tr></thead>
     <tbody>
       <tr><td>Chinoppo M9201</td><td>Con el firmware liberado <code>RU 20XRU-65-0131</code>. Es el que permite que la Biblioteca se abra sola al encender.</td><td><span class="tag">Necesario</span></td></tr>
-      <tr><td>NAS Synology</td><td>Con DSM 7.2 o más nuevo y donde se pueda instalar <b>Container Manager</b> (los modelos “+” sí; si no aparece en el Centro de paquetes, tu modelo no lo soporta).</td><td><span class="tag">Necesario</span></td></tr>
+      <tr><td>NAS</td><td>El que ya usas con el Chinoppo, con <b>NFS</b> y con una app para correr <b>Docker</b>. Por ejemplo: Container Manager en Synology, Container Station en QNAP, Docker en Unraid, Apps en TrueNAS o Portainer en Asustor. Si tu NAS no tiene ninguna, mira “Avanzado”.</td><td><span class="tag">Necesario</span></td></tr>
       <tr><td>Memoria USB</td><td>Cualquiera de 1 GB o más, formateada en FAT32. Se queda conectada al Chinoppo.</td><td><span class="tag">Necesario</span></td></tr>
       <tr><td>Una PC o laptop</td><td>Solo para abrir páginas en el navegador y copiar archivos a la USB.</td><td><span class="tag">Necesario</span></td></tr>
       <tr><td>Cuenta en TMDb</td><td>Gratis. De ahí salen las carátulas y sinopsis.</td><td><span class="tag">Necesario</span></td></tr>
     </tbody>
   </table></div>
-  <p>Ten a mano papel; vas a anotar cuatro datos en los primeros pasos:</p>
+  <p>Ten a mano papel; vas a anotar cinco datos en los primeros pasos:</p>
   <div class="notes">
     <div><span>IP del Chinoppo</span><i></i></div>
     <div><span>IP del NAS</span><i></i></div>
     <div><span>Clave de TMDb</span><i></i></div>
-    <div><span>Carpeta compartida de películas</span><i></i></div>
+    <div><span>Carpeta como la ve el Chinoppo (NFS)</span><i></i></div>
+    <div><span>Carpeta como la ve el NAS</span><i></i></div>
   </div>
 </section>
 
@@ -151,56 +152,59 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       </ol>
     </div></li>
 
-    <li><h3>Revisa el NAS: IP, carpeta y NFS</h3><div>
-      <span class="where">En la PC, entrando al DSM de tu Synology</span>
+    <li><h3>Anota los datos de tu NAS</h3><div>
+      <span class="where">En el Chinoppo y en la página de administración de tu NAS</span>
       <ul>
-        <li><b>IP del NAS:</b> es la dirección con la que entras al DSM (por ejemplo <code>192.168.1.17</code>). Anótala.</li>
-        <li><b>Carpeta compartida:</b> en <b class="ui">File Station</b>, mira cómo se llama la carpeta principal donde están tus películas (por ejemplo <code>Plex</code> o <code>video</code>). Anótala tal cual, respetando mayúsculas.</li>
-        <li><b>NFS:</b> si en el Chinoppo ya entras a tus películas por <b class="ui">Red → NFS</b>, esto ya está listo y puedes saltar al paso 4. Si entras por SMB/Samba, activa NFS:
-          <ol>
-            <li><b class="ui">Panel de control → Servicios de archivos → NFS</b>: marca <b class="ui">Habilitar servicio NFS</b> y aplica.</li>
-            <li><b class="ui">Panel de control → Carpeta compartida</b>: elige tu carpeta → <b class="ui">Editar → Permisos NFS → Crear</b>.</li>
-            <li>En <b>Nombre de host o IP</b> pon la IP del Chinoppo. Privilegio: <b>Lectura/Escritura</b>. Squash: <b>Asignar todos los usuarios a admin</b>. Marca <b>Permitir conexiones desde puertos no privilegiados</b>. Guarda.</li>
-          </ol>
+        <li><b>IP del NAS:</b> es la dirección con la que entras a administrarlo desde el navegador (por ejemplo <code>192.168.1.17</code>). Anótala.</li>
+        <li><b>La carpeta, como la ve el Chinoppo:</b> en el Chinoppo entra a <b class="ui">Red → NFS</b> y elige tu NAS. Anota el nombre de la carpeta donde están tus películas tal como aparece, por ejemplo <code>/volume1/Plex</code> o <code>/share/Peliculas</code>. Respeta mayúsculas.</li>
+        <li><b>La misma carpeta, como la ve el NAS:</b> casi siempre es igual a la anterior. Si no estás seguro, búscala en el administrador de archivos del NAS. Ejemplos comunes:
+          <div class="tbl" style="margin-top:6px"><table>
+            <thead><tr><th>NAS</th><th>Ruta de una carpeta llamada “Plex”</th></tr></thead>
+            <tbody>
+              <tr><td>Synology</td><td><code>/volume1/Plex</code></td></tr>
+              <tr><td>QNAP</td><td><code>/share/Plex</code></td></tr>
+              <tr><td>Unraid</td><td><code>/mnt/user/Plex</code></td></tr>
+              <tr><td>TrueNAS</td><td><code>/mnt/NombreDelPool/Plex</code></td></tr>
+            </tbody>
+          </table></div>
         </li>
       </ul>
+      <p class="note"><strong>¿No ves tu NAS en Red → NFS?</strong> Hoy entras por SMB/Samba, y la Biblioteca necesita NFS. En la configuración de tu NAS, activa el servicio <b>NFS</b> y dale permiso a esa carpeta para la IP del Chinoppo (lectura basta). Si te pregunta por “squash”, elige que todos los usuarios se asignen a admin. Si hay una opción de “puertos no privilegiados”, márcala. Luego vuelve a mirar en el Chinoppo.</p>
     </div></li>
 
-    <li><h3>Instala Container Manager</h3><div>
-      <span class="where">En el DSM</span>
-      <ol>
-        <li>Abre el <b class="ui">Centro de paquetes</b>, busca <b>Container Manager</b> e instálalo.</li>
-        <li>Al instalarlo se crea una carpeta compartida llamada <code>docker</code>. Ahí va a vivir el programa.</li>
-      </ol>
+    <li><h3>Instala la app de Docker en el NAS</h3><div>
+      <span class="where">En la página de administración de tu NAS</span>
+      <ul>
+        <li>Instala la app que use tu NAS para Docker desde su tienda de apps: <b>Container Manager</b> (Synology), <b>Container Station</b> (QNAP), <b>Portainer</b> (Asustor y otros). En Unraid y TrueNAS ya viene.</li>
+        <li>Busca dentro de ella la opción para crear una aplicación a partir de un archivo <b>docker-compose</b>. Según la marca se llama <b>Proyecto</b> (Synology), <b>Aplicación</b> (QNAP), <b>Stack</b> (Portainer) o <b>Compose</b>.</li>
+      </ul>
     </div></li>
 
     <li><h3>Descarga el programa y súbelo al NAS</h3><div>
       <span class="where">En la PC</span>
       <ol>
         <li>Abre <a href="https://github.com/ophielsamael/biblioteca-chinoppo-public" target="_blank" rel="noopener">github.com/ophielsamael/biblioteca-chinoppo-public</a>, da clic en el botón verde <b class="ui">Code</b> y luego en <b class="ui">Download ZIP</b>.</li>
-        <li>En el DSM abre <b class="ui">File Station</b> y entra a la carpeta <code>docker</code>.</li>
-        <li>Sube ahí el ZIP (<b class="ui">Cargar</b>).</li>
-        <li>Clic derecho sobre el ZIP → <b class="ui">Extraer → Extraer aquí</b>. Te queda una carpeta <code>biblioteca-chinoppo-public-main</code>. Ahí adentro está todo.</li>
+        <li>Con el administrador de archivos del NAS, sube el ZIP a una carpeta para tus apps (en Synology se crea sola una llamada <code>docker</code>).</li>
+        <li>Descomprímelo ahí mismo (clic derecho → <b class="ui">Extraer</b>). Te queda una carpeta <code>biblioteca-chinoppo-public-main</code> con todo adentro, incluido el archivo <code>compose.yaml</code>.</li>
       </ol>
     </div></li>
 
-    <li><h3>Crea el proyecto con tus datos</h3><div>
-      <span class="where">En Container Manager</span>
+    <li><h3>Crea la aplicación con tus datos</h3><div>
+      <span class="where">En la app de Docker del NAS</span>
       <ol>
-        <li>Container Manager → <b class="ui">Proyecto</b> → <b class="ui">Crear</b>.</li>
-        <li>Nombre del proyecto: <code>biblioteca</code>. En <b>Ruta</b> elige <code>docker/biblioteca-chinoppo-public-main</code>. Te avisa que ya hay un <code>compose.yaml</code>: elige <b>usar el existente</b>.</li>
-        <li>Te muestra el texto del <code>compose.yaml</code>. <b>Cambia solo las líneas que terminan con <code>&lt;--</code></b>, con los datos que anotaste:
+        <li>Crea un proyecto o stack nuevo llamado <code>biblioteca</code> y apúntalo a la carpeta <code>biblioteca-chinoppo-public-main</code>. Si tu app no deja elegir carpeta, pega el contenido de <code>compose.yaml</code> en el editor que te muestra.</li>
+        <li>En el texto del <code>compose.yaml</code>, <b>cambia solo las líneas que terminan con <code>&lt;--</code></b>, con los datos que anotaste:
 <pre><code>TMDB_API_KEY: "<b>tu clave de TMDb</b>"
 CHINOPPO_IP: "<b>IP del Chinoppo</b>"
 NFS_SERVER: "<b>IP del NAS</b>"
-NFS_FOLDER: "volume1/<b>NombreDeTuCarpeta</b>"
+NFS_FOLDER: "<b>volume1/Plex</b>"        ← carpeta como la ve el Chinoppo, SIN la / del inicio
 TZ: "America/Mexico_City"
 ...
-- /volume1/<b>NombreDeTuCarpeta</b>:/media/Plex:ro</code></pre>
-          Deja las comillas. Si tu carpeta está en otro volumen (volume2), cámbialo en las dos líneas.</li>
-        <li>Da <b class="ui">Siguiente</b> hasta <b class="ui">Listo</b>. La primera vez tarda entre 5 y 15 minutos en prepararse. Cuando el proyecto diga <b>En ejecución</b>, sigue.</li>
+- <b>/volume1/Plex</b>:/media/Plex:ro    ← carpeta como la ve el NAS; deja igual lo de :/media/Plex:ro</code></pre>
+          Deja las comillas.</li>
+        <li>Guarda e inicia (en Synology: <b class="ui">Siguiente</b> hasta <b class="ui">Listo</b>). La primera vez tarda entre 5 y 15 minutos en prepararse. Cuando diga que está <b>en ejecución</b>, sigue.</li>
       </ol>
-      <p class="note"><strong>Si te equivocaste en un dato:</strong> en Container Manager → Proyecto → biblioteca, detén el proyecto, edita el <code>compose.yaml</code> (pestaña YAML) y vuelve a iniciarlo.</p>
+      <p class="note"><strong>Si te equivocaste en un dato:</strong> detén la aplicación, corrige el <code>compose.yaml</code> en el editor de tu app de Docker y vuelve a iniciarla.</p>
     </div></li>
 
     <li><h3>Elige tus carpetas en la página de la Biblioteca</h3><div>
@@ -256,11 +260,11 @@ TZ: "America/Mexico_City"
     <dt>Sale “Activa BD-Live”</dt>
     <dd>Falta el paso 1: <b>Configuración → Red → Acceso red BD-Live = Activado</b>.</dd>
     <dt>Sale “Sin conexión con el servidor”</dt>
-    <dd>El NAS está apagado, el proyecto está detenido en Container Manager, o cambió la IP del NAS. Si cambió, corrige el compose y vuelve a descargar los archivos de la USB (paso 8).</dd>
+    <dd>El NAS está apagado, la aplicación está detenida en la app de Docker, o cambió la IP del NAS. Si cambió, corrige el compose y vuelve a descargar los archivos de la USB (paso 8).</dd>
     <dt>Sale “Disco sin servidor”</dt>
     <dd>La <code>Biblioteca.iso</code> de la USB no salió del botón de la página. Descárgala desde ahí (paso 8).</dd>
     <dt>Una película dice “No se pudo reproducir”</dt>
-    <dd>Casi siempre es el permiso NFS del paso 3. Abre <code>http://IP-DEL-NAS:8095/log</code>: ahí se ve qué pasó.</dd>
+    <dd>Casi siempre es el permiso NFS (paso 3) o el dato <code>NFS_FOLDER</code> del paso 6. Abre <code>http://IP-DEL-NAS:8095/log</code>: ahí se ve qué pasó.</dd>
     <dt>Una película tiene la carátula equivocada</dt>
     <dd>Abre <code>http://IP-DEL-NAS:8095/match</code> y corrígela.</dd>
   </dl>
@@ -298,7 +302,7 @@ TZ: "America/Mexico_City"
     <thead><tr><th>Equipo</th><th>Papel</th></tr></thead>
     <tbody>
       <tr><td>Chinoppo M9201</td><td>Reproductor, firmware RU 65-0131, con el parche Dolby Vision v1.7.1.</td></tr>
-      <tr><td>Synology DS423+ (DSM 7.3)</td><td>Guarda las películas y las comparte por NFS.</td></tr>
+      <tr><td>NAS Synology DS423+ (DSM 7.3)</td><td>Guarda las películas y las comparte por NFS.</td></tr>
       <tr><td>Servidor Linux con Docker</td><td>Donde corre el programa en nuestra casa (ver “Avanzado”).</td></tr>
       <tr><td>Kingston DataTraveler</td><td>La memoria USB de la Biblioteca.</td></tr>
       <tr><td>Denon AVC-X3800H</td><td>Receptor A/V para Atmos, TrueHD y DTS:X (por el HDMI de audio del Chinoppo).</td></tr>
@@ -309,8 +313,8 @@ TZ: "America/Mexico_City"
 
 <section>
   <h2>Avanzado</h2>
-  <details><summary>Correr el programa en un servidor Linux en vez del Synology</summary><div>
-    <p>Monta la carpeta compartida del NAS por NFS en el servidor, baja el proyecto y edita el <code>compose.yaml</code> igual que en el paso 6, cambiando la línea del volumen a donde la montaste:</p>
+  <details><summary>Correr el programa en una PC o servidor Linux en vez del NAS</summary><div>
+    <p>Si tu NAS no puede correr Docker, usa una PC o mini PC con Linux siempre encendida. Monta la carpeta del NAS por NFS en ella, baja el proyecto y edita el <code>compose.yaml</code> igual que en el paso 6, cambiando la línea del volumen a donde la montaste:</p>
 <pre><code>curl -fsSL https://get.docker.com | sh
 # /etc/fstab:  IP-DEL-NAS:/volume1/Plex  /mnt/nas/media  nfs  ro,defaults  0 0
 sudo mount -a

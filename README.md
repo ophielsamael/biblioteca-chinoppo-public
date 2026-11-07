@@ -10,14 +10,14 @@ Biblioteca de películas y series al estilo de los reproductores R_volution para
 
 **[Abre la guía para principiantes](docs/guia.html)** (en GitHub se ve como código: descarga el archivo y ábrelo en el navegador).
 
-Solo necesitas tu Chinoppo con el firmware liberado RU 65-0131, un NAS Synology con Container Manager, una memoria USB y una cuenta gratis de TMDb. No hay que programar ni usar la terminal.
+Solo necesitas tu Chinoppo con el firmware liberado RU 65-0131, un NAS con NFS y una app para Docker (Container Manager, Container Station, Portainer…), una memoria USB y una cuenta gratis de TMDb. No hay que programar ni usar la terminal.
 
 ## En resumen
 
 1. **Chinoppo:** Configuración → Red → **Acceso red BD-Live = Activado**. Anota su IP.
 2. **TMDb:** saca tu clave de la API (gratis).
-3. **NAS:** NFS activado y con permiso para la IP del Chinoppo.
-4. **Container Manager:** sube este proyecto (Code → Download ZIP) a la carpeta `docker` del NAS y crea un **Proyecto** con él. En el `compose.yaml` cambia solo las líneas marcadas con `<--`.
+3. **NAS:** NFS activado y con permiso para la IP del Chinoppo. Anota la ruta de tu carpeta de películas.
+4. **Docker en el NAS:** sube este proyecto (Code → Download ZIP) al NAS y crea con él un proyecto/stack de docker-compose. En el `compose.yaml` cambia solo las líneas marcadas con `<--`.
 5. Abre **`http://IP-DEL-NAS:8095`** y elige tus carpetas de películas y series.
 6. En esa misma página, **Descargar archivos para la USB**. Descomprime el ZIP en la raíz de una USB FAT32.
 7. Conecta la USB al Chinoppo y enciéndelo: a los ~40 s aparece la Biblioteca.

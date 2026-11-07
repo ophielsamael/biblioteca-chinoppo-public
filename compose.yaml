@@ -10,12 +10,13 @@ services:
       TMDB_API_KEY: "pon_aqui_tu_clave_de_tmdb"   # <-- tu clave de TMDb (la "Clave de la API")
       CHINOPPO_IP: "192.168.1.16"                  # <-- IP de tu Chinoppo
       NFS_SERVER: "192.168.1.17"                   # <-- IP de tu NAS
-      NFS_FOLDER: "volume1/Plex"                   # <-- volume1/ + el nombre de tu carpeta compartida
+      NFS_FOLDER: "volume1/Plex"                   # <-- la carpeta como la ves en el Chinoppo (Red > NFS), sin la / del inicio
       TZ: "America/Mexico_City"                    # <-- tu zona horaria
     volumes:
       - biblioteca_data:/app/data
-      # Tu carpeta compartida, en solo lectura (el servicio nunca escribe en ella):
-      - /volume1/Plex:/media/Plex:ro               # <-- la misma carpeta: /volume1/ + su nombre, y deja :/media/Plex:ro
+      # La misma carpeta, como la ve el NAS, en solo lectura (el servicio nunca escribe en ella).
+      # Ejemplos: Synology /volume1/Plex  QNAP /share/Plex  Unraid /mnt/user/Plex
+      - /volume1/Plex:/media/Plex:ro               # <-- cambia solo lo de antes de :/media/Plex:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8095/d/folders')"]
