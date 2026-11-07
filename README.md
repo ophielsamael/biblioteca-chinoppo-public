@@ -1,103 +1,38 @@
 # Biblioteca Chinoppo
 
-Biblioteca de películas y series al estilo de los reproductores R_volution para el **Chinoppo M9201**, un clon del Oppo UDP-203 sin lector de discos. Muestra un muro de carátulas con sus formatos (4K, Dolby Vision, HDR10+, Atmos, DTS:X, 3D), páginas de detalle, temporadas y episodios. Las películas se reproducen desde tu NAS con un solo botón del control.
+Biblioteca de películas y series al estilo de los reproductores R_volution para el **Chinoppo M9201**, un clon del Oppo UDP-203 sin lector de discos. Al encenderlo aparece un muro de carátulas con sus formatos (4K, Dolby Vision, HDR10+, Atmos, DTS:X, 3D), páginas de detalle, temporadas y episodios. Eliges con el control y la película se reproduce desde tu NAS.
 
 *An R_volution-style movie library for the Chinoppo M9201 (Oppo UDP-203 clone), built as a BD-J disc plus a small Docker service. Docs are in Spanish.*
 
 > Proyecto de la comunidad, sin relación con Oppo, Dolby ni TMDb. Úsalo bajo tu propio riesgo.
 
+## 👉 Guía paso a paso
+
+**[Abre la guía para principiantes](docs/guia.html)** (en GitHub se ve como código: descarga el archivo y ábrelo en el navegador).
+
+Solo necesitas tu Chinoppo con el firmware liberado RU 65-0131, un NAS Synology con Container Manager, una memoria USB y una cuenta gratis de TMDb. No hay que programar ni usar la terminal.
+
+## En resumen
+
+1. **Chinoppo:** Configuración → Red → **Acceso red BD-Live = Activado**. Anota su IP.
+2. **TMDb:** saca tu clave de la API (gratis).
+3. **NAS:** NFS activado y con permiso para la IP del Chinoppo.
+4. **Container Manager:** sube este proyecto (Code → Download ZIP) a la carpeta `docker` del NAS y crea un **Proyecto** con él. En el `compose.yaml` cambia solo las líneas marcadas con `<--`.
+5. Abre **`http://IP-DEL-NAS:8095`** y elige tus carpetas de películas y series.
+6. En esa misma página, **Descargar archivos para la USB**. Descomprime el ZIP en la raíz de una USB FAT32.
+7. Conecta la USB al Chinoppo y enciéndelo: a los ~40 s aparece la Biblioteca.
+
 ## Cómo funciona
 
-El Chinoppo reproduce discos Blu-ray con **BD-Live**, que son discos con un programa Java dentro y permiso para usar la red. Este proyecto es un disco así (`Biblioteca.iso`) que vive en una memoria USB:
+El Chinoppo reproduce discos Blu-ray con **BD-Live**: discos con un programa Java dentro y permiso para usar la red.
 
-1. **Control** → eliges una película en el muro.
-2. **Disco Biblioteca** (BD-J, Java 1.3, 1280×720) → pide las carátulas al servicio y le avisa qué elegiste.
-3. **Servicio** (Flask en Docker, puerto 8095) → lee el NAS, consulta TMDb, detecta formatos con ffprobe y 7-Zip, y dibuja las carátulas y las franjas.
-4. **Chinoppo** → recibe la orden por su API (puerto 436), monta la carpeta del NAS por NFS y reproduce.
+1. **Disco Biblioteca** (`static/usb/Biblioteca.iso`, BD-J, Java 1.3): muestra el muro y le pide todo al servicio. Lee la dirección del servicio de `BIBLIO.TXT`, un archivo dentro de la ISO que el servicio rellena al generar el ZIP para la USB.
+2. **Servicio** (Flask en Docker, puerto 8095): lee el NAS, consulta TMDb, detecta formatos con ffprobe y 7-Zip, y dibuja carátulas y franjas.
+3. **Chinoppo:** recibe la orden por su API (puerto 436), monta la carpeta del NAS por NFS y reproduce.
+4. **AutoScript** (función del firmware liberado) en la USB: abre la Biblioteca al encender, al despertar y al elegir el ícono **Disco**.
 
-Unos scripts en la USB (AutoScript, una función del firmware liberado) abren la Biblioteca al encender, al despertar del standby y al elegir el ícono **Disco** del menú.
+## Controles
 
-## Lo que necesitas
-
-| | |
-|---|---|
-| Chinoppo M9201 | Con el firmware liberado **RU 20XRU-65-0131** (por AutoScript) |
-| NAS con NFS | Probado con Synology DS423+ (DSM 7.3) |
-| Servidor con Docker | Cualquier PC o mini PC Linux siempre encendido |
-| PC con Windows + WSL Ubuntu | Para compilar el disco con bdj-sdk |
-| Memoria USB FAT32 | Se queda conectada al reproductor |
-| Clave de TMDb | Gratis en themoviedb.org |
-
-Todos en la misma red y con IP fija.
-
-## Instalación
-
-### 1. Reproductor
-- Firmware RU 65-0131.
-- **Configuración → Red → Acceso red BD-Live = Activado**.
-
-### 2. NAS
-- Comparte por NFS la carpeta de películas, con lectura para la IP del Chinoppo y la del servidor.
-- Usa una carpeta por sección. Por ejemplo `Library/Movies`, `Library/ATMOS`, `Library/3D`, `Library/SERIES` (las series como `Serie/Season 01/…`).
-
-### 3. Servicio
-El servicio es un contenedor de **Docker**. El `compose.yaml` que lo describe viene en este repositorio. Hay dos formas de correrlo.
-
-**Opción A: en el mismo Synology** (DSM 7.2 o más nuevo; no la hemos probado, pero debería funcionar igual)
-1. En el Centro de paquetes instala **Container Manager**.
-2. Aquí en GitHub: **Code → Download ZIP**. Descomprímelo y copia la carpeta al NAS, por ejemplo a `/docker/biblioteca-chinoppo`.
-3. Copia `.env.example` como `.env` y edítalo. Pon `MEDIA_PATH=/volume1/Plex`.
-4. Container Manager → **Proyecto → Crear**. Elige esa carpeta (detecta el `compose.yaml`) → **Siguiente → Listo**.
-
-**Opción B: en un servidor Linux** (es la que usamos nosotros)
-```bash
-curl -fsSL https://get.docker.com | sh                 # Docker, si no lo tienes
-# monta el NAS (solo lectura): agrega a /etc/fstab y corre sudo mount -a
-#   IP-DEL-NAS:/volume1/Plex  /mnt/nas/media  nfs  ro,defaults  0 0
-git clone https://github.com/ophielsamael/biblioteca-chinoppo-public.git
-cd biblioteca-chinoppo-public
-cp .env.example .env && nano .env                       # clave TMDb, IPs, MEDIA_PATH, TZ
-docker compose up -d --build
-```
-
-`MEDIA_PATH` es la ruta donde la máquina que corre Docker ve la carpeta compartida del NAS (`NFS_FOLDER`). Las rutas de las secciones son relativas a esa carpeta, por ejemplo `Library/Movies`.
-
-**La página de configuración la sirve el propio servicio.** En cuanto el contenedor arranca, abre en el navegador de cualquier PC o celular de tu red `http://IP-DE-ESA-MÁQUINA:8095`. Por ejemplo, `http://192.168.1.201:8095`. Ahí puedes:
-
-- **Carpetas del menú:** vienen unas de ejemplo (3D, ATMOS, Conciertos, Movies, Series). Quita las que no tengas con **Quitar**. Agrega las tuyas con el formulario: nombre, ruta dentro del NAS (el botón **Elegir…** te deja navegar las carpetas), tipo (películas o series) e ícono.
-- **Re-escanear el NAS:** vuelve a buscar archivos nuevos.
-- **Corregir identificaciones:** desde `/match` cambias una película mal reconocida.
-
-La primera vez el servicio tarda en analizar la colección, porque baja carátulas de TMDb y detecta el formato de cada archivo. Si la página no abre, revisa los registros del contenedor: en Container Manager, o con `docker compose logs -f`.
-
-### 4. Disco
-- Instala **bdj-sdk** en WSL Ubuntu, en `~/bdj/bdj-sdk`. Se probó con el commit `9c48049`.
-- En `disc/src/org/biblio/Net.java` cambia `BASE` por `http://IP-DEL-SERVIDOR:8095`.
-- Desde Git Bash:
-```bash
-bash disc/build.sh        # -> disc/out/Biblioteca.iso
-```
-
-### 5. Memoria USB
-En la raíz de una USB FAT32 copia:
-```
-Biblioteca.iso
-AutoScript/        <- copia de tools/autoscript/AutoScript
-```
-- En `AutoScript/vigilante.sh` cambia `CHINOPPO_IP`.
-- Compila el binario `consola` y ponlo en `AutoScript/`. Lo necesita el vigilante para saber cuándo eliges el ícono Disco. Con [zig](https://ziglang.org) 0.13, en Linux o WSL:
-  ```bash
-  zig cc -target arm-linux-musleabihf -mcpu=cortex_a7 -static -O2 -o consola tools/autoscript/consola/consola.c
-  ```
-- **SSH (opcional, solo con llave):**
-  - Compila dropbear con `AutoScript/ssh/build_dropbear.sh`.
-  - Pon tu llave pública en `AutoScript/ssh/authorized_keys` (ver el `.example`).
-  - Crea un archivo vacío `SSH` en la raíz.
-- Para detener el vigilante, crea un archivo `PARAR` en la raíz.
-
-Conecta la USB y enciende. A los ~40 s se abre la Biblioteca.
-
-### Controles
 | Tecla | Acción |
 |---|---|
 | Flechas | Moverse |
@@ -109,26 +44,26 @@ RETURN, TOP MENU e INFO no le llegan al disco. Detalle en [disc/KEYS.md](disc/KE
 
 ## Extras
 
-- **Dolby Vision en MKV:** usa [fandangos/oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv). Se probó en el firmware RU 65-0131. Recomendamos el zip `mkv-subtitles` de la versión más reciente (la v1.7.1 al escribir esto), que también mejora los subtítulos. Instálalo con **otra** USB, siguiendo su README. Pon tu TV en modo Dolby Vision *TV-led*.
-- **Fondo de "cargando"** para el ícono Disco: `tools/wallpaper/fondo_cargando.py`.
-- **Barra del menú oscura:** `tools/tema/`. Necesita SSH y el parche de Dolby Vision instalado. Es lo más delicado: haz respaldo antes.
-- **Estuches:** `static/cases` trae plantillas simples, generadas con `tools/cases/make_cases.py`. Puedes cambiarlas por fotos de estuches reales: un PNG con la ventana de la portada transparente.
+- **Dolby Vision en MKV:** [fandangos/oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv), zip `mkv-subtitles` de la versión más reciente (probado v1.7.1 en RU 65-0131). Se instala con **otra** USB. TV en modo Dolby Vision *TV-led*.
+- **Servidor Linux en vez del Synology**, **compilar el disco**, **SSH** y **barra oscura del menú:** en la sección *Avanzado* de la guía.
+- **Estuches:** `static/cases` trae plantillas simples (`tools/cases/make_cases.py`). Puedes cambiarlas por fotos reales: un PNG con la ventana de la portada transparente.
 
 ## Limitaciones conocidas
 
-- **Primera película de cada carpeta:** el reproductor tarda unos 40 s en montar la carpeta del NAS. Solo puede tener una montada a la vez, y no se puede montar por adelantado mientras el disco está abierto.
-- **Standby:** el standby es un apagado real. El vigilante reabre la Biblioteca cuando el reproductor vuelve a encender.
-- **Un "play" a la vez:** dos órdenes de reproducción simultáneas traban la API del reproductor.
+- La primera película de cada carpeta tarda unos 40 s: el reproductor monta la carpeta del NAS y solo puede tener una montada a la vez.
+- El standby es un apagado real; la Biblioteca se vuelve a abrir sola al encender.
+- Dos órdenes de reproducción simultáneas traban la API del reproductor; el servicio descarta las repetidas.
 
 ## Desarrollo
 
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt pytest
 python -m pytest tests -q
+bash disc/build.sh      # recompila el disco (bdj-sdk en WSL); copia disc/out/Biblioteca.iso a static/usb/
 ```
+
+`consola` (en `tools/autoscript/AutoScript/`) se compila con `zig cc -target arm-linux-musleabihf -mcpu=cortex_a7 -static -O2 -o consola tools/autoscript/consola/consola.c`.
 
 ## Aviso
 
 Este producto usa la API de TMDb, pero TMDb no lo respalda ni lo certifica.
-
-La guía completa, con los equipos de prueba, está en [docs/guia.html](docs/guia.html).

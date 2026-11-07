@@ -42,7 +42,7 @@ def load_settings(env: Mapping[str, str]) -> Settings:
     return Settings(
         data_dir=Path(env.get("DATA_DIR", "/app/data")),
         media_root=Path(env.get("MEDIA_ROOT", "/media/Plex")),
-        tmdb_key=env.get("TMDB_API_KEY", ""),
+        tmdb_key="" if env.get("TMDB_API_KEY", "").startswith("pon_aqui") else env.get("TMDB_API_KEY", ""),
         chinoppo_ip=env.get("CHINOPPO_IP", Settings.chinoppo_ip),
         nfs_server=env.get("NFS_SERVER", Settings.nfs_server),
         nfs_folder=env.get("NFS_FOLDER", Settings.nfs_folder),

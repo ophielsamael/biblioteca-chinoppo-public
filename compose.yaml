@@ -1,16 +1,21 @@
-# Biblioteca Chinoppo — interfaz de pósters para el Chinoppo (puerto 8095)
-# Configura .env (copia de .env.example) y luego:  docker compose up -d --build
+# Biblioteca Chinoppo (puerto 8095)
+# CAMBIA SOLO LAS LÍNEAS MARCADAS CON  <-- y nada más.
 services:
   biblioteca:
     build: .
     image: biblioteca-chinoppo:latest
     container_name: biblioteca-chinoppo
-    network_mode: host          # habla UDP/HTTP con el Chinoppo y el disco BD-J llega por la LAN
-    env_file: .env              # TMDB_API_KEY, IPs, TZ (ignorado por git)
+    network_mode: host          # habla con el Chinoppo por la red de casa
+    environment:
+      TMDB_API_KEY: "pon_aqui_tu_clave_de_tmdb"   # <-- tu clave de TMDb (la "Clave de la API")
+      CHINOPPO_IP: "192.168.1.16"                  # <-- IP de tu Chinoppo
+      NFS_SERVER: "192.168.1.17"                   # <-- IP de tu NAS
+      NFS_FOLDER: "volume1/Plex"                   # <-- volume1/ + el nombre de tu carpeta compartida
+      TZ: "America/Mexico_City"                    # <-- tu zona horaria
     volumes:
       - biblioteca_data:/app/data
-      # donde el servidor monta el NAS (MEDIA_PATH en .env); solo lectura: el servicio no escribe en el NAS
-      - ${MEDIA_PATH:-/mnt/nas/media}:/media/Plex:ro
+      # Tu carpeta compartida, en solo lectura (el servicio nunca escribe en ella):
+      - /volume1/Plex:/media/Plex:ro               # <-- la misma carpeta: /volume1/ + su nombre, y deja :/media/Plex:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8095/d/folders')"]
