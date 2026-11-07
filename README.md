@@ -41,22 +41,34 @@ Todos en la misma red y con IP fija.
 - Usa una carpeta por sección. Por ejemplo `Library/Movies`, `Library/ATMOS`, `Library/3D`, `Library/SERIES` (las series como `Serie/Season 01/…`).
 
 ### 3. Servicio
-Monta el mismo NFS en el servidor, por ejemplo en `/etc/fstab`:
-```
-IP-DEL-NAS:/volume1/Plex/Library  /mnt/nas/media  nfs  ro,defaults  0 0
-```
-Luego:
+El servicio es un contenedor de **Docker**. El `compose.yaml` que lo describe viene en este repositorio. Hay dos formas de correrlo.
+
+**Opción A: en el mismo Synology** (DSM 7.2 o más nuevo; no la hemos probado, pero debería funcionar igual)
+1. En el Centro de paquetes instala **Container Manager**.
+2. Aquí en GitHub: **Code → Download ZIP**. Descomprímelo y copia la carpeta al NAS, por ejemplo a `/docker/biblioteca-chinoppo`.
+3. Copia `.env.example` como `.env` y edítalo. Pon `MEDIA_PATH=/volume1/Plex`.
+4. Container Manager → **Proyecto → Crear**. Elige esa carpeta (detecta el `compose.yaml`) → **Siguiente → Listo**.
+
+**Opción B: en un servidor Linux** (es la que usamos nosotros)
 ```bash
-cp .env.example .env      # pon tu clave de TMDb, las IPs y MEDIA_PATH
+curl -fsSL https://get.docker.com | sh                 # Docker, si no lo tienes
+# monta el NAS (solo lectura): agrega a /etc/fstab y corre sudo mount -a
+#   IP-DEL-NAS:/volume1/Plex  /mnt/nas/media  nfs  ro,defaults  0 0
+git clone https://github.com/ophielsamael/biblioteca-chinoppo-public.git
+cd biblioteca-chinoppo-public
+cp .env.example .env && nano .env                       # clave TMDb, IPs, MEDIA_PATH, TZ
 docker compose up -d --build
 ```
-**La página de configuración la sirve el propio servicio.** En cuanto el contenedor arranca, abre en el navegador de cualquier PC o celular de tu red `http://IP-DEL-SERVIDOR:8095`, donde `IP-DEL-SERVIDOR` es la IP de la máquina donde corriste `docker compose`. Por ejemplo, `http://192.168.1.201:8095`. Ahí puedes:
+
+`MEDIA_PATH` es la ruta donde la máquina que corre Docker ve la carpeta compartida del NAS (`NFS_FOLDER`). Las rutas de las secciones son relativas a esa carpeta, por ejemplo `Library/Movies`.
+
+**La página de configuración la sirve el propio servicio.** En cuanto el contenedor arranca, abre en el navegador de cualquier PC o celular de tu red `http://IP-DE-ESA-MÁQUINA:8095`. Por ejemplo, `http://192.168.1.201:8095`. Ahí puedes:
 
 - **Carpetas del menú:** vienen unas de ejemplo (3D, ATMOS, Conciertos, Movies, Series). Quita las que no tengas con **Quitar**. Agrega las tuyas con el formulario: nombre, ruta dentro del NAS (el botón **Elegir…** te deja navegar las carpetas), tipo (películas o series) e ícono.
 - **Re-escanear el NAS:** vuelve a buscar archivos nuevos.
 - **Corregir identificaciones:** desde `/match` cambias una película mal reconocida.
 
-La primera vez el servicio tarda en analizar la colección, porque baja carátulas de TMDb y detecta el formato de cada archivo. Si la página no abre, revisa con `docker compose logs -f` que el contenedor esté corriendo.
+La primera vez el servicio tarda en analizar la colección, porque baja carátulas de TMDb y detecta el formato de cada archivo. Si la página no abre, revisa los registros del contenedor: en Container Manager, o con `docker compose logs -f`.
 
 ### 4. Disco
 - Instala **bdj-sdk** en WSL Ubuntu, en `~/bdj/bdj-sdk`. Se probó con el commit `9c48049`.

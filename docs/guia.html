@@ -140,20 +140,50 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       </ul>
     </div></li>
 
-    <li><h3>Instala el servicio en el servidor</h3><div>
-      <span class="where">En el servidor Linux</span>
-      <p>Monta el NAS en el servidor (solo lectura basta):</p>
-<pre><code># /etc/fstab
-192.168.1.17:/volume1/Plex/Library  /mnt/nas/media  nfs  ro,defaults  0 0</code></pre>
-      <p>Clona o descarga este repositorio en el servidor. Luego ajusta tres cosas:</p>
-      <ul>
-        <li><code>.env</code>: además de la clave, pon <code>CHINOPPO_IP</code>, <code>NFS_SERVER</code>, <code>NFS_FOLDER</code> y <code>MEDIA_PATH</code>.</li>
-        <li><code>.env</code>: cópialo de <code>.env.example</code> y pon tu <code>TMDB_API_KEY</code> y tu zona horaria (<code>TZ</code>). No compartas esta clave.</li>
-        
-      </ul>
-<pre><code>cd biblioteca-chinoppo
+    <li><h3>Instala el servicio</h3><div>
+      <span class="where">En el NAS Synology o en un servidor Linux</span>
+      <p>El servicio es un contenedor de <b>Docker</b>. El archivo <code>compose.yaml</code> que lo describe viene dentro del proyecto: <a href="https://github.com/ophielsamael/biblioteca-chinoppo-public" target="_blank" rel="noopener">github.com/ophielsamael/biblioteca-chinoppo-public</a>. Lo que cambia es dónde lo corres.</p>
+
+      <p><b>Opción A: en el mismo Synology</b> (DSM 7.2 o más nuevo; no necesitas otra máquina)</p>
+      <ol>
+        <li>En el Centro de paquetes instala <b>Container Manager</b>.</li>
+        <li>En GitHub, botón verde <b>Code → Download ZIP</b>. Descomprímelo y copia la carpeta al NAS, por ejemplo a <code>/docker/biblioteca-chinoppo</code>.</li>
+        <li>En esa carpeta, copia <code>.env.example</code> como <code>.env</code> y edítalo (ver abajo). Aquí <code>MEDIA_PATH=/volume1/Plex</code>, porque los archivos ya están en el mismo NAS.</li>
+        <li>Container Manager → <b>Proyecto → Crear</b>. Elige esa carpeta: detecta el <code>compose.yaml</code> solo. Dale a <b>Siguiente → Listo</b>. La primera vez tarda unos minutos en construir.</li>
+      </ol>
+      <p style="color:var(--muted);font-size:.92rem">Nosotros lo corremos en un servidor Linux aparte. La opción del Synology debería funcionar igual, pero no la hemos probado.</p>
+
+      <p><b>Opción B: en un servidor Linux</b> (como el nuestro)</p>
+<pre><code># 1. Docker (si no lo tienes)
+curl -fsSL https://get.docker.com | sh
+
+# 2. Montar el NAS (solo lectura). Agrega esta línea a /etc/fstab y corre: sudo mount -a
+IP-DEL-NAS:/volume1/Plex  /mnt/nas/media  nfs  ro,defaults  0 0
+
+# 3. Bajar el proyecto
+git clone https://github.com/ophielsamael/biblioteca-chinoppo-public.git
+cd biblioteca-chinoppo-public
+
+# 4. Configurar y arrancar
+cp .env.example .env
+nano .env
 docker compose up -d --build</code></pre>
-      <p><b>La página de configuración la sirve el propio servicio.</b> En cuanto el contenedor arranca, abre en el navegador de cualquier PC o celular de tu red <code>http://IP-DEL-SERVIDOR:8095</code>, donde <code>IP-DEL-SERVIDOR</code> es la IP de la máquina donde corriste <code>docker compose</code> (por ejemplo <code>http://192.168.1.201:8095</code>). Ahí:</p><ul><li>Quita las carpetas de ejemplo que no tengas (3D, ATMOS, Conciertos, Movies, Series) y agrega las tuyas: nombre, ruta en el NAS (con el botón <b>Elegir…</b> navegas las carpetas), tipo e ícono.</li><li><b>Re-escanear el NAS</b> busca archivos nuevos.</li><li>En <code>/match</code> corriges una película mal reconocida.</li></ul><p>La primera vez tarda en analizar la colección, porque baja carátulas de TMDb y detecta el formato de cada archivo. Si la página no abre, revisa con <code>docker compose logs -f</code> que el contenedor esté corriendo.</p>
+
+      <p><b>El archivo <code>.env</code></b> (en las dos opciones):</p>
+      <ul>
+        <li><code>TMDB_API_KEY</code>: tu clave de TMDb. No la compartas.</li>
+        <li><code>CHINOPPO_IP</code>, <code>NFS_SERVER</code> (IP del NAS) y <code>NFS_FOLDER</code> (la carpeta compartida, por ejemplo <code>volume1/Plex</code>).</li>
+        <li><code>MEDIA_PATH</code>: dónde ve esa misma carpeta la máquina que corre Docker.</li>
+        <li><code>TZ</code>: tu zona horaria, por ejemplo <code>America/Mexico_City</code>.</li>
+      </ul>
+
+      <p><b>La página de configuración la sirve el propio servicio.</b> En cuanto el contenedor arranca, abre <code>http://IP-DE-ESA-MÁQUINA:8095</code> en el navegador de cualquier PC o celular de tu red. Ahí:</p>
+      <ul>
+        <li>Quita las carpetas de ejemplo que no tengas (3D, ATMOS, Conciertos, Movies, Series). Agrega las tuyas con nombre, ruta (el botón <b>Elegir…</b> navega el NAS), tipo e ícono.</li>
+        <li><b>Re-escanear el NAS</b> busca archivos nuevos.</li>
+        <li>En <code>/match</code> corriges una película mal reconocida.</li>
+      </ul>
+      <p>La primera vez tarda en analizar la colección, porque baja carátulas de TMDb y detecta el formato de cada archivo. Si la página no abre, revisa los registros del contenedor: en Container Manager, o con <code>docker compose logs -f</code>.</p>
     </div></li>
 
     <li><h3>Compila el disco Biblioteca.iso</h3><div>
