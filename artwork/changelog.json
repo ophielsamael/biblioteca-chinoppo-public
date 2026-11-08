@@ -1,5 +1,25 @@
 [
   {
+    "id": "2026.11.12",
+    "date": "2026-11-12",
+    "title": {
+      "es": "Cada copia de una película, su carátula",
+      "en": "Each copy of a film keeps its own cover"
+    },
+    "changes": {
+      "es": [
+        "Si tienes la misma película en dos carpetas (por ejemplo 4K en ATMOS y 3D en 3D), cada copia guarda su propia carátula, banner, logo, caja y disco. Antes cambiar una cambiaba las dos.",
+        "Lo que ya tenías aplicado se reparte solo entre las copias la primera vez que la Biblioteca revisa tu carpeta."
+      ],
+      "en": [
+        "If you have the same film in two folders (for example 4K in ATMOS and 3D in 3D), each copy keeps its own cover, banner, logo, case and disc. Before, changing one changed both.",
+        "What you had already applied is split between the copies by itself the first time the Biblioteca scans your folder."
+      ]
+    },
+    "compose": false,
+    "usb": false
+  },
+  {
     "id": "2026.11.11",
     "date": "2026-11-11",
     "title": {

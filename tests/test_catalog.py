@@ -122,6 +122,32 @@ def test_rematch_once_fixes_wrong_ids_and_keeps_data_when_lookup_fails(tmp_path)
     assert Tmdb.calls == n
 
 
+def test_two_copies_of_a_film_keep_their_own_art(tmp_path):
+    from biblio import images
+    s = settings_with(tmp_path, {"Library/ATMOS/Mario (2023).mkv": b"x", "Library/3D/Mario (2023).mkv": b"x"})
+    cat = Catalog(tmp_path / "c.db")
+    refresh(s, cat, FakeTmdb(found=True))
+    a, b = cat.items_by_tmdb(cat.items("atmos")[0].tmdb_id)
+    cache = s.data_dir / "cache"
+    images.save_own(cache, "item", a.id, "poster", _png())          # art for one copy only
+    assert images.own_bytes(a, cache, "poster") and images.own_bytes(b, cache, "poster") is None
+    # art saved by an older version (by TMDb id) shows on both until split_art gives each its own
+    images.save_own(cache, "movie", a.tmdb_id, "logo", _png())
+    assert images.own_bytes(b, cache, "logo")
+    refresh(s, cat, FakeTmdb(found=True))
+    assert not (s.data_dir / "art" / f"movie_{a.tmdb_id}_logo").exists()
+    images.drop_own(cache, "item", b.id, "logo")
+    assert images.own_bytes(a, cache, "logo") and images.own_bytes(b, cache, "logo") is None
+
+
+def _png() -> bytes:
+    import io
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.new("RGB", (4, 4)).save(buf, "PNG")
+    return buf.getvalue()
+
+
 def test_removed_title_drops_its_uploaded_art(tmp_path):
     from biblio import catalog as catalog_mod
     from biblio.db import Catalog

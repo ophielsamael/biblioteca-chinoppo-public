@@ -88,11 +88,16 @@ def save_own(cache: Path, media: str, tmdb_id: int, kind: str, data: bytes) -> N
 
 
 def own_file(item: Item, cache: Path, kind: str) -> Path:
-    """Where Artwork Studio's image for this title lives: by TMDb id (shared by every copy of
-    the title), or by catalog id for a title TMDb doesn't know (a home video, a rare concert)."""
-    if item.tmdb_id:
-        return _art_file(cache, "tv" if item.kind == "series" else "movie", item.tmdb_id, kind)
-    return _art_file(cache, "item", item.id, kind)
+    """Where Artwork Studio's image for this title lives: by catalog id, so each copy of a film
+    (the 4K one in ATMOS, the 3D one in 3D) has its own. Images saved by older versions were
+    keyed by TMDb id (shared by every copy): they still show until catalog.split_art() gives
+    each copy its own file."""
+    mine = _art_file(cache, "item", item.id, kind)
+    if item.tmdb_id and not mine.exists():
+        old = _art_file(cache, "tv" if item.kind == "series" else "movie", item.tmdb_id, kind)
+        if old.exists():
+            return old
+    return mine
 
 
 def _own(item: Item, cache: Path, kind: str) -> Image.Image | None:
