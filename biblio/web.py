@@ -5,7 +5,8 @@ from pathlib import Path
 from flask import Blueprint, Response, abort, current_app, redirect, render_template, request
 from PIL import Image, ImageOps
 
-from biblio import badges, formats, images, usbpack
+from biblio import badges, formats, images, keys, usbpack
+from biblio.tmdb import TmdbClient
 from biblio.config import Folder, load_folders, save_folders
 
 web_bp = Blueprint("web", __name__)
@@ -45,12 +46,36 @@ def _service_url() -> str:
     return f"http://{host}:{current_app.config['SETTINGS'].port}"
 
 
+@web_bp.get("/api/keys")
+def keys_status():
+    """Which keys are set (never the keys themselves)."""
+    return {"tmdb": bool(current_app.config["SETTINGS"].tmdb_key)}
+
+
+@web_bp.post("/api/keys")
+def set_keys():
+    """Artwork Studio hands over the TMDb key typed in its Ajustes window: it is saved in the data
+    folder, used from now on without a restart, and the library is scanned again with it."""
+    s = current_app.config["SETTINGS"]
+    key = ((request.get_json(silent=True) or {}).get("tmdb") or "").strip()
+    if not keys.TMDB_FORMAT.match(key):
+        abort(400, "La clave de TMDb tiene 32 letras y números")
+    keys.save(s.data_dir, tmdb=key)
+    s.tmdb_key = key
+    client = TmdbClient(key)
+    current_app.config["TMDB"] = client
+    current_app.config["LOGOS"] = client.logo_path
+    current_app.config["RESCAN"]()
+    return {"ok": True}
+
+
 @web_bp.get("/api/badge-styles")
 def badge_styles():
     """Badge styles for Artwork Studio: id, name, author, which one is in use."""
     cur = badges.style(current_app.config["CATALOG"].get_state("badge_style"))["id"]
+    cache = current_app.config["SETTINGS"].data_dir / "badges"
     return [{"id": st["id"], "name": st["name"], "author": st["author"], "own": st["url"] is None,
-             "selected": st["id"] == cur} for st in badges.STYLES]
+             "selected": st["id"] == cur, "saved": badges.is_saved(st["id"], cache)} for st in badges.STYLES]
 
 
 @web_bp.get("/api/badge-styles/<sid>.png")

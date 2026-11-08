@@ -70,6 +70,45 @@ def snapshot(style_id: str, cache: Path, fetch) -> int:
     return n
 
 
+def _usable_images(template: dict) -> list[str]:
+    return [f["imageURL"] for f in template.get("filters", [])
+            if f.get("isEnabled", True) and (f.get("imageURL") or "").split("?")[0].lower().endswith((".png", ".svg"))]
+
+
+def is_saved(style_id: str, cache: Path) -> bool:
+    """True when the whole style (template and every badge image) is already kept on this NAS.
+    The text style needs nothing."""
+    url = style(style_id)["url"]
+    if not url:
+        return True
+    try:
+        template = json.loads(_path(cache, url).read_bytes())
+    except (OSError, ValueError):
+        return False
+    return all(_path(cache, u).exists() for u in _usable_images(template))
+
+
+def prefetch_all(cache: Path, fetch, log=None, pause: float = 0.0) -> int:
+    """Keep every style on this NAS, so changing the look later is instant and still works if a
+    template's author removes it. Skips what is already saved; a style that can't be reached now is
+    simply tried again at the next start. Returns how many styles were completed."""
+    import time
+    done = 0
+    for st in STYLES:
+        if not st["url"] or is_saved(st["id"], cache):
+            continue
+        try:
+            snapshot(st["id"], cache, fetch)
+            done += is_saved(st["id"], cache)
+            if log:
+                log("estilo de etiquetas guardado: %s", st["name"])
+        except Exception as e:
+            if log:
+                log("estilo de etiquetas %s: no se pudo descargar (%s)", st["name"], e)
+        time.sleep(pause)
+    return done
+
+
 def text_labels(fmt: dict) -> list[str]:
     """Our own style: the format as plain text tags, in the usual order."""
     out = [{"4K": "4K", "1080p": "1080p", "720p": "720p", "SD": "SD"}.get(fmt.get("res"), "")]
@@ -141,9 +180,13 @@ def matches(template: dict, names: list[str]) -> list[dict]:
     return [f for _, _, f in sorted(hits, key=lambda t: (t[0], t[1]))]
 
 
+def _path(cache: Path, url: str) -> Path:
+    return cache / hashlib.sha1(url.encode()).hexdigest()
+
+
 def _get(cache: Path, url: str, fetch) -> bytes:
     """Template JSON and badge images, downloaded once (delete data/badges to refresh)."""
-    path = cache / hashlib.sha1(url.encode()).hexdigest()
+    path = _path(cache, url)
     if not path.exists():
         data = fetch(url)
         path.parent.mkdir(parents=True, exist_ok=True)

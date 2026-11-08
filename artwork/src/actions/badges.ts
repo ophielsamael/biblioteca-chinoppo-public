@@ -3,7 +3,7 @@
 import { BIBLIOTECA_URL } from './biblioteca';
 
 // Badge styles (the format row under the title on the movie page) live in the Biblioteca.
-export type BadgeStyle = { id: string; name: string; author: string; own: boolean; selected: boolean };
+export type BadgeStyle = { id: string; name: string; author: string; own: boolean; selected: boolean; saved: boolean };
 
 export async function listBadgeStyles(): Promise<BadgeStyle[]> {
   try {

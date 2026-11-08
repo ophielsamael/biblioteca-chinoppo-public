@@ -104,7 +104,7 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
   <h2>Before you start</h2>
   <ul>
     <li>Open it at <code>http://NAS-IP:3001</code>, or from the <b class="ui">Abrir Artwork Studio</b> link on the Biblioteca’s <code>:8095</code> page.</li>
-    <li>For <b>discs</b> and <b>more posters</b> to pick from you need your free fanart.tv key in <code>FANART_API_KEY</code> in <code>compose.yaml</code> (steps 2 and 6 of the main guide). Without it everything else works, but you only get TMDb posters and no discs.</li>
+    <li>For <b>discs</b> and <b>more posters</b> to pick from you need your free fanart.tv key, which you paste in the Settings window (below). Without it everything else works, but you only get TMDb posters and no discs.</li>
     <li>Everything you apply is stored in the Biblioteca. To see the result without switching the Chinoppo on, use the <b class="ui">Vista previa</b> (preview) on the <code>:8095</code> page.</li>
     <li>Your movie files are never touched: only the images the Biblioteca shows change.</li>
   </ul>
@@ -112,15 +112,15 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
 
 <section>
   <h2>Your keys: TMDb and fanart.tv</h2>
-  <p>Artwork Studio needs two free keys. Get them once:</p>
+  <p>Artwork Studio needs two free keys. You get them once, and the Settings window has a <b class="ui">Conseguir mi clave</b> (get my key) link next to each:</p>
   <ul>
-    <li><b>TMDb</b> (posters, backdrops, logos and each movie’s information: plot, cast, year, rating): create an account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, open your profile → <b>Settings → API</b> and copy the <b>API Key</b>.</li>
-    <li><b>fanart.tv</b> (more posters to pick from, and the discs): create an account at <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> and copy your <b>Personal API Key</b> from your profile.</li>
+    <li><b>TMDb</b> (required; posters, backdrops, logos and each movie’s information: plot, cast, year, rating): create an account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, open <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">your profile → Settings → API</a> and copy the <b>API Key</b> (the short 32-character one).</li>
+    <li><b>fanart.tv</b> (optional; more posters to pick from, and the discs): create an account at <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> and request your <a href="https://fanart.tv/get-an-api-key/" target="_blank" rel="noopener">free personal key</a> (<b>Personal API Key</b>).</li>
   </ul>
-  <p><b>Where to put them (recommended):</b> in <code>compose.yaml</code> when installing (step 6 of the main guide): TMDb in <code>TMDB_API_KEY</code> and fanart.tv in <code>FANART_API_KEY</code>. That way they work on any PC or phone you open Artwork from.</p>
-  <p><b>Or from Artwork:</b> the <b class="ui">Ajustes</b> (settings) button, top right. There you also switch the language (Spanish or English). Type the missing key and press <b class="ui">Guardar y Recargar</b> (save and reload). This window opens by itself when Artwork can’t find the TMDb key.</p>
+  <p><b>Where to put them:</b> the first time you open Artwork, the <b>Ajustes</b> (settings) window opens by itself. Paste your keys there and press <b class="ui">Guardar y Recargar</b> (save and reload). Artwork checks each one (a red message if it is wrong), saves it on your NAS and <b>hands the TMDb one to the Biblioteca</b> so it fills in the posters. No file to edit.</p>
+  <p><b>To change them later:</b> the <b class="ui">Ajustes</b> button (left menu). There you also switch the language (Spanish or English). If a key is already saved you see “✓ Ready”; leave it empty to keep it or paste another to replace it. The window comes back by itself if the TMDb key is missing.</p>
   <img class="shot" src="img/aw_ajustes.jpg" alt="Settings window with language, TMDb key and fanart.tv key" style="max-width:560px">
-  <p class="note"><strong>Note:</strong> keys typed in Settings are stored only in that browser. Opening Artwork from another PC or your phone means typing them again, which is why <code>compose.yaml</code> is better.</p>
+  <p class="note"><strong>Good to know:</strong> the keys live on your NAS, not in the browser: they work from any PC or phone and survive updates.</p>
 </section>
 
 <section>
@@ -158,7 +158,7 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
 
     <li><h3>Disc</h3><div>
       <span class="where">Discos tab</span>
-      <p>The disc art, from fanart.tv. Click <b class="ui">Elegir este disco</b> (pick this disc). It shows on the Chinoppo <b>only if the movie has a case</b> (step 2), because it is the disc that slides out of the box. Discs exist for movies only, not TV shows. If it says the key is missing, check <code>FANART_API_KEY</code> in the compose.</p>
+      <p>The disc art, from fanart.tv. Click <b class="ui">Elegir este disco</b> (pick this disc). It shows on the Chinoppo <b>only if the movie has a case</b> (step 2), because it is the disc that slides out of the box. Discs exist for movies only, not TV shows. If it says the key is missing, paste it in <b>Ajustes</b>.</p>
     </div></li>
 
     <li><h3>Apply Changes</h3><div>

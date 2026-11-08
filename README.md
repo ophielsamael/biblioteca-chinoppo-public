@@ -27,10 +27,10 @@ Solo necesitas tu Chinoppo con el firmware liberado RU 65-0131, un NAS con NFS y
 ### En resumen
 
 1. **Chinoppo:** Configuración → Red → **Acceso red BD-Live = Activado**. Anota su IP.
-2. **TMDb:** saca tu clave de la API (gratis).
+2. **TMDb** (obligatoria) y **fanart.tv** (para los discos): crea tus cuentas gratis. No van en ningún archivo: las pegarás en Artwork Studio.
 3. **NAS:** NFS activado y con permiso para la IP del Chinoppo. Anota la ruta de tu carpeta compartida.
 4. **Docker en el NAS:** sube este proyecto (Code → Download ZIP) al NAS y crea con él un proyecto/stack de docker-compose. En el `compose.yaml` cambia solo las líneas marcadas con `<--`.
-5. Abre **`http://IP-DEL-NAS:8095`** y elige tus carpetas de películas y series.
+5. Abre **`http://IP-DEL-NAS:3001`** (Artwork Studio): pega tus claves en la ventana que sale. Luego abre **`http://IP-DEL-NAS:8095`** y elige tus carpetas de películas y series.
 6. En esa misma página, **Descargar archivos para la USB**. Descomprime el ZIP en la raíz de una USB FAT32.
 7. Conecta la USB al Chinoppo y enciéndelo: entre 20 y 40 s después aparece la Biblioteca.
 
@@ -56,7 +56,7 @@ RETURN, TOP MENU e INFO no le llegan al disco. Detalle en [disc/KEYS.md](disc/KE
 
 ### Extras
 
-- **Artwork Studio** (`artwork/`, puerto 3001): se instala junto con la Biblioteca. Por título eliges póster (de TMDb o tuyo), banda de formato para el muro, estuche 4K o Blu-ray (con estuche, el disco sale de la caja), fondo, logo, disco (TMDb da pósters e información; fanart.tv da más pósters y los discos: pon su clave gratuita en `FANART_API_KEY`), pósters de temporada y metadatos. Todo se guarda en la Biblioteca.
+- **Artwork Studio** (`artwork/`, puerto 3001): se instala junto con la Biblioteca. Por título eliges póster (de TMDb o tuyo), banda de formato para el muro, estuche 4K o Blu-ray (con estuche, el disco sale de la caja), fondo, logo, disco (TMDb da pósters e información; fanart.tv da más pósters y los discos), estilo de las etiquetas de formato, pósters de temporada y metadatos. Todo se guarda en la Biblioteca. La primera vez que lo abres, una ventana te pide tus claves (con el enlace para conseguirlas); se guardan en tu NAS y Artwork le pasa la de TMDb a la Biblioteca solo.
 - **Dolby Vision en MKV:** [fandangos/oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv), zip `mkv-subtitles` de la versión más reciente (probado v1.7.1 en RU 65-0131). Se instala con **otra** USB. TV en modo Dolby Vision *TV-led*.
 - **PC o servidor Linux en vez del NAS**, **compilar el disco**, **SSH** y **barra oscura del menú:** en la sección *Avanzado* de la guía.
 - **Estuches:** `static/cases` trae fotos de estuche 4K y Blu-ray con la ventana de la portada transparente. Puedes cambiarlas por las tuyas (cualquier PNG así). `tools/cases/make_cases.py` dibuja unos sencillos si los prefieres. Los logos 4K Ultra HD, Blu-ray Disc y Dolby son marcas de sus dueños.
@@ -82,14 +82,14 @@ All you need is your Chinoppo with the jailbroken RU 65-0131 firmware, a NAS wit
 ### In short
 
 1. **Chinoppo:** Setup → Network → **BD-Live Network Access = On**. Note its IP.
-2. **TMDb:** get your API key (free).
+2. **TMDb** (required) and **fanart.tv** (for the discs): create your free accounts. They go in no file: you paste them in Artwork Studio.
 3. **NAS:** NFS on, with access for the Chinoppo's IP. Note your shared folder's path.
 4. **Docker on the NAS:** upload this project (Code → Download ZIP) to the NAS and create a docker-compose project/stack from it. In `compose.yaml` change only the lines marked `<--`.
-5. Open **`http://NAS-IP:8095`** and choose your movie and TV folders.
+5. Open **`http://NAS-IP:3001`** (Artwork Studio): paste your keys in the window that appears. Then open **`http://NAS-IP:8095`** and choose your movie and TV folders.
 6. On that page, click **Descargar archivos para la USB** (download files for the USB). Unzip it to the root of a FAT32 USB stick.
 7. Plug the stick into the Chinoppo and switch it on: the Biblioteca appears 20 to 40 s later.
 
-**Artwork Studio** (`artwork/`, port 3001) installs together with the Biblioteca: per title, pick the poster (TMDb or your own), a format banner for the wall, a 4K or Blu-ray case (with a case, the disc slides out of the box), backdrop, logo, disc (TMDb gives posters and info; fanart.tv gives more posters and the discs: put its free key in `FANART_API_KEY`), season posters and metadata.
+**Artwork Studio** (`artwork/`, port 3001) installs together with the Biblioteca: per title, pick the poster (TMDb or your own), a format banner for the wall, a 4K or Blu-ray case (with a case, the disc slides out of the box), backdrop, logo, disc (TMDb gives posters and info; fanart.tv gives more posters and the discs), format badge style, season posters and metadata.
 
 ### How it works
 

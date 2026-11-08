@@ -148,13 +148,14 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       </ul>
     </div></li>
 
-    <li><h3>Get your TMDb key</h3><div>
+    <li><h3>Create your free accounts and get your keys</h3><div>
       <span class="where">On the PC, in the browser</span>
       <ol>
-        <li>Create a free account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a> and confirm your email.</li>
+        <li><b>TMDb</b> (required): create a free account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a> and confirm your email.</li>
         <li>Open your profile → <b class="ui">Settings</b> → <b class="ui">API</b> and request a key (personal use). Fill in the form with simple answers.</li>
-        <li>Copy the <b>API Key</b> (32 letters and numbers) and write it down. Don’t share it.</li>
+        <li>Copy the <b>API Key</b> (the short 32-character one, not the long token) and write it down. Don’t share it.</li>
         <li><b>For discs and more posters (recommended):</b> TMDb gives the posters and each movie’s information; fanart.tv gives more posters to pick from and the discs. Also create a free account at <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> and copy your <b>Personal API Key</b> from your profile. Without it, Artwork Studio shows no discs to pick and the disc doesn’t slide out of the case. Write it down next to the TMDb one.</li>
+        <li><b>Don’t paste them into any file.</b> You paste them in step 7, in Artwork Studio, which hands them to the Biblioteca by itself. If you prefer to get them then, the Artwork window has a direct link to each page.</li>
       </ol>
     </div></li>
 
@@ -162,7 +163,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       <span class="where">On the Chinoppo and in your NAS admin page</span>
       <ul>
         <li><b>NAS IP:</b> the address you use to open its admin page in the browser (for example <code>192.168.1.17</code>). Write it down.</li>
-        <li><b>The folder, as the Chinoppo sees it:</b> on the Chinoppo open <b class="ui">Network → NFS</b> and choose your NAS. Write down the <b>shared</b> folder shown there, the top-level one, for example <code>/volume1/Plex</code> or <code>/share/Movies</code>. Keep upper and lower case exactly. If your movies are deeper inside (like <code>Plex/Library/Movies</code>), that’s fine: you pick those subfolders later, in step 7.</li>
+        <li><b>The folder, as the Chinoppo sees it:</b> on the Chinoppo open <b class="ui">Network → NFS</b> and choose your NAS. Write down the <b>shared</b> folder shown there, the top-level one, for example <code>/volume1/Plex</code> or <code>/share/Movies</code>. Keep upper and lower case exactly. If your movies are deeper inside (like <code>Plex/Library/Movies</code>), that’s fine: you pick those subfolders later, in step 8.</li>
         <li><b>The same folder, as the NAS sees it:</b> almost always the same as above. If unsure, look it up in the NAS file manager. Common examples:
           <div class="tbl" style="margin-top:6px"><table>
             <thead><tr><th>NAS</th><th>Path of a folder called “Plex”</th></tr></thead>
@@ -200,26 +201,36 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       <ol>
         <li>Create a new project or stack called <code>biblioteca</code> and point it at the <code>biblioteca-chinoppo-public-main</code> folder. If your app can’t pick a folder, paste the contents of <code>compose.yaml</code> into the editor it shows.</li>
         <li>In the <code>compose.yaml</code> text, <b>change only the lines ending in <code>&lt;--</code></b>, using what you wrote down:
-<pre><code>TMDB_API_KEY: "<b>your TMDb key</b>"
-CHINOPPO_IP: "<b>Chinoppo IP</b>"
+<pre><code>CHINOPPO_IP: "<b>Chinoppo IP</b>"
 NFS_SERVER: "<b>NAS IP</b>"
 NFS_FOLDER: "<b>volume1/Plex</b>"        ← folder as the Chinoppo sees it, WITHOUT the leading /
 TZ: "<b>Europe/London</b>"               ← your time zone: Europe/Rome, America/New_York…
 ...
 - <b>/volume1/Plex</b>:/media/Plex:ro    ← folder as the NAS sees it; keep :/media/Plex:ro as is
-...
-FANART_API_KEY: "<b>your fanart.tv key</b>"   ← further down, in the artwork part: for the discs</code></pre>
-          Keep the quotes.</li>
+</code></pre>
+          Keep the quotes. <b>The TMDb and fanart.tv keys do not go here</b>: you paste them in step 7.</li>
         <li>Save and start (on Synology: <b class="ui">Next</b> until <b class="ui">Done</b>). The first time it <b>takes a while: 10 to 30 minutes</b>, depending on your NAS. It builds two programs, and the slow one is Artwork Studio (the build window shows <code>npm ci</code> and <code>npm run build</code> for quite some time). Yellow warnings saying <code>deprecated</code> are normal, not errors. Don't close or cancel; when it says <b>running</b>, continue.</li>
       </ol>
       <p class="note"><strong>If you got something wrong:</strong> stop the application, fix <code>compose.yaml</code> in your Docker app’s editor and start it again.</p>
+    </div></li>
+
+    <li><h3>Open Artwork Studio and paste your keys</h3><div>
+      <span class="where">On the PC, in the browser</span>
+      <ol>
+        <li>Open <code>http://NAS-IP:3001</code> (for example <code>http://192.168.1.17:3001</code>). It is Artwork Studio, already installed with the Biblioteca.</li>
+        <li>Since it is the first time, the window <b>Ajustes: idioma y claves</b> (settings: language and keys) opens by itself. Pick your language and paste your two keys. Next to each one there is a <b class="ui">Conseguir mi clave</b> (get my key) link to the page where you create it, if you haven’t yet.</li>
+        <li>Press <b class="ui">Guardar y Recargar</b> (save and reload). Artwork checks each key and shows a red message if one is wrong.</li>
+      </ol>
+      <img class="shot" src="img/aw_ajustes.jpg" alt="Settings window with language, TMDb key and fanart.tv key" style="max-width:560px">
+      <p class="check"><strong>No file to edit.</strong> The keys are saved on your NAS, and Artwork <b>hands the TMDb one to the Biblioteca</b> by itself: as soon as you save it, the Biblioteca starts fetching the posters, with no restart.</p>
+      <p class="note"><strong>TMDb is required; fanart.tv can wait</strong> (without it only the discs are missing). If you close the window without the TMDb key, it comes back every time you open Artwork.</p>
     </div></li>
 
     <li><h3>Choose your folders on the Biblioteca page</h3><div>
       <span class="where">On the PC, in the browser</span>
       <ol>
         <li>Open <code>http://NAS-IP:8095</code> (for example <code>http://192.168.1.17:8095</code>). That page belongs to the program you just installed.</li>
-        <li>If a yellow warning appears at the top, it tells you which detail is missing or wrong. Fix it as in the box of step 6.</li>
+        <li>If a yellow warning appears at the top, it tells you what is missing: the TMDb key (step 7) or a compose detail (box of step 6).</li>
         <li>Under <b>Carpetas del menú</b> (menu folders) there are examples (3D, ATMOS, Conciertos, Movies, Series). Remove the ones you don’t have with <b class="ui">Quitar</b> (remove).</li>
         <li>Add your folders: in the form below click <b class="ui">Elegir…</b> (choose), browse to your movie folder and click <b class="ui">Usar esta carpeta</b> (use this folder). Pick <b>Películas</b> (movies) or <b>Series</b>, an icon, and <b class="ui">Guardar</b> (save). Repeat for each section you want in the menu.</li>
         <li>Wait: the first time it fetches posters for your whole collection. With hundreds of movies this can take a while. The <b>Títulos</b> (titles) column keeps growing.</li>
@@ -274,14 +285,16 @@ FANART_API_KEY: "<b>your fanart.tv key</b>"   ← further down, in the artwork p
 <section>
   <h2>If something doesn’t work</h2>
   <dl>
+    <dt>No posters, or the page says “Falta tu clave de TMDb” (TMDb key missing)</dt>
+    <dd>Open Artwork Studio (<code>http://NAS-IP:3001</code>), press <b>Ajustes</b> (settings) and paste your TMDb key (step 7). As soon as you save it, the Biblioteca starts filling in the posters.</dd>
     <dt>The Biblioteca doesn’t open by itself at power-on</dt>
     <dd>Check that <code>Biblioteca.iso</code> and the <code>AutoScript</code> folder are at the root of the stick, and that the Chinoppo has the jailbroken firmware. If an <code>autoscript_ok.txt</code> file shows up on the stick, the start-up script did run.</dd>
     <dt>It says “Activa BD-Live”</dt>
     <dd>Step 1 is missing: <b>Setup → Network → BD-Live Network Access = On</b>.</dd>
     <dt>It says “Sin conexion con el servidor” (no connection to the server)</dt>
-    <dd>The NAS is off, the application is stopped in the Docker app, or the NAS IP changed. If it changed, fix the compose and download the USB files again (step 8).</dd>
+    <dd>The NAS is off, the application is stopped in the Docker app, or the NAS IP changed. If it changed, fix the compose and download the USB files again (step 9).</dd>
     <dt>It says “Disco sin servidor” (disc without a server)</dt>
-    <dd>The <code>Biblioteca.iso</code> on the stick did not come from the page’s button. Download it from there (step 8).</dd>
+    <dd>The <code>Biblioteca.iso</code> on the stick did not come from the page’s button. Download it from there (step 9).</dd>
     <dt>A movie says “No se pudo reproducir” (could not play)</dt>
     <dd>Almost always the NFS permission (step 3) or the <code>NFS_FOLDER</code> value in step 6. Open <code>http://NAS-IP:8095/log</code> to see what happened.</dd>
     <dt>A movie has the wrong poster</dt>
@@ -307,7 +320,7 @@ FANART_API_KEY: "<b>your fanart.tv key</b>"   ← further down, in the artwork p
   <ul>
     <li>A <b>poster</b> from TMDb or your own from the PC, with a <b>format banner</b> (e.g. “UHDBD with DV and Atmos”) shown on the wall. It suggests the banner from the format the Biblioteca detected.</li>
     <li>A <b>case</b>: black 4K or blue Blu-ray. With a case, the <b>disc slides out of the box</b> on the movie page.</li>
-    <li>A <b>backdrop</b>, <b>logo</b> and <b>disc</b> (discs come from fanart.tv and need the free fanart.tv key in <code>FANART_API_KEY</code> in the compose).</li>
+    <li>A <b>backdrop</b>, <b>logo</b> and <b>disc</b> (discs come from fanart.tv and need your free fanart.tv key, which you paste in the Settings window).</li>
     <li>TV show <b>seasons</b> and <b>metadata</b> (to fix a wrongly matched movie).</li>
   </ul>
   <p><b>Step-by-step Artwork Studio guide, with screenshots:</b> <a href="artwork-en.html">artwork-en.html</a>.</p>
