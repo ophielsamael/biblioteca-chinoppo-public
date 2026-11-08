@@ -188,7 +188,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       <ol>
         <li>Abre <a href="https://github.com/ophielsamael/biblioteca-chinoppo-public" target="_blank" rel="noopener">github.com/ophielsamael/biblioteca-chinoppo-public</a>, da clic en el botón verde <b class="ui">Code</b> y luego en <b class="ui">Download ZIP</b>.</li>
         <li>Con el administrador de archivos del NAS, sube el ZIP a una carpeta para tus apps (en Synology se crea sola una llamada <code>docker</code>).</li>
-        <li>Descomprímelo ahí mismo (clic derecho → <b class="ui">Extraer</b>). Te queda una carpeta <code>biblioteca-chinoppo-public-main</code> con todo adentro, incluido el archivo <code>compose.yaml</code>.</li>
+        <li>Descomprímelo ahí mismo (clic derecho → <b class="ui">Extraer → Extraer aquí</b>), sin crear antes otra carpeta. Te queda una carpeta <code>biblioteca-chinoppo-public-main</code> con todo adentro, incluido el archivo <code>compose.yaml</code>.</li>
       </ol>
     </div></li>
 
@@ -255,6 +255,17 @@ TZ: "<b>America/Mexico_City</b>"         ← tu zona: Europe/Madrid, Europe/Rome
   </ol>
 </section>
 
+<section>
+  <h2>Actualizar a una versión nueva</h2>
+  <ol>
+    <li>En tu PC, <b>borra el ZIP viejo</b> de Descargas y baja el nuevo de GitHub (<b>Code → Download ZIP</b>). Ábrelo y revisa que traiga las carpetas <code>artwork</code>, <code>biblio</code>, <code>disc</code>…</li>
+    <li>En la app de Docker, <b>detén</b> la aplicación y <b>elimínala</b>. Tus carpetas del menú, carátulas y progreso se guardan aparte y no se pierden.</li>
+    <li>En el administrador de archivos del NAS, borra la carpeta <code>biblioteca-chinoppo-public-main</code>, sube el ZIP nuevo <b>directamente a la carpeta de tus apps</b> (no dentro de otra) y extráelo ahí.</li>
+    <li>Crea la aplicación otra vez como en el paso 6 y vuelve a poner tus datos en las líneas con <code>&lt;--</code>.</li>
+  </ol>
+  <p class="note"><strong>Importante:</strong> algunas apps de Docker (como Container Manager) guardan su propia copia del <code>compose.yaml</code> cuando lo editas en su pantalla, y no la cambian aunque subas archivos nuevos. Por eso hay que eliminar la aplicación y crearla de nuevo, no solo reiniciarla.</p>
+  <p>La memoria USB no se toca, salvo que cambie la IP del NAS o del Chinoppo, o que la nueva versión lo pida.</p>
+</section>
 <section>
   <h2>Si algo no sale</h2>
   <dl>
