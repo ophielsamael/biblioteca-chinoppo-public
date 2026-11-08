@@ -27,7 +27,7 @@ services:
       start_period: 20s
 
   # Artwork Studio: elige carátulas, bandas de formato, estuches y discos (http://IP-DEL-NAS:3001).
-  # Usa la misma clave de TMDb de arriba; no hay nada que cambiar aquí, salvo la clave opcional de fanart.tv.
+  # Usa la misma clave de TMDb de arriba; aquí solo pon tu clave de fanart.tv (para los discos).
   artwork:
     build: ./artwork
     image: chinoppo-artwork-studio:latest
@@ -35,7 +35,7 @@ services:
     network_mode: host
     environment:
       TMDB_API_KEY: *tmdb
-      FANART_API_KEY: ""                           # <-- opcional: tu clave de fanart.tv, para el arte de los discos
+      FANART_API_KEY: ""                           # <-- recomendado: tu clave de fanart.tv (sin ella no hay discos para elegir)
       BIBLIOTECA_URL: "http://127.0.0.1:8095"
       PORT: "3001"
     volumes:
