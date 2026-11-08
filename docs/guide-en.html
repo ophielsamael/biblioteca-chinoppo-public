@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Biblioteca Chinoppo Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column (~68ch); the numbered steps are the spine, each says where it happens. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#152033; --muted:#566377;
+  --line:#d6dce6; --accent:#1c5fd4; --accent-soft:#e3ecfb; --warn:#9a5b00; --warn-soft:#fbf0dc;
+  --ok:#1f7a4d; --ok-soft:#e1f3e9; --code-bg:#eef1f6;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0d1420; --surface:#141d2c; --ink:#e4e9f2; --muted:#98a4b8;
+  --line:#26334a; --accent:#6c9dff; --accent-soft:#1a2a47; --warn:#f0b65a; --warn-soft:#2e2412;
+  --ok:#5fd39a; --ok-soft:#12291e; --code-bg:#0a101a; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0d1420; --surface:#141d2c; --ink:#e4e9f2; --muted:#98a4b8;
+  --line:#26334a; --accent:#6c9dff; --accent-soft:#1a2a47; --warn:#f0b65a; --warn-soft:#2e2412;
+  --ok:#5fd39a; --ok-soft:#12291e; --code-bg:#0a101a; color-scheme:dark }
+
+body{background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.1rem,6vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:800}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+b.ui{font-weight:600;background:var(--accent-soft);color:var(--accent);padding:0 .35em;border-radius:4px}
+.eyebrow{font:600 .75rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:1.15rem;color:var(--muted);max-width:62ch}
+section{display:flex;flex-direction:column;gap:16px}
+code{font:400 .88em var(--mono);background:var(--code-bg);padding:.1em .35em;border-radius:4px;overflow-wrap:anywhere}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font:400 .85rem/1.55 var(--mono)}
+pre code{background:none;padding:0}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.note{border-left:3px solid var(--warn);background:var(--warn-soft);padding:12px 16px;border-radius:0 8px 8px 0}
+.note strong{color:var(--warn)}
+.check{border-left:3px solid var(--ok);background:var(--ok-soft);padding:12px 16px;border-radius:0 8px 8px 0}
+.check strong{color:var(--ok)}
+
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.flow div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:.92rem;line-height:1.4}
+.flow b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:4px;color:var(--accent)}
+@media (max-width:640px){.flow{grid-template-columns:1fr 1fr}}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 .72rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--code-bg)}
+td:first-child{font-weight:600}
+.tag{display:inline-block;font:600 .7rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.notes div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.notes span{display:block;font:600 .72rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.notes i{display:block;border-bottom:1.5px dashed var(--line);height:1.6em}
+
+.steps{list-style:none;padding:0;gap:0;counter-reset:s}
+.steps>li{counter-increment:s;display:grid;grid-template-columns:52px minmax(0,1fr);gap:0 16px;padding-bottom:36px;position:relative}
+.steps>li::before{content:counter(s);grid-row:1/3;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  font:800 1.2rem/1 var(--display);background:var(--accent);color:var(--bg)}
+.steps>li::after{content:"";position:absolute;left:21px;top:50px;bottom:6px;width:2px;background:var(--line)}
+.steps>li:last-child::after{display:none}
+.steps>li>h3{align-self:center;min-height:44px;display:flex;align-items:center}
+.steps>li>div{display:flex;flex-direction:column;gap:12px;min-width:0}
+.where{font:600 .78rem/1 var(--mono);color:var(--muted)}
+
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.keys div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.keys kbd{font:600 .8rem var(--mono);color:var(--accent);display:block}
+
+dl{margin:0;display:flex;flex-direction:column;gap:14px}
+dt{font-weight:600}
+dd{margin:2px 0 0;color:var(--muted)}
+details{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+details>summary{cursor:pointer;font-weight:600}
+details[open]>summary{margin-bottom:12px}
+details>div{display:flex;flex-direction:column;gap:12px}
+footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);padding-top:20px}
+</style></head><body>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <span class="eyebrow">Step-by-step guide · Chinoppo M9201 · <a href="guia.html">Español</a></span>
+  <h1>Biblioteca Chinoppo</h1>
+  <p class="lede">Today, to watch a movie, you open <b>Network</b> on the Chinoppo and browse to the folder on your NAS. With this guide, a wall of movie posters appears when you switch it on, like on R_volution players: pick one with the remote and the movie starts. No programming and no command line needed.</p>
+</header>
+
+<section>
+  <h2>How it works</h2>
+  <p>The Chinoppo can play Blu-ray discs that carry a small program and can use the internet (BD-Live). The Biblioteca (“library”) is one of those discs, but it lives as a file on a USB stick. When it opens, it asks a small program you will install on your NAS for the posters. When you pick a movie, that program tells the Chinoppo to play it from your usual folder.</p>
+  <div class="flow">
+    <div><b>Remote</b>You pick a movie on the poster wall.</div>
+    <div><b>Disc on the USB</b>Shows the wall and reports your choice.</div>
+    <div><b>Your NAS</b>Finds posters online and tells the Chinoppo what to play.</div>
+    <div><b>Chinoppo</b>Opens the movie from your folder, as always.</div>
+  </div>
+  <p>Your movies are never moved or changed. The program only reads them.</p>
+</section>
+
+<section>
+  <h2>What you need</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>What</th><th>Details</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>Chinoppo M9201</td><td>With the jailbroken firmware <code>RU 20XRU-65-0131</code>. It is what lets the Biblioteca open by itself at power-on.</td><td><span class="tag">Required</span></td></tr>
+      <tr><td>NAS</td><td>The one you already use with the Chinoppo, with <b>NFS</b> and an app to run <b>Docker</b>. For example: Container Manager on Synology, Container Station on QNAP, Docker on Unraid, Apps on TrueNAS or Portainer on Asustor. If your NAS has none, see “Advanced”.</td><td><span class="tag">Required</span></td></tr>
+      <tr><td>USB stick</td><td>Any stick of 1 GB or more, formatted FAT32. It stays plugged into the Chinoppo.</td><td><span class="tag">Required</span></td></tr>
+      <tr><td>A PC or laptop</td><td>Only to open web pages and copy files to the USB stick.</td><td><span class="tag">Required</span></td></tr>
+      <tr><td>TMDb account</td><td>Free. Posters and plots come from there.</td><td><span class="tag">Required</span></td></tr>
+    </tbody>
+  </table></div>
+  <p>Keep some paper handy; you will write down five things in the first steps:</p>
+  <div class="notes">
+    <div><span>Chinoppo IP</span><i></i></div>
+    <div><span>NAS IP</span><i></i></div>
+    <div><span>TMDb key</span><i></i></div>
+    <div><span>Folder as the Chinoppo sees it (NFS)</span><i></i></div>
+    <div><span>Folder as the NAS sees it</span><i></i></div>
+  </div>
+</section>
+
+<section>
+  <h2>Steps</h2>
+  <p style="color:var(--muted);font-size:.92rem">The Biblioteca’s own screens and web page are in Spanish. The guide gives each button’s Spanish label with its meaning.</p>
+  <ol class="steps">
+
+    <li><h3>Prepare the Chinoppo and note its IP</h3><div>
+      <span class="where">On the Chinoppo, with the remote</span>
+      <ul>
+        <li>Go to <b class="ui">Setup → Network</b> and set <b class="ui">BD-Live Network Access</b> to <b class="ui">On</b>. Without it, the disc cannot fetch the posters.</li>
+        <li>In the same section, find the <b>network information</b> and write down the <b>IP address</b> (something like <code>192.168.1.16</code>).</li>
+        <li>Recommended: in your router, “reserve” that IP for the Chinoppo so it never changes. If you don’t know how, carry on; just remember that if it stops working one day, the IP may have changed.</li>
+      </ul>
+    </div></li>
+
+    <li><h3>Get your TMDb key</h3><div>
+      <span class="where">On the PC, in the browser</span>
+      <ol>
+        <li>Create a free account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a> and confirm your email.</li>
+        <li>Open your profile → <b class="ui">Settings</b> → <b class="ui">API</b> and request a key (personal use). Fill in the form with simple answers.</li>
+        <li>Copy the <b>API Key</b> (32 letters and numbers) and write it down. Don’t share it.</li>
+      </ol>
+    </div></li>
+
+    <li><h3>Note your NAS details</h3><div>
+      <span class="where">On the Chinoppo and in your NAS admin page</span>
+      <ul>
+        <li><b>NAS IP:</b> the address you use to open its admin page in the browser (for example <code>192.168.1.17</code>). Write it down.</li>
+        <li><b>The folder, as the Chinoppo sees it:</b> on the Chinoppo open <b class="ui">Network → NFS</b> and choose your NAS. Write down the <b>shared</b> folder shown there, the top-level one, for example <code>/volume1/Plex</code> or <code>/share/Movies</code>. Keep upper and lower case exactly. If your movies are deeper inside (like <code>Plex/Library/Movies</code>), that’s fine: you pick those subfolders later, in step 7.</li>
+        <li><b>The same folder, as the NAS sees it:</b> almost always the same as above. If unsure, look it up in the NAS file manager. Common examples:
+          <div class="tbl" style="margin-top:6px"><table>
+            <thead><tr><th>NAS</th><th>Path of a folder called “Plex”</th></tr></thead>
+            <tbody>
+              <tr><td>Synology</td><td><code>/volume1/Plex</code></td></tr>
+              <tr><td>QNAP</td><td><code>/share/Plex</code></td></tr>
+              <tr><td>Unraid</td><td><code>/mnt/user/Plex</code></td></tr>
+              <tr><td>TrueNAS</td><td><code>/mnt/YourPoolName/Plex</code></td></tr>
+            </tbody>
+          </table></div>
+        </li>
+      </ul>
+      <p class="note"><strong>Don’t see your NAS under Network → NFS?</strong> You are using SMB/Samba today, and the Biblioteca needs NFS. In your NAS settings, turn on the <b>NFS</b> service and give that folder access for the Chinoppo’s IP (read access is enough). If it asks about “squash”, map all users to admin. If there is an option for “non-privileged ports”, tick it. Then check the Chinoppo again.</p>
+    </div></li>
+
+    <li><h3>Install the Docker app on the NAS</h3><div>
+      <span class="where">In your NAS admin page</span>
+      <ul>
+        <li>Install your NAS’s Docker app from its app store: <b>Container Manager</b> (Synology), <b>Container Station</b> (QNAP), <b>Portainer</b> (Asustor and others). Unraid and TrueNAS have it built in.</li>
+        <li>Inside it, find the option to create an application from a <b>docker-compose</b> file. Depending on the brand it is called <b>Project</b> (Synology), <b>Application</b> (QNAP), <b>Stack</b> (Portainer) or <b>Compose</b>.</li>
+      </ul>
+    </div></li>
+
+    <li><h3>Download the program and put it on the NAS</h3><div>
+      <span class="where">On the PC</span>
+      <ol>
+        <li>Open <a href="https://github.com/ophielsamael/biblioteca-chinoppo-public" target="_blank" rel="noopener">github.com/ophielsamael/biblioteca-chinoppo-public</a>, click the green <b class="ui">Code</b> button, then <b class="ui">Download ZIP</b>.</li>
+        <li>With the NAS file manager, upload the ZIP to a folder for your apps (Synology creates one called <code>docker</code> automatically).</li>
+        <li>Extract it right there (right-click → <b class="ui">Extract</b>). You get a folder <code>biblioteca-chinoppo-public-main</code> with everything inside, including the <code>compose.yaml</code> file.</li>
+      </ol>
+    </div></li>
+
+    <li><h3>Create the application with your details</h3><div>
+      <span class="where">In the NAS Docker app</span>
+      <ol>
+        <li>Create a new project or stack called <code>biblioteca</code> and point it at the <code>biblioteca-chinoppo-public-main</code> folder. If your app can’t pick a folder, paste the contents of <code>compose.yaml</code> into the editor it shows.</li>
+        <li>In the <code>compose.yaml</code> text, <b>change only the lines ending in <code>&lt;--</code></b>, using what you wrote down:
+<pre><code>TMDB_API_KEY: "<b>your TMDb key</b>"
+CHINOPPO_IP: "<b>Chinoppo IP</b>"
+NFS_SERVER: "<b>NAS IP</b>"
+NFS_FOLDER: "<b>volume1/Plex</b>"        ← folder as the Chinoppo sees it, WITHOUT the leading /
+TZ: "<b>Europe/London</b>"               ← your time zone: Europe/Rome, America/New_York…
+...
+- <b>/volume1/Plex</b>:/media/Plex:ro    ← folder as the NAS sees it; keep :/media/Plex:ro as is</code></pre>
+          Keep the quotes.</li>
+        <li>Save and start (on Synology: <b class="ui">Next</b> until <b class="ui">Done</b>). The first time it takes 5 to 15 minutes to get ready. When it says <b>running</b>, continue.</li>
+      </ol>
+      <p class="note"><strong>If you got something wrong:</strong> stop the application, fix <code>compose.yaml</code> in your Docker app’s editor and start it again.</p>
+    </div></li>
+
+    <li><h3>Choose your folders on the Biblioteca page</h3><div>
+      <span class="where">On the PC, in the browser</span>
+      <ol>
+        <li>Open <code>http://NAS-IP:8095</code> (for example <code>http://192.168.1.17:8095</code>). That page belongs to the program you just installed.</li>
+        <li>If a yellow warning appears at the top, it tells you which detail is missing or wrong. Fix it as in the box of step 6.</li>
+        <li>Under <b>Carpetas del menú</b> (menu folders) there are examples (3D, ATMOS, Conciertos, Movies, Series). Remove the ones you don’t have with <b class="ui">Quitar</b> (remove).</li>
+        <li>Add your folders: in the form below click <b class="ui">Elegir…</b> (choose), browse to your movie folder and click <b class="ui">Usar esta carpeta</b> (use this folder). Pick <b>Películas</b> (movies) or <b>Series</b>, an icon, and <b class="ui">Guardar</b> (save). Repeat for each section you want in the menu.</li>
+        <li>Wait: the first time it fetches posters for your whole collection. With hundreds of movies this can take a while. The <b>Títulos</b> (titles) column keeps growing.</li>
+      </ol>
+      <p class="note"><strong>TV shows:</strong> organize them as <code>Show name/Season 01/episode.mkv</code> so they appear by season.</p>
+    </div></li>
+
+    <li><h3>Prepare the USB stick</h3><div>
+      <span class="where">On the PC</span>
+      <ol>
+        <li>On the same page (<code>:8095</code>), at the top, click <b class="ui">Descargar archivos para la USB</b> (download files for the USB). You get <code>Biblioteca-USB.zip</code>, already set up for your NAS and your Chinoppo.</li>
+        <li>Unzip it and copy its contents to the <b>root</b> of the USB stick (not inside another folder). It must look like this:
+<pre><code>USB/
+├── Biblioteca.iso
+└── AutoScript/</code></pre></li>
+        <li>Eject the stick safely.</li>
+      </ol>
+      <p style="color:var(--muted);font-size:.92rem">If the IP of the NAS or the Chinoppo ever changes, fix the compose (step 6) and download this ZIP again.</p>
+    </div></li>
+
+    <li><h3>Plug in and switch on</h3><div>
+      <span class="where">On the Chinoppo</span>
+      <ol>
+        <li>With the Chinoppo off, plug in the USB stick and leave it there for good.</li>
+        <li>Switch it on. The Biblioteca appears by itself 20 to 40 seconds later.</li>
+        <li>If you go back to the home menu, the <b class="ui">Disc</b> icon opens it again.</li>
+      </ol>
+      <p class="check"><strong>Done.</strong> Pick a movie with the arrows and <b>OK</b>. The first movie of each folder takes about 40 seconds to start; the next ones, much less.</p>
+      <div class="keys">
+        <div><kbd>Arrows</kbd>Move around the wall</div>
+        <div><kbd>OK</kbd>Details / play</div>
+        <div><kbd>Red / POP-UP</kbd>Go back</div>
+        <div><kbd>Colours</kbd>Switch section</div>
+      </div>
+      <p style="color:var(--muted);font-size:.92rem">RETURN, TOP MENU and INFO don’t work inside the Biblioteca: the Chinoppo keeps them for itself.</p>
+    </div></li>
+
+  </ol>
+</section>
+
+<section>
+  <h2>If something doesn’t work</h2>
+  <dl>
+    <dt>The Biblioteca doesn’t open by itself at power-on</dt>
+    <dd>Check that <code>Biblioteca.iso</code> and the <code>AutoScript</code> folder are at the root of the stick, and that the Chinoppo has the jailbroken firmware. If an <code>autoscript_ok.txt</code> file shows up on the stick, the start-up script did run.</dd>
+    <dt>It says “Activa BD-Live”</dt>
+    <dd>Step 1 is missing: <b>Setup → Network → BD-Live Network Access = On</b>.</dd>
+    <dt>It says “Sin conexion con el servidor” (no connection to the server)</dt>
+    <dd>The NAS is off, the application is stopped in the Docker app, or the NAS IP changed. If it changed, fix the compose and download the USB files again (step 8).</dd>
+    <dt>It says “Disco sin servidor” (disc without a server)</dt>
+    <dd>The <code>Biblioteca.iso</code> on the stick did not come from the page’s button. Download it from there (step 8).</dd>
+    <dt>A movie says “No se pudo reproducir” (could not play)</dt>
+    <dd>Almost always the NFS permission (step 3) or the <code>NFS_FOLDER</code> value in step 6. Open <code>http://NAS-IP:8095/log</code> to see what happened.</dd>
+    <dt>A movie has the wrong poster</dt>
+    <dd>Open <code>http://NAS-IP:8095/match</code> and fix it.</dd>
+  </dl>
+</section>
+
+<section>
+  <h2>Good to know</h2>
+  <dl>
+    <dt>The first movie of each folder takes about 40 seconds</dt>
+    <dd>The Chinoppo has to “connect” to the folder before playing, and can only have one connected at a time. Within the same folder, the next movies start quickly.</dd>
+    <dt>Switching off mid-movie</dt>
+    <dd>The Chinoppo’s standby is a real power-off. When you switch it on again, the Biblioteca opens by itself.</dd>
+    <dt>One “play” at a time</dt>
+    <dd>If you press OK several times in a row, the program ignores the repeats so the Chinoppo doesn’t lock up.</dd>
+  </dl>
+</section>
+
+<section>
+  <h2>Extra: Dolby Vision in MKV files</h2>
+  <p>Out of the box, the Chinoppo plays Dolby Vision MKVs as plain HDR10. The <b>oppo-dv-mkv</b> patch by fandangos (<a href="https://github.com/fandangos/oppo-dv-mkv" target="_blank" rel="noopener">github.com/fandangos/oppo-dv-mkv</a>) makes the TV or projector receive real Dolby Vision (profiles 5, 7 and 8) and also improves subtitles. It is independent of the Biblioteca.</p>
+  <p class="note"><strong>At your own risk.</strong> It changes how the player boots. Read the project’s README first. In the factory menu, never press “Fmt buda” or “Fmt apda”.</p>
+  <ol>
+    <li>From the project’s <b>Releases</b>, download the <code>mkv-subtitles</code> zip of the latest version (we used v1.7.1).</li>
+    <li>Use a <b>different</b> FAT32 USB stick (not the Biblioteca one). Copy the zip’s contents to its root.</li>
+    <li>Switch the Chinoppo off, remove the Biblioteca stick, plug the patch stick into the <b>rear</b> USB port and switch on.</li>
+    <li>Wait 30 seconds with the home menu on screen, switch off and remove the stick. On the PC, <code>oppo-dv-mkv-result.txt</code> must say <code>INSTALLED</code>.</li>
+    <li>Put the Biblioteca stick back and switch on.</li>
+  </ol>
+  <p>Set Dolby Vision on the TV or projector to <b>TV-led</b> mode. Note: MKVs from 4K discs that carry the Dolby Vision enhancement as a <b>second video track</b> (as MakeMKV leaves them) play as HDR10. Blu-ray ISOs or BDMV folders always play in Dolby Vision.</p>
+</section>
+
+<section>
+  <h2>Equipment we tested with</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Equipment</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>Chinoppo M9201</td><td>Player, RU 65-0131 firmware, with the Dolby Vision patch v1.7.1.</td></tr>
+      <tr><td>NAS Synology DS423+ (DSM 7.3)</td><td>Stores the movies and shares them over NFS.</td></tr>
+      <tr><td>Linux server with Docker</td><td>Where the program runs in our home (see “Advanced”).</td></tr>
+      <tr><td>Kingston DataTraveler</td><td>The Biblioteca USB stick.</td></tr>
+      <tr><td>Denon AVC-X3800H</td><td>A/V receiver for Atmos, TrueHD and DTS:X (through the Chinoppo’s audio HDMI).</td></tr>
+      <tr><td>Hisense PX3 Pro</td><td>Projector. It only provides the picture; any TV or projector works.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Advanced</h2>
+  <details><summary>Run the program on a Linux PC or server instead of the NAS</summary><div>
+    <p>If your NAS can’t run Docker, use an always-on Linux PC or mini PC. Mount the NAS folder on it over NFS, download the project and edit <code>compose.yaml</code> as in step 6, changing the volume line to where you mounted it:</p>
+<pre><code>curl -fsSL https://get.docker.com | sh
+# /etc/fstab:  NAS-IP:/volume1/Plex  /mnt/nas/media  nfs  ro,defaults  0 0
+sudo mount -a
+git clone https://github.com/ophielsamael/biblioteca-chinoppo-public.git
+cd biblioteca-chinoppo-public
+nano compose.yaml        # your details, and the volume:  /mnt/nas/media:/media/Plex:ro
+docker compose up -d --build</code></pre>
+    <p>The page is then at <code>http://SERVER-IP:8095</code> and the USB ZIP points at that server.</p>
+  </div></details>
+  <details><summary>Build the disc yourself</summary><div>
+    <p>Not needed: the disc ships ready in <code>static/usb/Biblioteca.iso</code> and the program writes the address into it. To change the disc’s code: install <b>bdj-sdk</b> in WSL Ubuntu (<code>~/bdj/bdj-sdk</code>) and run <code>bash disc/build.sh</code>; copy <code>disc/out/Biblioteca.iso</code> to <code>static/usb/</code>.</p>
+  </div></details>
+  <details><summary>SSH into the Chinoppo and a dark home-menu bar</summary><div>
+    <p><code>tools/autoscript/AutoScript/ssh</code> has an SSH server (key-only) that runs from the USB stick, and <code>tools/tema</code> has the dark home-menu bar. They are for people comfortable with a terminal; read the comments in each script.</p>
+  </div></details>
+</section>
+
+<footer>Built and tested at home with the equipment in the table. This product uses the TMDb API but is not endorsed or certified by TMDb.</footer>
+</div>
+
+</body></html>
