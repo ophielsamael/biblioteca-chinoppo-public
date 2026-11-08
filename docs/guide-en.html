@@ -271,8 +271,15 @@ TZ: "<b>Europe/London</b>"               ← your time zone: Europe/Rome, Americ
   </ol>
 </section>
 
-<section>
+<section id="updating">
   <h2>Updating to a new version</h2>
+  <p><b>Artwork Studio tells you by itself</b> when there is a new version: a green bar appears at the top saying “There is a new version”. Press <b class="ui">Ver qué cambió y cómo actualizar</b> (see what changed and how to update) to see the changes and the steps that apply to you. Depending on what changed, there are three cases:</p>
+  <ul>
+    <li><b>Code only:</b> stop the application, extract the new ZIP over the folder (replacing files) and press <b>Action → Build</b>, then <b>Start</b>. Just restarting updates nothing: you must build.</li>
+    <li><b>If <code>compose.yaml</code> changed:</b> delete the application and create it again (the steps below).</li>
+    <li><b>If the disc or the USB scripts changed:</b> download <b>the USB files</b> again from the <code>:8095</code> page and copy them to the stick.</li>
+  </ul>
+  <p>Your folders, artwork, keys and badge styles live in separate volumes: they are kept. Here are the full steps:</p>
   <ol>
     <li>On your PC, <b>delete the old ZIP</b> from Downloads and get the new one from GitHub (<b>Code → Download ZIP</b>). Open it and check it has the <code>artwork</code>, <code>biblio</code>, <code>disc</code>… folders.</li>
     <li>In the Docker app, <b>stop</b> the application and <b>delete</b> it. Your menu folders, artwork and progress are stored separately and are kept.</li>

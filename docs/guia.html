@@ -270,8 +270,15 @@ TZ: "<b>America/Mexico_City</b>"         ← tu zona: Europe/Madrid, Europe/Rome
   </ol>
 </section>
 
-<section>
+<section id="actualizar">
   <h2>Actualizar a una versión nueva</h2>
+  <p><b>Artwork Studio te avisa solo</b> cuando hay una versión nueva: sale una cinta verde arriba con “Hay una versión nueva”. Al pulsar <b class="ui">Ver qué cambió y cómo actualizar</b> ves los cambios y los pasos que te tocan. Según lo que cambió, hay tres casos:</p>
+  <ul>
+    <li><b>Solo código:</b> detén la aplicación, extrae el ZIP nuevo sobre la carpeta (reemplazando archivos) y pulsa <b>Acción → Compilar</b> (<i>Build</i>) y luego <b>Iniciar</b>. Reiniciar a secas no actualiza nada: hay que compilar.</li>
+    <li><b>Si cambió el <code>compose.yaml</code>:</b> elimina la aplicación y créala de nuevo (los pasos de abajo).</li>
+    <li><b>Si cambió el disco o los scripts de la USB:</b> vuelve a descargar <b>los archivos para la USB</b> desde la página <code>:8095</code> y cópialos a la memoria.</li>
+  </ul>
+  <p>Tus carpetas, carátulas, claves y estilos de etiquetas viven en volúmenes aparte: se conservan. Estos son los pasos completos:</p>
   <ol>
     <li>En tu PC, <b>borra el ZIP viejo</b> de Descargas y baja el nuevo de GitHub (<b>Code → Download ZIP</b>). Ábrelo y revisa que traiga las carpetas <code>artwork</code>, <code>biblio</code>, <code>disc</code>…</li>
     <li>En la app de Docker, <b>detén</b> la aplicación y <b>elimínala</b>. Tus carpetas del menú, carátulas y progreso se guardan aparte y no se pierden.</li>

@@ -10,6 +10,7 @@ import { listBadgeStyles, setBadgeStyle, type BadgeStyle } from "../actions/badg
 import { searchTmdb, getBibliotecaMatch, applyMatch, type TmdbHit, type BibliotecaMatch } from "../actions/metadata";
 import { getConfigStatus } from "../actions/config";
 import { saveKeys } from "../actions/keys";
+import { checkForUpdates, installedVersion, type UpdateInfo } from "../actions/updates";
 import { translations, Language } from "../config/i18n";
 
 // Types
@@ -122,6 +123,16 @@ export default function Home() {
     LANGUAGE: 'es' as Language
   });
   const [savingKeys, setSavingKeys] = useState(false);
+
+  // New-version notice: compared with the changelog on GitHub (server side, once an hour)
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo>(null);
+  const [showUpdate, setShowUpdate] = useState(false);
+  const [dismissedUpdate, setDismissedUpdate] = useState<string>('');
+  const [version, setVersion] = useState('');
+  const dismissUpdate = () => {
+    if (updateInfo) { try { localStorage.setItem('artwork_update_dismissed', updateInfo.latest); } catch (e) {} setDismissedUpdate(updateInfo.latest); }
+    setShowUpdate(false);
+  };
   const [keyMsg, setKeyMsg] = useState<{ tmdb?: string; fanart?: string; bibliotecaOff?: boolean } | null>(null);
 
   // Fetch real libraries and config from Server on mount
@@ -132,13 +143,18 @@ export default function Home() {
       if (stored) setSettingsForm(f => ({ ...f, LANGUAGE: JSON.parse(stored).LANGUAGE || 'es' }));
     } catch (e) {}
 
+    installedVersion().then(setVersion);
+    checkForUpdates().then(info => { setUpdateInfo(info); if (info && new URLSearchParams(window.location.search).get('panel') === 'update') setShowUpdate(true); });
+    try { setDismissedUpdate(localStorage.getItem('artwork_update_dismissed') || ''); } catch (e) {}
+
     getConfigStatus().then(status => {
       setConfigStatus(status);
       // First visit: the keys window opens by itself. TMDb is required (always asked while missing);
       // fanart.tv is optional, asked once.
       let seen = false;
       try { seen = Boolean(localStorage.getItem('artwork_setup_seen')); } catch (e) {}
-      if (!status.isTmdbConfigured || (!status.isFanartConfigured && !seen)) setShowSettingsModal(true);
+      const deepLink = new URLSearchParams(window.location.search).get('panel');   // guides and screenshots open one window directly
+      if (!deepLink && (!status.isTmdbConfigured || (!status.isFanartConfigured && !seen))) setShowSettingsModal(true);
     });
 
     fetchLibraries().then(libs => {
@@ -556,6 +572,19 @@ export default function Home() {
         </div>
       </header>
 
+      {/* NEW VERSION NOTICE */}
+      {updateInfo && dismissedUpdate !== updateInfo.latest && (
+        <div className="w-full bg-emerald-950/70 border-b border-emerald-500/30 px-8 py-3 flex flex-wrap items-center justify-between gap-3 text-sm">
+          <span className="text-emerald-100">
+            <b>{t.updateAvailable}</b> ({updateInfo.latest}) · {t.updateYouHave} {updateInfo.installed}
+          </span>
+          <div className="flex gap-3">
+            <button onClick={() => setShowUpdate(true)} className="px-4 py-1.5 rounded-lg bg-emerald-500 text-white font-bold hover:bg-emerald-400">{t.updateSee}</button>
+            <button onClick={dismissUpdate} className="px-4 py-1.5 rounded-lg text-gray-300 hover:text-white">{t.updateLater}</button>
+          </div>
+        </div>
+      )}
+
       {/* MAIN CONTROL PANEL */}
       <section className="w-full max-w-[1400px] mx-auto px-6 py-10 flex-1 flex flex-col">
         <div className="relative w-full h-[300px] md:h-[400px] rounded-[2rem] overflow-hidden mb-12 border border-white/5 shadow-2xl group">
@@ -634,12 +663,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-4">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center font-bold text-white shadow-md border border-white/10">
-            A
-          </div>
-        </div>
       </div>
 
       {/* Main Layout Container */}
@@ -1330,7 +1353,7 @@ export default function Home() {
 
       {/* Footer inside the module */}
             <footer className="mt-auto border-t border-white/5 py-6 px-8 flex items-center justify-between text-xs text-gray-500 bg-[#090a0f]/60">
-              <span>Artwork Studio · Biblioteca Chinoppo</span>
+              <span>Artwork Studio · Biblioteca Chinoppo{version && ` · v${version}`}</span>
               <div className="flex gap-4">
                 <a href="#" className="hover:underline">TMDb API</a>
               </div>
@@ -1339,6 +1362,57 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* NEW VERSION: what changed and how to get it */}
+      {showUpdate && updateInfo && (() => {
+        const lang = settingsForm.LANGUAGE === 'en' ? 'en' : 'es';
+        const needsCompose = updateInfo.newer.some(r => r.compose), needsUsb = updateInfo.newer.some(r => r.usb);
+        const guide = lang === 'en'
+          ? 'https://ophielsamael.github.io/biblioteca-chinoppo-public/docs/guide-en.html#updating'
+          : 'https://ophielsamael.github.io/biblioteca-chinoppo-public/docs/guia.html#actualizar';
+        return (
+          <div className="fixed inset-0 z-[95] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+            <div className="w-full max-w-2xl max-h-[90vh] bg-[#0f111a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+              <div className="px-6 py-4 border-b border-white/5 bg-black/40 flex justify-between items-center">
+                <h3 className="text-emerald-400 font-bold tracking-wider uppercase text-sm">{t.updateTitle} · {updateInfo.latest}</h3>
+                <button onClick={() => setShowUpdate(false)} className="text-gray-500 hover:text-white">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto flex flex-col gap-5 text-sm text-gray-300">
+                <div>
+                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t.updateWhatsNew}</div>
+                  <div className="flex flex-col gap-4">
+                    {updateInfo.newer.map((r) => (
+                      <div key={r.id}>
+                        <div className="text-white font-bold">{r.title[lang]} <span className="text-gray-500 font-normal">· {r.date}</span></div>
+                        <ul className="list-disc pl-5 mt-1 flex flex-col gap-1">{r.changes[lang].map((c, i) => <li key={i}>{c}</li>)}</ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t.updateHowTo}</div>
+                  <ol className="list-decimal pl-5 flex flex-col gap-2">
+                    <li>{t.updStep1}</li>
+                    <li>{needsCompose ? t.updStep2Compose : t.updStep2Rebuild}</li>
+                    <li>{needsUsb ? t.updStep3Usb : t.updStep3NoUsb}</li>
+                  </ol>
+                  <p className="mt-3 text-emerald-300">{t.updKept}</p>
+                  <p className="mt-2 text-gray-500">{t.updGit}</p>
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t border-white/5 bg-black/20 flex flex-wrap justify-between gap-3">
+                <a href={guide} target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-xl text-sm font-bold text-emerald-300 hover:text-emerald-200">{t.updGuide} ↗</a>
+                <div className="flex gap-3">
+                  <button onClick={dismissUpdate} className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-400 hover:text-white">{t.updateLater}</button>
+                  <button onClick={() => setShowUpdate(false)} className="px-5 py-2 rounded-xl text-sm font-bold bg-emerald-500 text-white hover:bg-emerald-400">{t.updClose}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* BADGE STYLES: the format row under the title, for every title */}
       {showBadgeStyles && (
