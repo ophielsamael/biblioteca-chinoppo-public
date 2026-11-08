@@ -111,6 +111,19 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
 </section>
 
 <section>
+  <h2>Tus claves: TMDb y fanart.tv</h2>
+  <p>Artwork Studio necesita dos claves gratuitas. Sácalas una sola vez:</p>
+  <ul>
+    <li><b>TMDb</b> (pósters, fondos y logos): crea una cuenta en <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, entra a tu perfil → <b>Configuración → API</b> y copia la <b>Clave de la API</b>.</li>
+    <li><b>fanart.tv</b> (discos): crea una cuenta en <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> y, en tu perfil, copia tu <b>Personal API Key</b>.</li>
+  </ul>
+  <p><b>Dónde ponerlas (recomendado):</b> en el <code>compose.yaml</code>, al instalar (paso 6 de la guía principal): la de TMDb en <code>TMDB_API_KEY</code> y la de fanart.tv en <code>FANART_API_KEY</code>. Así sirven en cualquier PC o celular con el que abras Artwork.</p>
+  <p><b>O desde Artwork:</b> botón <b class="ui">Ajustes</b> (arriba a la derecha). Ahí también cambias el idioma (español o inglés). Escribe la clave que te falte y pulsa <b class="ui">Guardar y Recargar</b>. Esta ventana se abre sola si Artwork no encuentra la clave de TMDb.</p>
+  <img class="shot" src="img/aw_ajustes.jpg" alt="Ventana de Ajustes con idioma, clave de TMDb y clave de fanart.tv" style="max-width:560px">
+  <p class="note"><strong>Ojo:</strong> lo que pongas en Ajustes se guarda solo en ese navegador. Si abres Artwork desde otra PC o desde el celular, tendrás que ponerlas otra vez; por eso es mejor el <code>compose.yaml</code>.</p>
+</section>
+
+<section>
   <h2>Pasos</h2>
   <ol class="steps">
 

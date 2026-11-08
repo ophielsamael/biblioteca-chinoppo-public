@@ -111,6 +111,19 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
 </section>
 
 <section>
+  <h2>Your keys: TMDb and fanart.tv</h2>
+  <p>Artwork Studio needs two free keys. Get them once:</p>
+  <ul>
+    <li><b>TMDb</b> (posters, backdrops and logos): create an account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, open your profile → <b>Settings → API</b> and copy the <b>API Key</b>.</li>
+    <li><b>fanart.tv</b> (discs): create an account at <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> and copy your <b>Personal API Key</b> from your profile.</li>
+  </ul>
+  <p><b>Where to put them (recommended):</b> in <code>compose.yaml</code> when installing (step 6 of the main guide): TMDb in <code>TMDB_API_KEY</code> and fanart.tv in <code>FANART_API_KEY</code>. That way they work on any PC or phone you open Artwork from.</p>
+  <p><b>Or from Artwork:</b> the <b class="ui">Ajustes</b> (settings) button, top right. There you also switch the language (Spanish or English). Type the missing key and press <b class="ui">Guardar y Recargar</b> (save and reload). This window opens by itself when Artwork can’t find the TMDb key.</p>
+  <img class="shot" src="img/aw_ajustes.jpg" alt="Settings window with language, TMDb key and fanart.tv key" style="max-width:560px">
+  <p class="note"><strong>Note:</strong> keys typed in Settings are stored only in that browser. Opening Artwork from another PC or your phone means typing them again, which is why <code>compose.yaml</code> is better.</p>
+</section>
+
+<section>
   <h2>Steps</h2>
   <ol class="steps">
 
