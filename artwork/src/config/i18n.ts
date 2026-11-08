@@ -1,5 +1,9 @@
 export const translations = {
   es: {
+    changelogTitle: "Cambios",
+    yourVersion: "Tu versión",
+    versionLabel: "Versión",
+    noNewerVersion: "✓ No encontré versiones más nuevas en GitHub.",
     updateAvailable: "Hay una versión nueva",
     updateYouHave: "tienes",
     updateSee: "Ver qué cambió y cómo actualizar",
@@ -135,6 +139,10 @@ export const translations = {
     caseDesc: "La caja sale solo en la ficha de la película en el Chinoppo, con la carátula sin banner. El muro usa el póster con su overlay.",
   },
   en: {
+    changelogTitle: "Changes",
+    yourVersion: "Your version",
+    versionLabel: "Version",
+    noNewerVersion: "✓ I found no newer version on GitHub.",
     updateAvailable: "There is a new version",
     updateYouHave: "you have",
     updateSee: "See what changed and how to update",

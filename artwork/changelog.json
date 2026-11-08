@@ -1,5 +1,25 @@
 [
   {
+    "id": "2026.11.09",
+    "date": "2026-11-09",
+    "title": {
+      "es": "La versión instalada y su historial de cambios, en Artwork",
+      "en": "The installed version and its change history, in Artwork"
+    },
+    "changes": {
+      "es": [
+        "Abajo de Ajustes, en el menú de la izquierda, aparece la versión que tienes; al pulsarla se abre la ventana con el historial de cambios.",
+        "Quité el avatar decorativo «A» de la barra de Artwork, que no hacía nada."
+      ],
+      "en": [
+        "Below Settings, in the left menu, your installed version now appears; pressing it opens the window with the change history.",
+        "Removed the decorative “A” avatar from Artwork's bar; it did nothing."
+      ]
+    },
+    "compose": false,
+    "usb": false
+  },
+  {
     "id": "2026.11.08",
     "date": "2026-11-08",
     "title": {
