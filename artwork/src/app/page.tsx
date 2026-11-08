@@ -9,6 +9,7 @@ import { fetchFanartDiscs, type FanartDisc } from "../actions/fanart";
 import { listBadgeStyles, setBadgeStyle, type BadgeStyle } from "../actions/badges";
 import { searchTmdb, getBibliotecaMatch, applyMatch, type TmdbHit, type BibliotecaMatch } from "../actions/metadata";
 import { getConfigStatus } from "../actions/config";
+import { saveKeys } from "../actions/keys";
 import { translations, Language } from "../config/i18n";
 
 // Types
@@ -120,24 +121,24 @@ export default function Home() {
     FANART_API_KEY: '',
     LANGUAGE: 'es' as Language
   });
+  const [savingKeys, setSavingKeys] = useState(false);
+  const [keyMsg, setKeyMsg] = useState<{ tmdb?: string; fanart?: string; bibliotecaOff?: boolean } | null>(null);
 
   // Fetch real libraries and config from Server on mount
   useEffect(() => {
-    // 1. Check LocalStorage
-    const stored = localStorage.getItem('artwork_studio_config');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setSettingsForm({
-          ...parsed,
-          LANGUAGE: parsed.LANGUAGE || 'es'
-        });
-      } catch (e) {}
-    }
+    // The browser only remembers the language; the keys live on the NAS (see saveSettings)
+    try {
+      const stored = localStorage.getItem('artwork_studio_config');
+      if (stored) setSettingsForm(f => ({ ...f, LANGUAGE: JSON.parse(stored).LANGUAGE || 'es' }));
+    } catch (e) {}
 
     getConfigStatus().then(status => {
       setConfigStatus(status);
-      if (!status.isTmdbConfigured) setShowSettingsModal(true);   // keys normally come from compose.yaml
+      // First visit: the keys window opens by itself. TMDb is required (always asked while missing);
+      // fanart.tv is optional, asked once.
+      let seen = false;
+      try { seen = Boolean(localStorage.getItem('artwork_setup_seen')); } catch (e) {}
+      if (!status.isTmdbConfigured || (!status.isFanartConfigured && !seen)) setShowSettingsModal(true);
     });
 
     fetchLibraries().then(libs => {
@@ -150,17 +151,27 @@ export default function Home() {
     });
   }, []);
 
-  const saveSettings = () => {
-    // Save to LocalStorage
-    localStorage.setItem('artwork_studio_config', JSON.stringify(settingsForm));
-    
-    // Save to Cookie (accessible by Server Actions)
-    document.cookie = "artwork_studio_config=" + encodeURIComponent(JSON.stringify(settingsForm)) + "; path=/; max-age=31536000";
-    
+  const closeSettings = () => {
+    try { localStorage.setItem('artwork_setup_seen', '1'); } catch (e) {}
     setShowSettingsModal(false);
-    window.location.reload();
   };
 
+  const saveSettings = async () => {
+    try {
+      localStorage.setItem('artwork_studio_config', JSON.stringify({ LANGUAGE: settingsForm.LANGUAGE }));
+      localStorage.setItem('artwork_setup_seen', '1');
+    } catch (e) {}
+    const tmdb = settingsForm.TMDB_API_KEY.trim(), fanart = settingsForm.FANART_API_KEY.trim();
+    if (!tmdb && !configStatus?.isTmdbConfigured) { setKeyMsg({ tmdb: 'missing' }); return; }   // TMDb is required
+    if (!tmdb && !fanart) { window.location.reload(); return; }                                  // only the language changed
+    setSavingKeys(true);
+    setKeyMsg(null);
+    const r = await saveKeys({ tmdb, fanart });
+    setSavingKeys(false);
+    const fine = (s: string) => s === 'saved' || s === 'unchanged';
+    setKeyMsg({ tmdb: r.tmdb, fanart: r.fanart, bibliotecaOff: !r.biblioteca });
+    if (fine(r.tmdb) && fine(r.fanart)) window.location.reload();   // saved on the NAS: reload with them
+  };
   // Fetch movies when activeLibraryId changes
   useEffect(() => {
     if (activeLibraryId) {
@@ -659,7 +670,6 @@ export default function Home() {
           <div className="flex flex-col gap-2">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t.tools}</span>
             {[
-              { name: t.bannersAndOverlays, icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z", action: () => { setActiveFilter(t.filterAll); setSearchQuery(""); } },
               { name: t.badgeStyles, icon: "M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z", action: openBadgeStyles },
               { name: t.settings, icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z", action: () => setShowSettingsModal(true) },
             ].map((tool) => (
@@ -1351,7 +1361,7 @@ export default function Home() {
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <div className="text-white font-bold">{st.name}</div>
-                      <div className="text-xs text-gray-500">{st.own ? t.badgeStyleOwn : `${t.badgeStyleBy} ${st.author} · Badger`}</div>
+                      <div className="text-xs text-gray-500">{st.own ? t.badgeStyleOwn : `${t.badgeStyleBy} ${st.author} · Badger`}{!st.own && <span className={st.saved ? " ml-2 text-emerald-400" : " ml-2 text-amber-400"}>{st.saved ? t.badgeStyleSaved : t.badgeStyleDownloading}</span>}</div>
                     </div>
                     <button onClick={() => chooseBadgeStyle(st.id)} disabled={st.selected || badgeBusy !== null}
                             className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap ${st.selected ? 'bg-emerald-500 text-white' : 'bg-white/5 hover:bg-emerald-500 text-gray-200 hover:text-white border border-white/10'} disabled:opacity-80`}>
@@ -1374,7 +1384,7 @@ export default function Home() {
           <div className="w-full max-w-lg bg-[#0f111a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-white/5 bg-black/40 flex justify-between items-center">
               <h3 className="text-emerald-400 font-bold tracking-wider uppercase text-sm">{t.connectionConfig}</h3>
-              <button onClick={() => setShowSettingsModal(false)} className="text-gray-500 hover:text-white">
+              <button onClick={closeSettings} className="text-gray-500 hover:text-white">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
@@ -1391,40 +1401,52 @@ export default function Home() {
                   <option value="en">English</option>
                 </select>
               </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1 block">{t.tmdbApiKeyLabel}</label>
-                <input 
-                  type="password" 
-                  value={settingsForm.TMDB_API_KEY}
-                  onChange={(e) => setSettingsForm({...settingsForm, TMDB_API_KEY: e.target.value})}
-                  placeholder={t.tmdbApiKeyPlaceholder}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1 block">{t.fanartApiKeyLabel}</label>
-                <input 
-                  type="password" 
-                  value={settingsForm.FANART_API_KEY || ''}
-                  onChange={(e) => setSettingsForm({...settingsForm, FANART_API_KEY: e.target.value})}
-                  placeholder={t.fanartApiKeyPlaceholder}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
-                />
-              </div>
+              <p className="text-sm text-gray-400 leading-relaxed">{t.keysIntro}</p>
+              {[
+                { id: 'tmdb', label: t.tmdbApiKeyLabel, link: 'https://www.themoviedb.org/settings/api', help: t.tmdbHelp, ph: t.tmdbApiKeyPlaceholder,
+                  value: settingsForm.TMDB_API_KEY, ready: configStatus?.isTmdbConfigured, onChange: (v: string) => setSettingsForm({ ...settingsForm, TMDB_API_KEY: v }) },
+                { id: 'fanart', label: t.fanartApiKeyLabel, link: 'https://fanart.tv/get-an-api-key/', help: t.fanartHelp, ph: t.fanartApiKeyPlaceholder,
+                  value: settingsForm.FANART_API_KEY, ready: configStatus?.isFanartConfigured, onChange: (v: string) => setSettingsForm({ ...settingsForm, FANART_API_KEY: v }) },
+              ].map((k) => {
+                const msg = keyMsg ? (keyMsg as any)[k.id] : undefined;
+                return (
+                  <div key={k.id}>
+                    <div className="flex items-baseline justify-between gap-3 mb-1">
+                      <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        {k.label} {k.ready && <span className="ml-1 text-emerald-400 normal-case">{t.keyReady}</span>}
+                      </label>
+                      <a href={k.link} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-emerald-400 hover:underline whitespace-nowrap">{t.getKeyLink} ↗</a>
+                    </div>
+                    <input
+                      type="password"
+                      value={k.value}
+                      onChange={(e) => k.onChange(e.target.value)}
+                      placeholder={k.ready ? t.keyAlreadySet : k.ph}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">{k.help}</p>
+                    {msg === 'invalid' && <p className="text-xs text-red-400 mt-1">{k.id === 'tmdb' ? t.tmdbInvalid : t.fanartInvalid}</p>}
+                    {msg === 'unreachable' && <p className="text-xs text-amber-400 mt-1">{t.keyUnreachable}</p>}
+                    {msg === 'missing' && <p className="text-xs text-red-400 mt-1">{t.tmdbMissing}</p>}
+                  </div>
+                );
+              })}
+              {keyMsg?.bibliotecaOff && <p className="text-xs text-amber-400">{t.bibliotecaOff}</p>}
             </div>
 
             <div className="px-6 py-5 border-t border-white/5 bg-black/20 flex justify-end gap-3">
               <button 
-                onClick={() => setShowSettingsModal(false)}
+                onClick={closeSettings}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-400 hover:text-white"
               >
                 {t.cancel}
               </button>
               <button 
                 onClick={saveSettings}
-                className="px-6 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-white hover:bg-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all"
+                disabled={savingKeys}
+                className="px-6 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-white hover:bg-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all disabled:opacity-60"
               >
-                {t.saveAndReload}
+                {savingKeys ? t.checkingKeys : t.saveAndReload}
               </button>
             </div>
           </div>

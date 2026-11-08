@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 {% if no_key %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ Falta tu clave de TMDb: sin ella no hay carátulas.
-  Ponla en <b>TMDB_API_KEY</b> del compose.yaml y vuelve a iniciar la aplicación.</p>{% endif %}
+  <a href="#" onclick="location.href = location.protocol + '//' + location.hostname + ':3001'; return false" style="color:#ffd58a"><b>Abre Artwork Studio</b></a>:
+  al entrar te sale una ventana para pegar tus claves (con el enlace para conseguirlas). Después aquí se llenan solas las carátulas.</p>{% endif %}
 {% if media_problem == "empty" %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ No veo ninguna carpeta de tu NAS.
   Revisa la línea de <b>volumes</b> del compose.yaml (<code>RUTA_DE_TU_CARPETA:/media/Plex:ro</code>).</p>{% endif %}
 {% if media_problem == "forbidden" %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ El NAS no me deja leer tu carpeta.

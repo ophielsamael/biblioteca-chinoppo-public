@@ -147,13 +147,14 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       </ul>
     </div></li>
 
-    <li><h3>Saca tu clave de TMDb</h3><div>
+    <li><h3>Crea tus cuentas gratis y saca tus claves</h3><div>
       <span class="where">En la PC, en el navegador</span>
       <ol>
-        <li>Crea una cuenta gratis en <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a> y confirma tu correo.</li>
+        <li><b>TMDb</b> (obligatoria): crea una cuenta gratis en <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a> y confirma tu correo.</li>
         <li>Entra a tu perfil → <b class="ui">Configuración</b> → <b class="ui">API</b> y solicita una clave (uso personal). Llena el formulario con datos sencillos.</li>
-        <li>Copia la <b>Clave de la API</b> (un texto de 32 letras y números) y anótala. No la compartas.</li>
+        <li>Copia la <b>Clave de la API</b> (un texto corto de 32 letras y números, no el token largo) y anótala. No la compartas.</li>
         <li><b>Para los discos y más pósters (recomendado):</b> TMDb da los pósters y la información de cada película; fanart.tv da más pósters para elegir y los discos. Crea también una cuenta gratis en <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> y, en tu perfil, copia tu <b>Personal API Key</b>. Sin esta clave, Artwork Studio no muestra discos para elegir y el disco no sale de la caja. Anótala junto a la de TMDb.</li>
+        <li><b>No las pegues en ningún archivo.</b> Las pegarás en el paso 7, en Artwork Studio, que se las pasa solo a la Biblioteca. Si prefieres sacarlas en ese momento, la ventana de Artwork trae un enlace directo a cada página.</li>
       </ol>
     </div></li>
 
@@ -161,7 +162,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       <span class="where">En el Chinoppo y en la página de administración de tu NAS</span>
       <ul>
         <li><b>IP del NAS:</b> es la dirección con la que entras a administrarlo desde el navegador (por ejemplo <code>192.168.1.17</code>). Anótala.</li>
-        <li><b>La carpeta, como la ve el Chinoppo:</b> en el Chinoppo entra a <b class="ui">Red → NFS</b> y elige tu NAS. Anota la carpeta <b>compartida</b> que aparece ahí, la de primer nivel, por ejemplo <code>/volume1/Plex</code> o <code>/share/Peliculas</code>. Respeta mayúsculas. Si tus películas están más adentro (como <code>Plex/Library/Movies</code>), no importa: esas subcarpetas las eliges después, en el paso 7.</li>
+        <li><b>La carpeta, como la ve el Chinoppo:</b> en el Chinoppo entra a <b class="ui">Red → NFS</b> y elige tu NAS. Anota la carpeta <b>compartida</b> que aparece ahí, la de primer nivel, por ejemplo <code>/volume1/Plex</code> o <code>/share/Peliculas</code>. Respeta mayúsculas. Si tus películas están más adentro (como <code>Plex/Library/Movies</code>), no importa: esas subcarpetas las eliges después, en el paso 8.</li>
         <li><b>La misma carpeta, como la ve el NAS:</b> casi siempre es igual a la anterior. Si no estás seguro, búscala en el administrador de archivos del NAS. Ejemplos comunes:
           <div class="tbl" style="margin-top:6px"><table>
             <thead><tr><th>NAS</th><th>Ruta de una carpeta llamada “Plex”</th></tr></thead>
@@ -199,26 +200,36 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       <ol>
         <li>Crea un proyecto o stack nuevo llamado <code>biblioteca</code> y apúntalo a la carpeta <code>biblioteca-chinoppo-public-main</code>. Si tu app no deja elegir carpeta, pega el contenido de <code>compose.yaml</code> en el editor que te muestra.</li>
         <li>En el texto del <code>compose.yaml</code>, <b>cambia solo las líneas que terminan con <code>&lt;--</code></b>, con los datos que anotaste:
-<pre><code>TMDB_API_KEY: "<b>tu clave de TMDb</b>"
-CHINOPPO_IP: "<b>IP del Chinoppo</b>"
+<pre><code>CHINOPPO_IP: "<b>IP del Chinoppo</b>"
 NFS_SERVER: "<b>IP del NAS</b>"
 NFS_FOLDER: "<b>volume1/Plex</b>"        ← carpeta como la ve el Chinoppo, SIN la / del inicio
 TZ: "<b>America/Mexico_City</b>"         ← tu zona: Europe/Madrid, Europe/Rome, America/Bogota…
 ...
 - <b>/volume1/Plex</b>:/media/Plex:ro    ← carpeta como la ve el NAS; deja igual lo de :/media/Plex:ro
-...
-FANART_API_KEY: "<b>tu clave de fanart.tv</b>"   ← más abajo, en la parte de artwork: para los discos</code></pre>
-          Deja las comillas.</li>
+</code></pre>
+          Deja las comillas. <b>Aquí no van las claves de TMDb ni de fanart.tv</b>: se pegan en el paso 7.</li>
         <li>Guarda e inicia (en Synology: <b class="ui">Siguiente</b> hasta <b class="ui">Listo</b>). La primera vez <b>tarda bastante: entre 10 y 30 minutos</b>, según tu NAS. Construye dos programas, y el más lento es Artwork Studio (en la ventana de construcción verás <code>npm ci</code> y <code>npm run build</code> un buen rato). Los avisos amarillos que dicen <code>deprecated</code> son normales, no son errores. No cierres ni canceles; cuando diga que está <b>en ejecución</b>, sigue.</li>
       </ol>
       <p class="note"><strong>Si te equivocaste en un dato:</strong> detén la aplicación, corrige el <code>compose.yaml</code> en el editor de tu app de Docker y vuelve a iniciarla.</p>
+    </div></li>
+
+    <li><h3>Abre Artwork Studio y pega tus claves</h3><div>
+      <span class="where">En la PC, en el navegador</span>
+      <ol>
+        <li>Abre <code>http://IP-DEL-NAS:3001</code> (por ejemplo <code>http://192.168.1.17:3001</code>). Es Artwork Studio, ya instalado junto con la Biblioteca.</li>
+        <li>Como es la primera vez, sale sola la ventana <b>Ajustes: idioma y claves</b>. Elige tu idioma y pega tus dos claves. Al lado de cada una hay un enlace <b class="ui">Conseguir mi clave</b> que te lleva a la página donde crearla, si todavía no la sacaste.</li>
+        <li>Pulsa <b class="ui">Guardar y Recargar</b>. Artwork comprueba cada clave y, si alguna está mal, te lo dice en rojo.</li>
+      </ol>
+      <img class="shot" src="img/aw_ajustes.jpg" alt="Ventana de Ajustes con idioma, clave de TMDb y clave de fanart.tv" style="max-width:560px">
+      <p class="check"><strong>No hay que editar ningún archivo.</strong> Las claves se guardan en tu NAS, y Artwork <b>le pasa la de TMDb a la Biblioteca</b> solo: en cuanto la guardas, la Biblioteca empieza a buscar las carátulas, sin reiniciar nada.</p>
+      <p class="note"><strong>TMDb es obligatoria; fanart.tv puedes dejarla para después</strong> (sin ella solo faltan los discos). Si cierras la ventana sin la de TMDb, vuelve a salir cada vez que abras Artwork.</p>
     </div></li>
 
     <li><h3>Elige tus carpetas en la página de la Biblioteca</h3><div>
       <span class="where">En la PC, en el navegador</span>
       <ol>
         <li>Abre <code>http://IP-DEL-NAS:8095</code> (por ejemplo <code>http://192.168.1.17:8095</code>). Esa página es del programa que acabas de instalar.</li>
-        <li>Si arriba sale un aviso amarillo, te dice qué dato falta o está mal. Corrígelo como en el recuadro del paso 6.</li>
+        <li>Si arriba sale un aviso amarillo, te dice qué falta: la clave de TMDb (paso 7) o algún dato del compose (recuadro del paso 6).</li>
         <li>En <b>Carpetas del menú</b> vienen ejemplos (3D, ATMOS, Conciertos, Movies, Series). Quita con <b class="ui">Quitar</b> los que no tengas.</li>
         <li>Agrega tus carpetas: en el formulario de abajo da clic en <b class="ui">Elegir…</b>, navega hasta tu carpeta de películas y da <b class="ui">Usar esta carpeta</b>. Elige si son <b>Películas</b> o <b>Series</b>, un ícono, y <b class="ui">Guardar</b>. Repite por cada sección que quieras en el menú.</li>
         <li>Espera: la primera vez busca las carátulas de toda tu colección. Con cientos de películas puede tardar un buen rato. La columna <b>Títulos</b> va subiendo.</li>
@@ -273,14 +284,16 @@ FANART_API_KEY: "<b>tu clave de fanart.tv</b>"   ← más abajo, en la parte de 
 <section>
   <h2>Si algo no sale</h2>
   <dl>
+    <dt>Las carátulas no aparecen o la página dice “Falta tu clave de TMDb”</dt>
+    <dd>Abre Artwork Studio (<code>http://IP-DEL-NAS:3001</code>), pulsa <b>Ajustes</b> y pega tu clave de TMDb (paso 7). En cuanto la guardas, la Biblioteca empieza a llenar las carátulas.</dd>
     <dt>La Biblioteca no se abre sola al encender</dt>
     <dd>Revisa que en la raíz de la USB estén <code>Biblioteca.iso</code> y la carpeta <code>AutoScript</code>, y que el Chinoppo tenga el firmware liberado. Si en la USB aparece un archivo <code>autoscript_ok.txt</code>, el arranque sí corrió.</dd>
     <dt>Sale “Activa BD-Live”</dt>
     <dd>Falta el paso 1: <b>Configuración → Red → Acceso red BD-Live = Activado</b>.</dd>
     <dt>Sale “Sin conexión con el servidor”</dt>
-    <dd>El NAS está apagado, la aplicación está detenida en la app de Docker, o cambió la IP del NAS. Si cambió, corrige el compose y vuelve a descargar los archivos de la USB (paso 8).</dd>
+    <dd>El NAS está apagado, la aplicación está detenida en la app de Docker, o cambió la IP del NAS. Si cambió, corrige el compose y vuelve a descargar los archivos de la USB (paso 9).</dd>
     <dt>Sale “Disco sin servidor”</dt>
-    <dd>La <code>Biblioteca.iso</code> de la USB no salió del botón de la página. Descárgala desde ahí (paso 8).</dd>
+    <dd>La <code>Biblioteca.iso</code> de la USB no salió del botón de la página. Descárgala desde ahí (paso 9).</dd>
     <dt>Una película dice “No se pudo reproducir”</dt>
     <dd>Casi siempre es el permiso NFS (paso 3) o el dato <code>NFS_FOLDER</code> del paso 6. Abre <code>http://IP-DEL-NAS:8095/log</code>: ahí se ve qué pasó.</dd>
     <dt>Una película tiene la carátula equivocada</dt>
@@ -306,7 +319,7 @@ FANART_API_KEY: "<b>tu clave de fanart.tv</b>"   ← más abajo, en la parte de 
   <ul>
     <li><b>Póster</b> de TMDb o uno tuyo desde el PC, con una <b>banda de formato</b> (por ejemplo “UHDBD with DV and Atmos”) que se ve en el muro. Te propone la banda según el formato que detectó la Biblioteca.</li>
     <li><b>Estuche</b>: negro 4K o azul Blu-ray. Con estuche, en la página de la película el <b>disco sale de la caja</b>.</li>
-    <li><b>Fondo</b>, <b>logo</b> y <b>disco</b> (este último de fanart.tv; necesita la clave gratuita de fanart.tv en <code>FANART_API_KEY</code> del compose).</li>
+    <li><b>Fondo</b>, <b>logo</b> y <b>disco</b> (este último de fanart.tv; necesita tu clave gratuita de fanart.tv, que pegas en la ventana de Ajustes).</li>
     <li><b>Temporadas</b> de las series y <b>metadatos</b> (para corregir una película mal reconocida).</li>
   </ul>
   <p><b>Guía paso a paso de Artwork Studio, con capturas:</b> <a href="artwork.html">artwork.html</a>.</p>

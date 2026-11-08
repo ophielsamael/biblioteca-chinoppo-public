@@ -5,6 +5,7 @@ from collections import deque
 
 from flask import Flask, Response
 
+from biblio import badges
 from biblio.catalog import refresh
 from biblio.chinoppo import Chinoppo
 from biblio.player import Player
@@ -86,6 +87,23 @@ def start_refresh(settings: Settings, catalog: Catalog, app: Flask | None = None
     return t
 
 
+def start_badge_prefetch(settings: Settings, fetch=http_fetch, delay: float = 60.0) -> threading.Thread:
+    """Once the first scan is under way, quietly keep every badge style on this NAS (see
+    badges.prefetch_all), so choosing another look in Artwork Studio is instant and a template
+    that disappears from the internet is still here."""
+    def run():
+        import time
+        time.sleep(delay)
+        try:
+            n = badges.prefetch_all(settings.data_dir / "badges", fetch, log.info, pause=1.0)
+            log.info("estilos de etiquetas: %d guardados ahora", n)
+        except Exception:
+            log.exception("badge prefetch")
+    t = threading.Thread(target=run, daemon=True)
+    t.start()
+    return t
+
+
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     settings = load_settings(os.environ)
@@ -93,6 +111,7 @@ def main():
     player = Player(settings, catalog, Chinoppo(settings.chinoppo_ip))
     app = create_app(settings, catalog, player=player)
     start_refresh(settings, catalog, app)
+    start_badge_prefetch(settings)
     threading.Thread(target=player.watch_forever, daemon=True).start()
     app.run(host="0.0.0.0", port=settings.port, threaded=True)
 

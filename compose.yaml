@@ -1,15 +1,16 @@
 # Biblioteca Chinoppo (puerto 8095) y Artwork Studio (puerto 3001)
 # CAMBIA SOLO LAS LÍNEAS MARCADAS CON  <-- y nada más.
+# Las claves de TMDb y fanart.tv NO van aquí: se pegan en Artwork Studio (http://IP-DEL-NAS:3001)
+# la primera vez que lo abres, y se guardan en tu NAS.
 services:
   biblioteca:
     build: .
     image: biblioteca-chinoppo:latest
-    pull_policy: build          # always rebuild from these files (an update never reuses the old image)
+    pull_policy: build          # siempre se reconstruye con estos archivos (una actualización nunca reutiliza la imagen vieja)
     container_name: biblioteca-chinoppo
     network_mode: host          # habla con el Chinoppo por la red de casa
     user: "0:0"                 # para poder leer tus carpetas con los permisos del NAS (solo lectura, ver volumes)
     environment:
-      TMDB_API_KEY: &tmdb "pon_aqui_tu_clave_de_tmdb"   # <-- tu clave de TMDb (la "Clave de la API")
       CHINOPPO_IP: "192.168.1.16"                  # <-- IP de tu Chinoppo
       NFS_SERVER: "192.168.1.17"                   # <-- IP de tu NAS
       NFS_FOLDER: "volume1/Plex"                   # <-- la carpeta como la ves en el Chinoppo (Red > NFS), sin la / del inicio
@@ -28,7 +29,7 @@ services:
       start_period: 20s
 
   # Artwork Studio: elige carátulas, bandas de formato, estuches y discos (http://IP-DEL-NAS:3001).
-  # Usa la misma clave de TMDb de arriba; aquí solo pon tu clave de fanart.tv (para los discos).
+  # No hay nada que cambiar aquí. Al abrirlo por primera vez te pide tus claves y se las pasa a la Biblioteca.
   artwork:
     build: ./artwork
     image: chinoppo-artwork-studio:latest
@@ -36,8 +37,6 @@ services:
     container_name: chinoppo-artwork-studio
     network_mode: host
     environment:
-      TMDB_API_KEY: *tmdb
-      FANART_API_KEY: ""                           # <-- recomendado: tu clave de fanart.tv (sin ella no hay discos para elegir)
       BIBLIOTECA_URL: "http://127.0.0.1:8095"
       PORT: "3001"
     volumes:

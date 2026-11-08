@@ -124,6 +124,33 @@ def test_badge_style_api(settings, catalog, otto_id):
     assert r.status_code == 200
 
 
+def test_prefetch_saves_every_style_and_reports_it(tmp_path):
+    cache = tmp_path / "badges"
+    def fetch(url):
+        if url.endswith(".json"):
+            return json.dumps({"groups": [{"id": "g"}], "filters": [
+                {"groupId": "g", "name": "4K", "pattern": "2160p", "imageURL": url.replace(".json", ".png")}]}).encode()
+        return _png(80, 40, (255, 0, 0, 255))
+    assert not badges.is_saved("haz", cache) and badges.is_saved("texto", cache)
+    logs = []
+    n = badges.prefetch_all(cache, fetch, lambda *a: logs.append(a), pause=0)
+    assert n == len([s for s in badges.STYLES if s["url"]])
+    assert all(badges.is_saved(s["id"], cache) for s in badges.STYLES)
+    assert badges.prefetch_all(cache, fetch, None, pause=0) == 0            # nothing left to download
+
+
+def test_prefetch_survives_one_unreachable_style(tmp_path):
+    def fetch(url):
+        if "djgenesis" in url:
+            raise OSError("gone")
+        if url.endswith(".json"):
+            return json.dumps({"filters": []}).encode()
+        return b""
+    cache = tmp_path / "badges"
+    badges.prefetch_all(cache, fetch, None, pause=0)
+    assert not badges.is_saved("haz", cache) and badges.is_saved("elite", cache)
+
+
 def test_own_3d_tag_when_the_template_has_none(tmp_path):
     fmt = {"res": "1080p", "hdr": [], "3d": True, "source": "disc"}
     tpl = {"groups": [{"id": "g"}], "filters": [
