@@ -22,8 +22,8 @@ export async function caseFromBiblioteca(cover: Buffer, kind: 'bluray' | 'uhd', 
 type ArtKind = 'poster' | 'backdrop' | 'logo' | 'case' | 'disc'   // case, disc: detail page only
   | `season${number}`;                                             // a series' season poster
 
-// Which title the image is for: by TMDb id (every copy of the title), else by the Biblioteca's
-// item id (videos TMDb doesn't know). media: 'movie' or 'tv' (their TMDb ids overlap).
+// Which title the image is for: the Biblioteca's item id (one copy of a film), else by TMDb id
+// (every copy). media: 'movie' or 'tv' (their TMDb ids overlap).
 export interface ArtTarget {
   tmdbId?: string | number | null;
   itemId?: string | number | null;
@@ -31,8 +31,9 @@ export interface ArtTarget {
 }
 
 function artQuery(t: ArtTarget): string | null {
-  if (t.tmdbId) return `tmdb=${encodeURIComponent(String(t.tmdbId))}&media=${t.media === 'tv' ? 'tv' : 'movie'}`;
+  // by item first: two copies of a film (4K in ATMOS, 3D in 3D) each keep their own art
   if (t.itemId) return `item=${encodeURIComponent(String(t.itemId))}`;
+  if (t.tmdbId) return `tmdb=${encodeURIComponent(String(t.tmdbId))}&media=${t.media === 'tv' ? 'tv' : 'movie'}`;
   return null;
 }
 

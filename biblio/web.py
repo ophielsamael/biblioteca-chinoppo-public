@@ -156,14 +156,19 @@ def art(kind):
         if not tmdb_id or media not in ("movie", "tv"):
             abort(400)
         hits = [it for it in cat.items_by_tmdb(tmdb_id) if (it.kind == "series") == (media == "tv")]
+    # one file per catalog item: two copies of a film (4K in ATMOS, 3D in 3D) keep their own art.
+    # ?tmdb= (older Artwork versions) means every copy, as before.
     if request.method == "DELETE":
-        images.drop_own(cache, media, tmdb_id, kind)
+        for it in hits:
+            images.drop_own(cache, "item", it.id, kind)
     else:
         data = request.get_data()
         if not data or len(data) > 30 * 1024 * 1024:
             abort(400)
         try:
-            images.save_own(cache, media, tmdb_id, kind, data)
+            Image.open(io.BytesIO(data)).verify()   # raises on anything that is not an image
+            for it in hits:
+                images.save_own(cache, "item", it.id, kind, data)
         except Exception:
             abort(400)
     for it in hits:

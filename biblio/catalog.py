@@ -1,4 +1,5 @@
 import logging
+import shutil
 
 from biblio import formats
 from biblio.config import Settings, load_folders
@@ -25,8 +26,26 @@ def refresh(settings: Settings, cat: Catalog, tmdb) -> dict[str, int]:
         counts[folder.id] = cat.count(folder.id)
     if rematch:
         cat.set_state("tmdb_match", MATCH_VERSION)
+    split_art(settings, cat)
     detect_formats(settings, cat)
     return counts
+
+
+def split_art(settings: Settings, cat: Catalog) -> None:
+    """Art saved by older versions is keyed by TMDb id and shows on every copy of a film.
+    Give each copy its own file (the poster of the 3D copy must not land on the 4K one)."""
+    art = settings.data_dir / "art"
+    for f in list(art.glob("movie_*_*")) + list(art.glob("tv_*_*")):
+        media, tmdb, kind = f.name.split("_", 2)
+        if not tmdb.isdigit():
+            continue
+        hits = [it for it in cat.items_by_tmdb(int(tmdb)) if (it.kind == "series") == (media == "tv")]
+        for it in hits:
+            dst = art / f"item_{it.id}_{kind}"
+            if not dst.exists():
+                shutil.copyfile(f, dst)
+        if hits:   # no copy in the library right now: keep it for when the film comes back
+            f.unlink()
 
 
 def detect_formats(settings: Settings, cat: Catalog) -> None:
