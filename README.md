@@ -117,3 +117,5 @@ bash disc/build.sh      # bdj-sdk in WSL; copy disc/out/Biblioteca.iso to static
 `consola` (in `tools/autoscript/AutoScript/`) is built with `zig cc -target arm-linux-musleabihf -mcpu=cortex_a7 -static -O2 -o consola tools/autoscript/consola/consola.c`.
 
 Este producto usa la API de TMDb, pero TMDb no lo respalda ni lo certifica. · *This product uses the TMDb API but is not endorsed or certified by TMDb.*
+
+Estilos de etiquetas de formato: plantillas de la comunidad de [Badger](https://nintle.github.io/Badger/), de sus autores (sweatycab, Haz, k45sle, leonevz, nobnobz, RayW1986, 9mousaa, vowl313). No se incluyen aquí: cada NAS descarga y guarda la que elige. · *Badge styles: [Badger](https://nintle.github.io/Badger/) community templates by their authors; not bundled here, each NAS downloads and keeps the one it picks.*

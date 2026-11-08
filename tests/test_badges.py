@@ -90,6 +90,40 @@ def test_strip_is_kept_on_disk(tmp_path):
     assert len(calls) == n
 
 
+def test_own_text_style_needs_no_download(tmp_path):
+    def offline(url):
+        raise OSError("offline")
+    s = badges.strip(UHD, tmp_path, 30, 2000, offline, None)
+    assert s is not None and s.height == 30
+    assert badges.text_labels(UHD) == ["4K", "BluRay", "Dolby Vision", "HDR10", "TrueHD", "Atmos", "7.1"]
+
+
+def test_snapshot_keeps_every_badge_and_works_offline(tmp_path):
+    calls = []
+    fetch = fake_fetch(calls)
+    url = badges.style("minimalist-white")["url"]
+    def by_style(u):
+        return fetch(badges.TEMPLATE_URL if u == url else u)
+    assert badges.snapshot("minimalist-white", tmp_path, by_style) == 4        # every enabled png/svg (not the gif)
+    def offline(u):
+        raise OSError("offline")
+    assert badges.strip(UHD, tmp_path, 20, 1000, offline, url) is not None    # all from the saved copy
+
+
+def test_badge_style_api(settings, catalog, otto_id):
+    from app import create_app
+    catalog.set_format(otto_id, "1:1", UHD)
+    c = create_app(settings, catalog, fetch=fake_fetch([]), tmdb=object()).test_client()
+    styles = c.get("/api/badge-styles").json
+    assert [st["id"] for st in styles if st["selected"]] == ["minimalist-white"]
+    assert c.post("/api/badge-style", json={"id": "texto"}).json["ok"]
+    assert [st["id"] for st in c.get("/api/badge-styles").json if st["selected"]] == ["texto"]
+    assert c.get("/api/badge-styles/texto.png").status_code == 200
+    assert c.post("/api/badge-style", json={"id": "nope"}).status_code == 400
+    r = c.get(f"/d/img/badges?id={otto_id}&h=30&w=900")      # now drawn with our text style
+    assert r.status_code == 200
+
+
 def test_own_3d_tag_when_the_template_has_none(tmp_path):
     fmt = {"res": "1080p", "hdr": [], "3d": True, "source": "disc"}
     tpl = {"groups": [{"id": "g"}], "filters": [

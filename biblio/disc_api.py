@@ -92,7 +92,8 @@ def badge_strip():
     w = max(h, min(request.args.get("w", 600, type=int), 1280))
     season = request.args.get("season", type=int)
     fmt = cat.season_format(it.id, season) if season is not None else cat.format(it.id)
-    img = badges.strip(fmt, s.data_dir / "badges", h, w, current_app.config["FETCH"])
+    url = badges.style(cat.get_state("badge_style"))["url"]   # the style picked in Artwork Studio
+    img = badges.strip(fmt, s.data_dir / "badges", h, w, current_app.config["FETCH"], url)
     if img is None:
         abort(404)
     import io

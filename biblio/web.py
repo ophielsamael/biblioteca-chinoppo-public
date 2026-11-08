@@ -5,7 +5,7 @@ from pathlib import Path
 from flask import Blueprint, Response, abort, current_app, redirect, render_template, request
 from PIL import Image, ImageOps
 
-from biblio import formats, images, usbpack
+from biblio import badges, formats, images, usbpack
 from biblio.config import Folder, load_folders, save_folders
 
 web_bp = Blueprint("web", __name__)
@@ -43,6 +43,45 @@ def _service_url() -> str:
     except OSError:
         pass
     return f"http://{host}:{current_app.config['SETTINGS'].port}"
+
+
+@web_bp.get("/api/badge-styles")
+def badge_styles():
+    """Badge styles for Artwork Studio: id, name, author, which one is in use."""
+    cur = badges.style(current_app.config["CATALOG"].get_state("badge_style"))["id"]
+    return [{"id": st["id"], "name": st["name"], "author": st["author"], "own": st["url"] is None,
+             "selected": st["id"] == cur} for st in badges.STYLES]
+
+
+@web_bp.get("/api/badge-styles/<sid>.png")
+def badge_style_preview(sid):
+    """A sample strip (4K · Remux · DV · HDR10 · TrueHD · Atmos · 7.1) in that style."""
+    s = current_app.config["SETTINGS"]
+    st = badges.style(sid)
+    if st["id"] != sid:
+        abort(404)
+    img = badges.strip(badges.SAMPLE, s.data_dir / "badges", 36, 900, current_app.config["FETCH"], st["url"])
+    if img is None:
+        abort(502, "No se pudo descargar ese estilo")
+    buf = io.BytesIO()
+    img.save(buf, "PNG")
+    return Response(buf.getvalue(), mimetype="image/png", headers={"Cache-Control": "max-age=3600"})
+
+
+@web_bp.post("/api/badge-style")
+def set_badge_style():
+    """Use this style for every title, after keeping a full copy of it on this NAS."""
+    s, cat = current_app.config["SETTINGS"], current_app.config["CATALOG"]
+    sid = (request.get_json(silent=True) or {}).get("id") or request.form.get("id", "")
+    st = badges.style(sid)
+    if st["id"] != sid:
+        abort(400)
+    try:
+        saved = badges.snapshot(sid, s.data_dir / "badges", current_app.config["FETCH"])
+    except Exception:
+        abort(502, "No se pudo descargar ese estilo")
+    cat.set_state("badge_style", sid)
+    return {"ok": True, "id": sid, "saved": saved}
 
 
 @web_bp.get("/preview")
