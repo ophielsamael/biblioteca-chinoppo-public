@@ -16,7 +16,7 @@ export async function getDynamicConfig() {
     fanartApiKey: real(saved.fanart) || real(process.env.FANART_API_KEY),
   };
 
-  const cookie = cookies().get('artwork_studio_config')?.value;
+  const cookie = (await cookies()).get('artwork_studio_config')?.value;
   if (cookie && (!config.tmdbApiKey || !config.fanartApiKey)) {
     try {
       const parsed = JSON.parse(decodeURIComponent(cookie));

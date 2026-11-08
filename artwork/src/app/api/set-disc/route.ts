@@ -7,9 +7,10 @@ import { pushToBiblioteca } from '../../../actions/biblioteca';
 export async function POST(req: Request) {
   try {
     const { discUrl, tmdbId, itemId, media } = await req.json();
-    let host = '';
-    try { host = new URL(discUrl).hostname; } catch {}
-    if (!(tmdbId || itemId) || !discUrl || !host.endsWith('fanart.tv')) {   // only fanart.tv images: no open proxy
+    let host = '', https = false;
+    try { const u = new URL(discUrl); host = u.hostname; https = u.protocol === 'https:'; } catch {}
+    // exactly fanart.tv or a subdomain of it ("evilfanart.tv" must not pass)
+    if (!(tmdbId || itemId) || !https || !(host === 'fanart.tv' || host.endsWith('.fanart.tv'))) {   // only fanart.tv images: no open proxy
       return NextResponse.json({ error: 'Invalid disc url' }, { status: 400 });
     }
     const resp = await fetch(discUrl, { headers: { Accept: 'image/*' } });

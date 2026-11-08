@@ -1,5 +1,27 @@
 [
   {
+    "id": "2026.11.11",
+    "date": "2026-11-11",
+    "title": {
+      "es": "Seguridad: Next.js actualizado",
+      "en": "Security: Next.js updated"
+    },
+    "changes": {
+      "es": [
+        "Artwork usa ahora Next.js 16 y dependencias al día: se corrigen los avisos de seguridad conocidos.",
+        "Más seguridad al descargar discos de fanart.tv y al generar el ZIP de la USB.",
+        "Los banners de las carátulas llevan los logos nuevos y más nítidos de Dolby Vision y Dolby Atmos."
+      ],
+      "en": [
+        "Artwork now runs Next.js 16 with up-to-date dependencies: known security advisories are fixed.",
+        "Tighter checks when downloading discs from fanart.tv and when building the USB ZIP.",
+        "The cover banners use the new, sharper Dolby Vision and Dolby Atmos logos."
+      ]
+    },
+    "compose": false,
+    "usb": false
+  },
+  {
     "id": "2026.11.10",
     "date": "2026-11-10",
     "title": {

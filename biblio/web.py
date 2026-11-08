@@ -39,6 +39,8 @@ def _service_url() -> str:
     """This service as the player must reach it: the host the browser used, as an IP."""
     import socket
     host = request.host.rsplit(":", 1)[0].strip("[]")
+    if not re.fullmatch(r"[A-Za-z0-9.\-]{1,253}", host):   # it ends up inside the disc's BIBLIO.TXT
+        abort(400, "Host no válido")
     try:
         host = socket.gethostbyname(host)
     except OSError:
