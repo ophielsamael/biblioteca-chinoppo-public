@@ -189,7 +189,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       <ol>
         <li>Open <a href="https://github.com/ophielsamael/biblioteca-chinoppo-public" target="_blank" rel="noopener">github.com/ophielsamael/biblioteca-chinoppo-public</a>, click the green <b class="ui">Code</b> button, then <b class="ui">Download ZIP</b>.</li>
         <li>With the NAS file manager, upload the ZIP to a folder for your apps (Synology creates one called <code>docker</code> automatically).</li>
-        <li>Extract it right there (right-click → <b class="ui">Extract</b>). You get a folder <code>biblioteca-chinoppo-public-main</code> with everything inside, including the <code>compose.yaml</code> file.</li>
+        <li>Extract it right there (right-click → <b class="ui">Extract → Extract here</b>), without creating another folder first. You get a folder <code>biblioteca-chinoppo-public-main</code> with everything inside, including the <code>compose.yaml</code> file.</li>
       </ol>
     </div></li>
 
@@ -256,6 +256,17 @@ TZ: "<b>Europe/London</b>"               ← your time zone: Europe/Rome, Americ
   </ol>
 </section>
 
+<section>
+  <h2>Updating to a new version</h2>
+  <ol>
+    <li>On your PC, <b>delete the old ZIP</b> from Downloads and get the new one from GitHub (<b>Code → Download ZIP</b>). Open it and check it has the <code>artwork</code>, <code>biblio</code>, <code>disc</code>… folders.</li>
+    <li>In the Docker app, <b>stop</b> the application and <b>delete</b> it. Your menu folders, artwork and progress are stored separately and are kept.</li>
+    <li>In the NAS file manager, delete the <code>biblioteca-chinoppo-public-main</code> folder, upload the new ZIP <b>straight into your apps folder</b> (not inside another folder) and extract it there.</li>
+    <li>Create the application again as in step 6 and fill in your details on the <code>&lt;--</code> lines again.</li>
+  </ol>
+  <p class="note"><strong>Important:</strong> some Docker apps (like Container Manager) keep their own copy of <code>compose.yaml</code> once you edit it on their screen, and don't update it when you upload new files. That's why you delete and recreate the application instead of just restarting it.</p>
+  <p>The USB stick stays as it is, unless the NAS or Chinoppo IP changes or the new version says so.</p>
+</section>
 <section>
   <h2>If something doesn’t work</h2>
   <dl>
