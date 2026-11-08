@@ -17,6 +17,72 @@ from PIL import Image, ImageDraw, ImageFont
 # "Minimalist White" by sweatycab (chosen 2026-11-04): white outlined tags, SVG
 TEMPLATE_URL = "https://raw.githubusercontent.com/sweatycab/nuvio-minimalist-badges/main/badges-white.json"
 
+# Badger's community templates (https://nintle.github.io/Badger/), each by its author. None of
+# them is copied into this project (their repos carry no licence): each NAS downloads the one
+# it picks and keeps its own copy (see snapshot). "texto" is ours: plain text tags, no download.
+_GH = "https://raw.githubusercontent.com/"
+STYLES = [
+    {"id": "minimalist-white", "name": "Minimalist White", "author": "sweatycab",
+     "url": _GH + "sweatycab/nuvio-minimalist-badges/main/badges-white.json"},
+    {"id": "minimalist-mixed", "name": "Minimalist Mixed", "author": "sweatycab",
+     "url": _GH + "sweatycab/nuvio-minimalist-badges/main/badges-mixed.json"},
+    {"id": "haz", "name": "Haz", "author": "Haz", "url": _GH + "djgenesis/badges/refs/heads/main/gold_badges_complete.json"},
+    {"id": "gold", "name": "Gold Badges", "author": "k45sle", "url": _GH + "k45sle/NUVIO_BADGES/refs/heads/main/GOLD-NONAMES.json"},
+    {"id": "elite", "name": "Elite Badges", "author": "leonevz", "url": _GH + "leonevz/Elite-Badges/main/badges.json"},
+    {"id": "ume-colored", "name": "Colored", "author": "nobnobz",
+     "url": _GH + "nobnobz/Omni-Template-Bot-Bid-Raiser/refs/heads/main/Other/fusion-tags-ume-colored.json"},
+    {"id": "ume-standard", "name": "Standard UME", "author": "nobnobz",
+     "url": _GH + "nobnobz/Omni-Template-Bot-Bid-Raiser/refs/heads/main/Other/fusion-tags-ume.json"},
+    {"id": "ume-minimalistic", "name": "Minimalistic", "author": "nobnobz",
+     "url": _GH + "nobnobz/Omni-Template-Bot-Bid-Raiser/refs/heads/main/Other/fusion-tags-ume-minimalistic.json"},
+    {"id": "rayw", "name": "RayW1986", "author": "RayW1986", "url": _GH + "RayW1986/ntv-assets/main/badges/badges.json"},
+    {"id": "mousaa-color", "name": "BetterFormatter Color", "author": "9mousaa",
+     "url": _GH + "9mousaa/BetterFormatter/main/presets/colored-bgb-combo-nodv.json"},
+    {"id": "mousaa-mono", "name": "BetterFormatter Mono", "author": "9mousaa",
+     "url": _GH + "9mousaa/BetterFormatter/main/presets/mono-bgb-combo-nodv.json"},
+    {"id": "nard", "name": "NardBadges", "author": "vowl313", "url": _GH + "vowl313/NardBadges/refs/heads/main/NardBadges.json"},
+    {"id": "texto", "name": "Texto (propio)", "author": "Biblioteca Chinoppo", "url": None},
+]
+DEFAULT_STYLE = "minimalist-white"
+SAMPLE = {"res": "4K", "source": "remux", "hdr": ["DV", "HDR10"], "audio": "TrueHD", "atmos": True, "ch": "7.1"}
+
+
+def style(style_id: str | None) -> dict:
+    return next((s for s in STYLES if s["id"] == style_id), next(s for s in STYLES if s["id"] == DEFAULT_STYLE))
+
+
+def snapshot(style_id: str, cache: Path, fetch) -> int:
+    """Download the template and every badge image it uses into this NAS's cache, so the style
+    keeps working if its author ever removes it. Returns how many images were saved."""
+    url = style(style_id)["url"]
+    if not url:
+        return 0
+    template = json.loads(_get(cache, url, fetch))
+    n = 0
+    for f in template.get("filters", []):
+        img = f.get("imageURL") or ""
+        if f.get("isEnabled", True) and img.split("?")[0].lower().endswith((".png", ".svg")):
+            try:
+                _get(cache, img, fetch)
+                n += 1
+            except Exception:
+                pass   # one missing badge must not lose the rest
+    return n
+
+
+def text_labels(fmt: dict) -> list[str]:
+    """Our own style: the format as plain text tags, in the usual order."""
+    out = [{"4K": "4K", "1080p": "1080p", "720p": "720p", "SD": "SD"}.get(fmt.get("res"), "")]
+    if fmt.get("3d"):
+        out.append("3D")
+    out.append({"remux": "Remux", "disc": "BluRay", "web": "WEB-DL", "dvd": "DVD"}.get(fmt.get("source"), ""))
+    hdr = fmt.get("hdr", [])
+    out += ["Dolby Vision" if "DV" in hdr else "", "HDR10+" if "HDR10+" in hdr else
+            ("HDR10" if "HDR10" in hdr else ("HLG" if "HLG" in hdr else ""))]
+    out.append({"DTS-HD MA": "DTS-HD MA", "DTS-HD HRA": "DTS-HD HRA", "DD+": "DD+"}.get(fmt.get("audio"), fmt.get("audio") or ""))
+    out += ["Atmos" if fmt.get("atmos") else "", "DTS:X" if fmt.get("dtsx") else "", str(fmt.get("ch") or "")]
+    return [x for x in out if x]
+
 AUDIO_TOKENS = {"TrueHD": "TrueHD", "DTS-HD MA": "DTS-HD.MA", "DTS-HD HRA": "DTS-HD.HRA", "DTS": "DTS",
                 "DD+": "DDP", "DD": "DD", "LPCM": "LPCM", "FLAC": "FLAC", "AAC": "AAC"}
 
@@ -133,23 +199,27 @@ def _text_tag(text: str, h: int) -> Image.Image:
     return tag
 
 
-def strip(fmt: dict | None, cache: Path, h: int, max_w: int, fetch, template_url: str = TEMPLATE_URL) -> Image.Image | None:
+def strip(fmt: dict | None, cache: Path, h: int, max_w: int, fetch, template_url: str | None = TEMPLATE_URL) -> Image.Image | None:
     """The title's badges side by side, h pixels high, transparent, at most max_w wide.
-    None when the format is unknown or nothing matches (or GitHub can't be reached)."""
+    template_url None: our own text tags. None when the format is unknown or nothing matches
+    (or GitHub can't be reached)."""
     if not fmt or not fmt.get("res"):
         return None
-    key = hashlib.sha1(json.dumps([template_url, release_names(fmt), h, max_w]).encode()).hexdigest()
+    key = hashlib.sha1(json.dumps([template_url or "texto", release_names(fmt), h, max_w]).encode()).hexdigest()
     done = cache / f"strip_{key}.png"
     if done.exists():
         return Image.open(done).convert("RGBA")
-    try:
-        template = json.loads(_get(cache, template_url, fetch))
-        imgs = [_tag(f, _image(cache, f["imageURL"], h, fetch), h)
-                for f in matches(template, release_names(fmt))]
-    except Exception:
-        return None
-    if fmt.get("3d") and not any("3d" in (f.get("name") or "").lower() for f in matches(template, release_names(fmt))):
-        imgs.insert(1 if imgs else 0, _text_tag("3D", h))   # Minimalist White has none: ours, after the resolution
+    if template_url is None:
+        imgs = [_text_tag(t, h) for t in text_labels(fmt)]
+    else:
+        try:
+            template = json.loads(_get(cache, template_url, fetch))
+            hits = matches(template, release_names(fmt))
+            imgs = [_tag(f, _image(cache, f["imageURL"], h, fetch), h) for f in hits]
+        except Exception:
+            return None
+        if fmt.get("3d") and not any("3d" in (f.get("name") or "").lower() for f in hits):
+            imgs.insert(1 if imgs else 0, _text_tag("3D", h))   # the template has none: ours, after the resolution
     if not imgs:
         return None
     gap = h // 3

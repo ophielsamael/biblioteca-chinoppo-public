@@ -6,6 +6,7 @@ import OverlaySelector, { overlayOptions } from "../components/OverlaySelector";
 import { fetchLibraryItems, fetchLibraries } from "../actions/library";
 import { fetchTmdbPosters, fetchTmdbBackdrops, fetchTmdbLogos, fetchTmdbSeasonPosters, type TmdbLogo } from "../actions/tmdb";
 import { fetchFanartDiscs, type FanartDisc } from "../actions/fanart";
+import { listBadgeStyles, setBadgeStyle, type BadgeStyle } from "../actions/badges";
 import { searchTmdb, getBibliotecaMatch, applyMatch, type TmdbHit, type BibliotecaMatch } from "../actions/metadata";
 import { getConfigStatus } from "../actions/config";
 import { translations, Language } from "../config/i18n";
@@ -143,6 +144,7 @@ export default function Home() {
       if (libs && libs.length > 0) {
         setLibraries(libs);
         const want = new URLSearchParams(window.location.search).get('lib');   // deep link: ?lib=&item=&tab=
+        if (new URLSearchParams(window.location.search).get('panel') === 'badges') openBadgeStyles();
         setActiveLibraryId((libs.find((l: Library) => l.id === want) || libs[0]).id);
       }
     });
@@ -192,6 +194,22 @@ export default function Home() {
   const [tmdbAlternatives, setTmdbAlternatives] = useState<string[]>([]);
   const [tmdbBackdrops, setTmdbBackdrops] = useState<string[]>([]);
   const [isLoadingTmdb, setIsLoadingTmdb] = useState<boolean>(false);
+  // Badge styles (the format row under the title on the movie page): chosen once for every title
+  const [badgeStyles, setBadgeStyles] = useState<BadgeStyle[] | null>(null);
+  const [showBadgeStyles, setShowBadgeStyles] = useState(false);
+  const [badgeBusy, setBadgeBusy] = useState<string | null>(null);
+  const openBadgeStyles = () => {
+    setShowBadgeStyles(true);
+    setBadgeStyles(null);
+    listBadgeStyles().then(setBadgeStyles);
+  };
+  const chooseBadgeStyle = async (id: string) => {
+    setBadgeBusy(id);
+    const ok = await setBadgeStyle(id);
+    setBadgeBusy(null);
+    if (!ok) { alert(t.badgeStyleFailed); return; }
+    setBadgeStyles(await listBadgeStyles());
+  };
   const [pendingBackdrop, setPendingBackdrop] = useState<string | null>(null);
   const [pendingLogo, setPendingLogo] = useState<string | null>(null);
   const [pendingDisc, setPendingDisc] = useState<string | null>(null);
@@ -642,6 +660,7 @@ export default function Home() {
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t.tools}</span>
             {[
               { name: t.bannersAndOverlays, icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z", action: () => { setActiveFilter(t.filterAll); setSearchQuery(""); } },
+              { name: t.badgeStyles, icon: "M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z", action: openBadgeStyles },
               { name: t.settings, icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z", action: () => setShowSettingsModal(true) },
             ].map((tool) => (
               <button
@@ -1310,6 +1329,44 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* BADGE STYLES: the format row under the title, for every title */}
+      {showBadgeStyles && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="w-full max-w-4xl max-h-[90vh] bg-[#0f111a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-white/5 bg-black/40 flex justify-between items-center">
+              <h3 className="text-emerald-400 font-bold tracking-wider uppercase text-sm">{t.badgeStyles}</h3>
+              <button onClick={() => setShowBadgeStyles(false)} className="text-gray-500 hover:text-white">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex flex-col gap-4">
+              <p className="text-sm text-gray-400">{t.badgeStylesDesc}</p>
+              {badgeStyles === null ? (
+                <div className="text-center text-sm text-gray-500 py-16 animate-pulse">{t.loadingBadgeStyles}</div>
+              ) : badgeStyles.length === 0 ? (
+                <div className="text-center text-sm text-gray-500 py-16">{t.badgeStylesUnavailable}</div>
+              ) : badgeStyles.map((st) => (
+                <div key={st.id} className={`rounded-2xl border p-4 flex flex-col gap-3 ${st.selected ? 'border-emerald-400 bg-emerald-500/10' : 'border-white/10 bg-black/30'}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-white font-bold">{st.name}</div>
+                      <div className="text-xs text-gray-500">{st.own ? t.badgeStyleOwn : `${t.badgeStyleBy} ${st.author} · Badger`}</div>
+                    </div>
+                    <button onClick={() => chooseBadgeStyle(st.id)} disabled={st.selected || badgeBusy !== null}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap ${st.selected ? 'bg-emerald-500 text-white' : 'bg-white/5 hover:bg-emerald-500 text-gray-200 hover:text-white border border-white/10'} disabled:opacity-80`}>
+                      {st.selected ? `✓ ${t.badgeStyleInUse}` : badgeBusy === st.id ? t.badgeStyleSaving : t.badgeStyleUse}
+                    </button>
+                  </div>
+                  <div className="rounded-xl bg-[#07070a] px-4 py-3 overflow-x-auto">
+                    <img src={`/api/badge-preview?id=${st.id}`} alt={st.name} className="max-h-9 max-w-full object-contain" loading="lazy" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* GLOBAL SETTINGS MODAL */}
       {showSettingsModal && (
