@@ -59,7 +59,7 @@ RETURN, TOP MENU e INFO no le llegan al disco. Detalle en [disc/KEYS.md](disc/KE
 - **Artwork Studio** (`artwork/`, puerto 3001): se instala junto con la Biblioteca. Por título eliges póster (de TMDb o tuyo), banda de formato para el muro, estuche 4K o Blu-ray (con estuche, el disco sale de la caja), fondo, logo, disco (fanart.tv: pon tu clave gratuita en `FANART_API_KEY`, sin ella no hay discos), pósters de temporada y metadatos. Todo se guarda en la Biblioteca.
 - **Dolby Vision en MKV:** [fandangos/oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv), zip `mkv-subtitles` de la versión más reciente (probado v1.7.1 en RU 65-0131). Se instala con **otra** USB. TV en modo Dolby Vision *TV-led*.
 - **PC o servidor Linux en vez del NAS**, **compilar el disco**, **SSH** y **barra oscura del menú:** en la sección *Avanzado* de la guía.
-- **Estuches:** `static/cases` trae plantillas simples (`tools/cases/make_cases.py`). Puedes cambiarlas por fotos reales: un PNG con la ventana de la portada transparente.
+- **Estuches:** `static/cases` trae fotos de estuche 4K y Blu-ray con la ventana de la portada transparente. Puedes cambiarlas por las tuyas (cualquier PNG así). `tools/cases/make_cases.py` dibuja unos sencillos si los prefieres. Los logos 4K Ultra HD, Blu-ray Disc y Dolby son marcas de sus dueños.
 
 ### Limitaciones conocidas
 

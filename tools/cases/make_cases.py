@@ -1,4 +1,5 @@
-"""Draws the Blu-ray (blue) and 4K UHD (black) case templates into static/cases.
+"""Alternative to the case photos in static/cases: draws simple Blu-ray (blue) and 4K UHD (black)
+case templates there instead (overwrites them).
 
 Each is a case seen slightly from the side (the right edge a little shorter than the left, as in
 a photo), with a spine on the left, a header band, a glossy plastic sheen, and a transparent cover
