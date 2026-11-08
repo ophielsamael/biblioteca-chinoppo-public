@@ -56,6 +56,7 @@ RETURN, TOP MENU e INFO no le llegan al disco. Detalle en [disc/KEYS.md](disc/KE
 
 ### Extras
 
+- **Artwork Studio** (`artwork/`, puerto 3001): se instala junto con la Biblioteca. Por título eliges póster (de TMDb o tuyo), banda de formato para el muro, estuche 4K o Blu-ray (con estuche, el disco sale de la caja), fondo, logo, disco (fanart.tv, clave opcional en `FANART_API_KEY`), pósters de temporada y metadatos. Todo se guarda en la Biblioteca.
 - **Dolby Vision en MKV:** [fandangos/oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv), zip `mkv-subtitles` de la versión más reciente (probado v1.7.1 en RU 65-0131). Se instala con **otra** USB. TV en modo Dolby Vision *TV-led*.
 - **PC o servidor Linux en vez del NAS**, **compilar el disco**, **SSH** y **barra oscura del menú:** en la sección *Avanzado* de la guía.
 - **Estuches:** `static/cases` trae plantillas simples (`tools/cases/make_cases.py`). Puedes cambiarlas por fotos reales: un PNG con la ventana de la portada transparente.
@@ -87,6 +88,8 @@ All you need is your Chinoppo with the jailbroken RU 65-0131 firmware, a NAS wit
 5. Open **`http://NAS-IP:8095`** and choose your movie and TV folders.
 6. On that page, click **Descargar archivos para la USB** (download files for the USB). Unzip it to the root of a FAT32 USB stick.
 7. Plug the stick into the Chinoppo and switch it on: the Biblioteca appears 20 to 40 s later.
+
+**Artwork Studio** (`artwork/`, port 3001) installs together with the Biblioteca: per title, pick the poster (TMDb or your own), a format banner for the wall, a 4K or Blu-ray case (with a case, the disc slides out of the box), backdrop, logo, disc (fanart.tv, optional key in `FANART_API_KEY`), season posters and metadata.
 
 ### How it works
 
