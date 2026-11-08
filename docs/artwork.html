@@ -104,7 +104,7 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
   <h2>Antes de empezar</h2>
   <ul>
     <li>Ábrelo en <code>http://IP-DEL-NAS:3001</code>, o desde el enlace <b class="ui">Abrir Artwork Studio</b> de la página <code>:8095</code> de la Biblioteca.</li>
-    <li>Para los <b>discos</b> necesitas tu clave gratuita de fanart.tv en <code>FANART_API_KEY</code> del <code>compose.yaml</code> (paso 2 y 6 de la guía principal). Sin ella, todo lo demás funciona, pero no hay discos para elegir.</li>
+    <li>Para los <b>discos</b> y para tener <b>más pósters</b> para elegir necesitas tu clave gratuita de fanart.tv en <code>FANART_API_KEY</code> del <code>compose.yaml</code> (paso 2 y 6 de la guía principal). Sin ella todo lo demás funciona, pero solo verás los pósters de TMDb y no habrá discos.</li>
     <li>Todo lo que apliques se guarda en la Biblioteca. Para ver cómo queda sin prender el Chinoppo, usa la <b class="ui">Vista previa</b> de la página <code>:8095</code>.</li>
     <li>Tus archivos de película nunca se tocan: solo cambian las imágenes que muestra la Biblioteca.</li>
   </ul>
@@ -114,8 +114,8 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
   <h2>Tus claves: TMDb y fanart.tv</h2>
   <p>Artwork Studio necesita dos claves gratuitas. Sácalas una sola vez:</p>
   <ul>
-    <li><b>TMDb</b> (pósters, fondos y logos): crea una cuenta en <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, entra a tu perfil → <b>Configuración → API</b> y copia la <b>Clave de la API</b>.</li>
-    <li><b>fanart.tv</b> (discos): crea una cuenta en <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> y, en tu perfil, copia tu <b>Personal API Key</b>.</li>
+    <li><b>TMDb</b> (pósters, fondos, logos y la información de cada película: sinopsis, reparto, año, nota): crea una cuenta en <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, entra a tu perfil → <b>Configuración → API</b> y copia la <b>Clave de la API</b>.</li>
+    <li><b>fanart.tv</b> (más pósters para elegir y los discos): crea una cuenta en <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> y, en tu perfil, copia tu <b>Personal API Key</b>.</li>
   </ul>
   <p><b>Dónde ponerlas (recomendado):</b> en el <code>compose.yaml</code>, al instalar (paso 6 de la guía principal): la de TMDb en <code>TMDB_API_KEY</code> y la de fanart.tv en <code>FANART_API_KEY</code>. Así sirven en cualquier PC o celular con el que abras Artwork.</p>
   <p><b>O desde Artwork:</b> botón <b class="ui">Ajustes</b> (arriba a la derecha). Ahí también cambias el idioma (español o inglés). Escribe la clave que te falte y pulsa <b class="ui">Guardar y Recargar</b>. Esta ventana se abre sola si Artwork no encuentra la clave de TMDb.</p>
@@ -136,7 +136,7 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
     <li><h3>Póster, banda y estuche</h3><div>
       <span class="where">Pestaña Póster Principal</span>
       <ul>
-        <li><b>Póster:</b> elige uno de <b>Alternativas de TMDb</b> o usa <b class="ui">Subir carátula desde el PC</b> para poner uno tuyo.</li>
+        <li><b>Póster:</b> elige uno de las <b>Alternativas</b>: primero salen los de TMDb y después los de fanart.tv (marcados con “fanart”, si pusiste esa clave). O usa <b class="ui">Subir carátula desde el PC</b> para poner uno tuyo.</li>
         <li><b>Banners y overlays:</b> la banda de arriba del póster (por ejemplo “UHDBD with DV and Atmos”). Artwork te <b>propone</b> la que corresponde al formato que detectó la Biblioteca; puedes cambiarla o elegir “Sin Overlay”. La banda se ve en el <b>muro</b>.</li>
         <li><b>Formato (caja):</b> <b>4K · caja negra</b> o <b>HD · caja azul</b>. El estuche sale en la <b>página de la película</b>, con el póster sin banda, y con estuche el <b>disco sale de la caja</b>. <b>Quitar caja</b> la elimina y <b>Sin cambios</b> deja la que tenga.</li>
         <li><b class="ui">Descargar Arte Fusionado</b> baja a tu PC el póster con su banda, por si lo quieres para otra cosa.</li>

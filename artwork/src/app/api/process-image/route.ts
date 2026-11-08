@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     }
     // tmdbPosterUrl: a TMDb image, our own proxy of the current poster (relative), or an image
     // uploaded from the PC (data: URL)
-    if (!/^(https:\/\/image\.tmdb\.org\/|\/|data:image\/)/.test(tmdbPosterUrl)) {
+    if (!/^(https:\/\/image\.tmdb\.org\/|https:\/\/assets\.fanart\.tv\/|\/|data:image\/)/.test(tmdbPosterUrl)) {
       return NextResponse.json({ error: 'Unsupported poster source' }, { status: 400 });
     }
 
