@@ -10,7 +10,8 @@ import { listBadgeStyles, setBadgeStyle, type BadgeStyle } from "../actions/badg
 import { searchTmdb, getBibliotecaMatch, applyMatch, type TmdbHit, type BibliotecaMatch } from "../actions/metadata";
 import { getConfigStatus } from "../actions/config";
 import { saveKeys } from "../actions/keys";
-import { checkForUpdates, installedVersion, type UpdateInfo } from "../actions/updates";
+import { checkForUpdates, type Release, type UpdateInfo } from "../actions/updates";
+import installedChangelog from "../../changelog.json";
 import { translations, Language } from "../config/i18n";
 
 // Types
@@ -143,8 +144,9 @@ export default function Home() {
       if (stored) setSettingsForm(f => ({ ...f, LANGUAGE: JSON.parse(stored).LANGUAGE || 'es' }));
     } catch (e) {}
 
-    installedVersion().then(setVersion);
-    checkForUpdates().then(info => { setUpdateInfo(info); if (info && new URLSearchParams(window.location.search).get('panel') === 'update') setShowUpdate(true); });
+    setVersion((installedChangelog as Release[])[0]?.id || '');
+    checkForUpdates().then(info => { setUpdateInfo(info); });
+    if (new URLSearchParams(window.location.search).get('panel') === 'changelog') setShowUpdate(true);
     try { setDismissedUpdate(localStorage.getItem('artwork_update_dismissed') || ''); } catch (e) {}
 
     getConfigStatus().then(status => {
@@ -695,6 +697,7 @@ export default function Home() {
             {[
               { name: t.badgeStyles, icon: "M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z", action: openBadgeStyles },
               { name: t.settings, icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z", action: () => setShowSettingsModal(true) },
+              { name: `${t.versionLabel} ${version ? "v" + version : ""}`, icon: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z", action: () => setShowUpdate(true) },
             ].map((tool) => (
               <button
                 key={tool.name}
@@ -1363,49 +1366,68 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NEW VERSION: what changed and how to get it */}
-      {showUpdate && updateInfo && (() => {
+      {/* VERSION: what is new (if GitHub has something newer) and the history of what this install has */}
+      {showUpdate && (() => {
         const lang = settingsForm.LANGUAGE === 'en' ? 'en' : 'es';
-        const needsCompose = updateInfo.newer.some(r => r.compose), needsUsb = updateInfo.newer.some(r => r.usb);
+        const needsCompose = updateInfo?.newer.some(r => r.compose), needsUsb = updateInfo?.newer.some(r => r.usb);
         const guide = lang === 'en'
           ? 'https://ophielsamael.github.io/biblioteca-chinoppo-public/docs/guide-en.html#updating'
           : 'https://ophielsamael.github.io/biblioteca-chinoppo-public/docs/guia.html#actualizar';
+        const releases = (installedChangelog as Release[]);
         return (
           <div className="fixed inset-0 z-[95] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
             <div className="w-full max-w-2xl max-h-[90vh] bg-[#0f111a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
               <div className="px-6 py-4 border-b border-white/5 bg-black/40 flex justify-between items-center">
-                <h3 className="text-emerald-400 font-bold tracking-wider uppercase text-sm">{t.updateTitle} · {updateInfo.latest}</h3>
+                <h3 className="text-emerald-400 font-bold tracking-wider uppercase text-sm">
+                  {updateInfo ? `${t.updateTitle} · ${updateInfo.latest}` : `${t.changelogTitle} · v${version}`}
+                </h3>
                 <button onClick={() => setShowUpdate(false)} className="text-gray-500 hover:text-white">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
-              <div className="p-6 overflow-y-auto flex flex-col gap-5 text-sm text-gray-300">
+              <div className="p-6 overflow-y-auto flex flex-col gap-6 text-sm text-gray-300">
+                {updateInfo && (
+                  <div className="flex flex-col gap-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4">
+                    <div>
+                      <div className="text-xs font-semibold text-emerald-300 uppercase tracking-wider mb-2">{t.updateWhatsNew}</div>
+                      <div className="flex flex-col gap-4">
+                        {updateInfo.newer.map((r) => (
+                          <div key={r.id}>
+                            <div className="text-white font-bold">{r.title[lang]} <span className="text-gray-500 font-normal">· {r.date}</span></div>
+                            <ul className="list-disc pl-5 mt-1 flex flex-col gap-1">{r.changes[lang].map((c, i) => <li key={i}>{c}</li>)}</ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-emerald-300 uppercase tracking-wider mb-2">{t.updateHowTo}</div>
+                      <ol className="list-decimal pl-5 flex flex-col gap-2">
+                        <li>{t.updStep1}</li>
+                        <li>{needsCompose ? t.updStep2Compose : t.updStep2Rebuild}</li>
+                        <li>{needsUsb ? t.updStep3Usb : t.updStep3NoUsb}</li>
+                      </ol>
+                      <p className="mt-3 text-emerald-300">{t.updKept}</p>
+                      <p className="mt-2 text-gray-500">{t.updGit}</p>
+                    </div>
+                  </div>
+                )}
                 <div>
-                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t.updateWhatsNew}</div>
+                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t.yourVersion} · v{version}</div>
+                  {!updateInfo && <p className="text-emerald-300 mb-3">{t.noNewerVersion}</p>}
                   <div className="flex flex-col gap-4">
-                    {updateInfo.newer.map((r) => (
+                    {releases.map((r) => (
                       <div key={r.id}>
-                        <div className="text-white font-bold">{r.title[lang]} <span className="text-gray-500 font-normal">· {r.date}</span></div>
+                        <div className="text-white font-bold">{r.title[lang]} <span className="text-gray-500 font-normal">· v{r.id} · {r.date}</span></div>
                         <ul className="list-disc pl-5 mt-1 flex flex-col gap-1">{r.changes[lang].map((c, i) => <li key={i}>{c}</li>)}</ul>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div>
-                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t.updateHowTo}</div>
-                  <ol className="list-decimal pl-5 flex flex-col gap-2">
-                    <li>{t.updStep1}</li>
-                    <li>{needsCompose ? t.updStep2Compose : t.updStep2Rebuild}</li>
-                    <li>{needsUsb ? t.updStep3Usb : t.updStep3NoUsb}</li>
-                  </ol>
-                  <p className="mt-3 text-emerald-300">{t.updKept}</p>
-                  <p className="mt-2 text-gray-500">{t.updGit}</p>
-                </div>
               </div>
               <div className="px-6 py-4 border-t border-white/5 bg-black/20 flex flex-wrap justify-between gap-3">
                 <a href={guide} target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-xl text-sm font-bold text-emerald-300 hover:text-emerald-200">{t.updGuide} ↗</a>
                 <div className="flex gap-3">
-                  <button onClick={dismissUpdate} className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-400 hover:text-white">{t.updateLater}</button>
+                  {updateInfo && <button onClick={dismissUpdate} className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-400 hover:text-white">{t.updateLater}</button>}
                   <button onClick={() => setShowUpdate(false)} className="px-5 py-2 rounded-xl text-sm font-bold bg-emerald-500 text-white hover:bg-emerald-400">{t.updClose}</button>
                 </div>
               </div>
@@ -1413,7 +1435,6 @@ export default function Home() {
           </div>
         );
       })()}
-
       {/* BADGE STYLES: the format row under the title, for every title */}
       {showBadgeStyles && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
