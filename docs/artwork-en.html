@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Artwork Studio Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: una columna de lectura (~68ch); los pasos numerados son la columna vertebral, cada uno dice dónde se hace. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#152033; --muted:#566377;
+  --line:#d6dce6; --accent:#1c5fd4; --accent-soft:#e3ecfb; --warn:#9a5b00; --warn-soft:#fbf0dc;
+  --ok:#1f7a4d; --ok-soft:#e1f3e9; --code-bg:#eef1f6;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0d1420; --surface:#141d2c; --ink:#e4e9f2; --muted:#98a4b8;
+  --line:#26334a; --accent:#6c9dff; --accent-soft:#1a2a47; --warn:#f0b65a; --warn-soft:#2e2412;
+  --ok:#5fd39a; --ok-soft:#12291e; --code-bg:#0a101a; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0d1420; --surface:#141d2c; --ink:#e4e9f2; --muted:#98a4b8;
+  --line:#26334a; --accent:#6c9dff; --accent-soft:#1a2a47; --warn:#f0b65a; --warn-soft:#2e2412;
+  --ok:#5fd39a; --ok-soft:#12291e; --code-bg:#0a101a; color-scheme:dark }
+
+body{background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.1rem,6vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:800}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+b.ui{font-weight:600;background:var(--accent-soft);color:var(--accent);padding:0 .35em;border-radius:4px}
+.eyebrow{font:600 .75rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:1.15rem;color:var(--muted);max-width:62ch}
+section{display:flex;flex-direction:column;gap:16px}
+code{font:400 .88em var(--mono);background:var(--code-bg);padding:.1em .35em;border-radius:4px;overflow-wrap:anywhere}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font:400 .85rem/1.55 var(--mono)}
+pre code{background:none;padding:0}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.note{border-left:3px solid var(--warn);background:var(--warn-soft);padding:12px 16px;border-radius:0 8px 8px 0}
+.note strong{color:var(--warn)}
+.check{border-left:3px solid var(--ok);background:var(--ok-soft);padding:12px 16px;border-radius:0 8px 8px 0}
+.check strong{color:var(--ok)}
+
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.flow div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:.92rem;line-height:1.4}
+.flow b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:4px;color:var(--accent)}
+@media (max-width:640px){.flow{grid-template-columns:1fr 1fr}}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 .72rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--code-bg)}
+td:first-child{font-weight:600}
+.tag{display:inline-block;font:600 .7rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.notes div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.notes span{display:block;font:600 .72rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.notes i{display:block;border-bottom:1.5px dashed var(--line);height:1.6em}
+
+.steps{list-style:none;padding:0;gap:0;counter-reset:s}
+.steps>li{counter-increment:s;display:grid;grid-template-columns:52px minmax(0,1fr);gap:0 16px;padding-bottom:36px;position:relative}
+.steps>li::before{content:counter(s);grid-row:1/3;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  font:800 1.2rem/1 var(--display);background:var(--accent);color:var(--bg)}
+.steps>li::after{content:"";position:absolute;left:21px;top:50px;bottom:6px;width:2px;background:var(--line)}
+.steps>li:last-child::after{display:none}
+.steps>li>h3{align-self:center;min-height:44px;display:flex;align-items:center}
+.steps>li>div{display:flex;flex-direction:column;gap:12px;min-width:0}
+.where{font:600 .78rem/1 var(--mono);color:var(--muted)}
+
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.keys div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.keys kbd{font:600 .8rem var(--mono);color:var(--accent);display:block}
+
+dl{margin:0;display:flex;flex-direction:column;gap:14px}
+dt{font-weight:600}
+dd{margin:2px 0 0;color:var(--muted)}
+details{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+details>summary{cursor:pointer;font-weight:600}
+details[open]>summary{margin-bottom:12px}
+details>div{display:flex;flex-direction:column;gap:12px}
+footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);padding-top:20px}
+.shots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);display:block}.shots img.wide{grid-column:1/-1}@media (max-width:640px){.shots{grid-template-columns:1fr}}
+img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+</style></head><body>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <span class="eyebrow">Artwork Studio guide · Biblioteca Chinoppo · <a href="artwork.html">Español</a></span>
+  <h1>Artwork Studio</h1>
+  <p class="lede">Artwork Studio decides how each movie looks on the Chinoppo: the wall poster with its format banner, the 4K or Blu-ray case on the movie page with its disc, the backdrop and the logo. It installs by itself with the Biblioteca; this guide shows how to use it. Its screens are in Spanish, so each button is given with its meaning.</p>
+</header>
+
+<section class="shots"><img class="wide" src="img/aw_resultado.jpg" alt="1917 movie page on the Chinoppo with its 4K case and the disc sliding out"></section>
+
+<section>
+  <h2>Before you start</h2>
+  <ul>
+    <li>Open it at <code>http://NAS-IP:3001</code>, or from the <b class="ui">Abrir Artwork Studio</b> link on the Biblioteca’s <code>:8095</code> page.</li>
+    <li>For <b>discs</b> you need your free fanart.tv key in <code>FANART_API_KEY</code> in <code>compose.yaml</code> (steps 2 and 6 of the main guide). Without it everything else works, but there are no discs to pick.</li>
+    <li>Everything you apply is stored in the Biblioteca. To see the result without switching the Chinoppo on, use the <b class="ui">Vista previa</b> (preview) on the <code>:8095</code> page.</li>
+    <li>Your movie files are never touched: only the images the Biblioteca shows change.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Steps</h2>
+  <ol class="steps">
+
+    <li><h3>Pick the movie</h3><div>
+      <span class="where">Main screen</span>
+      <p>On the left, under <b>Mi contenido</b> (my content), are the same sections as your Biblioteca menu (ATMOS, Movies, Series…). Pick one and click the movie. At the top are the search box and the filters <b>Todos</b> (all), <b>Con Overlay</b> (with a banner) and <b>Originales</b> (without).</p>
+      <img class="shot" src="img/aw_lista.jpg" alt="Movie list of a section in Artwork Studio">
+    </div></li>
+
+    <li><h3>Poster, banner and case</h3><div>
+      <span class="where">Póster Principal tab (main poster)</span>
+      <ul>
+        <li><b>Poster:</b> pick one from <b>Alternativas de TMDb</b> or use <b class="ui">Subir carátula desde el PC</b> (upload from PC) for your own.</li>
+        <li><b>Banners y overlays:</b> the band across the top of the poster (e.g. “UHDBD with DV and Atmos”). Artwork <b>suggests</b> the one matching the format the Biblioteca detected; change it or pick “Sin Overlay” (none). The banner shows on the <b>wall</b>.</li>
+        <li><b>Formato (case):</b> <b>4K · caja negra</b> (black 4K case) or <b>HD · caja azul</b> (blue Blu-ray case). The case shows on the <b>movie page</b> with the poster without banner, and with a case the <b>disc slides out of the box</b>. <b>Quitar caja</b> removes it, <b>Sin cambios</b> keeps the current one.</li>
+        <li><b class="ui">Descargar Arte Fusionado</b> downloads the poster with its banner to your PC.</li>
+      </ul>
+      <img class="shot" src="img/aw_poster.jpg" alt="Main poster tab with the UHDBD with DV and Atmos banner and the 4K case selected">
+    </div></li>
+
+    <li><h3>Backdrop</h3><div>
+      <span class="where">Fondos (Backdrops) tab</span>
+      <p>The backdrop is the large image behind the movie page. Click <b class="ui">Elegir fondo</b> (pick backdrop) on the one you like: it is marked <b>✓ Elegido</b> (a second click unpicks it). The <b>PNG/JPG 1080p</b> buttons only download it; with the gradient box ticked it comes darkened at the bottom, sized for the Chinoppo icon bar.</p>
+      <img class="shot" src="img/aw_fondos.jpg" alt="Backdrops tab with several backdrops to pick from">
+    </div></li>
+
+    <li><h3>Logo</h3><div>
+      <span class="where">Logos tab</span>
+      <p>The title logo, with a transparent background, shown on the movie page instead of the written name. Click <b class="ui">Elegir logo</b> (pick logo); Spanish ones come first. <b>Descargar PNG</b> downloads it.</p>
+      <img class="shot" src="img/aw_logos.jpg" alt="Logos tab with logos in several languages">
+    </div></li>
+
+    <li><h3>Disc</h3><div>
+      <span class="where">Discos tab</span>
+      <p>The disc art, from fanart.tv. Click <b class="ui">Elegir este disco</b> (pick this disc). It shows on the Chinoppo <b>only if the movie has a case</b> (step 2), because it is the disc that slides out of the box. Discs exist for movies only, not TV shows. If it says the key is missing, check <code>FANART_API_KEY</code> in the compose.</p>
+    </div></li>
+
+    <li><h3>Apply Changes</h3><div>
+      <span class="where">At the bottom, on any tab</span>
+      <p>When you are done, press <b class="ui">Aplicar Cambios</b> (apply changes). It applies everything at once: poster, banner, case, backdrop, logo and disc. Left of the button you see what you picked in the other tabs. <b>Cancelar</b> closes without applying.</p>
+      <p class="check"><strong>Done.</strong> Open the preview (<code>:8095</code>) or the Biblioteca on the Chinoppo to see the result.</p>
+    </div></li>
+
+  </ol>
+</section>
+
+<section>
+  <h2>TV shows: season posters</h2>
+  <p>TV shows have a <b>Temporadas</b> (seasons) tab. Pick the season, then a TMDb poster with <b class="ui">Usar esta</b> (use this), or upload one from the PC. This one applies <b>right away</b>, without Apply Changes. That poster shows in the show’s seasons row on the Chinoppo.</p>
+  <img class="shot" src="img/aw_temporadas.jpg" alt="Seasons tab for Game of Thrones with posters per season">
+</section>
+
+<section>
+  <h2>Wrongly matched movie: Metadata</h2>
+  <p>If a movie came out with another one’s poster or plot, open the <b>Metadatos</b> tab, search the title (you can add the year) and click <b class="ui">Usar esta</b> on the right one. It stays locked in the Biblioteca and won’t change by itself. This also applies right away.</p>
+  <img class="shot" src="img/aw_metadatos.jpg" alt="Metadata tab with the TMDb search">
+</section>
+
+<section>
+  <h2>Good to know</h2>
+  <dl>
+    <dt>The banner shows only on the wall, the case only on the movie page</dt>
+    <dd>That keeps the wall tidy and lets the movie page show the case with a clean poster.</dd>
+    <dt>I want to undo it all</dt>
+    <dd>Pick “Sin Overlay” and <b>Quitar caja</b>, then Apply Changes. The movie goes back to its TMDb poster.</dd>
+    <dt>I changed the case photos</dt>
+    <dd>Each movie’s case is made when you apply it: pick the case again and Apply Changes on the movies you want updated.</dd>
+  </dl>
+</section>
+
+<footer>This product uses the TMDb API but is not endorsed or certified by TMDb. Discs come from fanart.tv.</footer>
+</div>
+
+</body></html>

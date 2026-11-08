@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Artwork Studio Chinoppo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: una columna de lectura (~68ch); los pasos numerados son la columna vertebral, cada uno dice dónde se hace. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#152033; --muted:#566377;
+  --line:#d6dce6; --accent:#1c5fd4; --accent-soft:#e3ecfb; --warn:#9a5b00; --warn-soft:#fbf0dc;
+  --ok:#1f7a4d; --ok-soft:#e1f3e9; --code-bg:#eef1f6;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0d1420; --surface:#141d2c; --ink:#e4e9f2; --muted:#98a4b8;
+  --line:#26334a; --accent:#6c9dff; --accent-soft:#1a2a47; --warn:#f0b65a; --warn-soft:#2e2412;
+  --ok:#5fd39a; --ok-soft:#12291e; --code-bg:#0a101a; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0d1420; --surface:#141d2c; --ink:#e4e9f2; --muted:#98a4b8;
+  --line:#26334a; --accent:#6c9dff; --accent-soft:#1a2a47; --warn:#f0b65a; --warn-soft:#2e2412;
+  --ok:#5fd39a; --ok-soft:#12291e; --code-bg:#0a101a; color-scheme:dark }
+
+body{background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.1rem,6vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:800}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+b.ui{font-weight:600;background:var(--accent-soft);color:var(--accent);padding:0 .35em;border-radius:4px}
+.eyebrow{font:600 .75rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:1.15rem;color:var(--muted);max-width:62ch}
+section{display:flex;flex-direction:column;gap:16px}
+code{font:400 .88em var(--mono);background:var(--code-bg);padding:.1em .35em;border-radius:4px;overflow-wrap:anywhere}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font:400 .85rem/1.55 var(--mono)}
+pre code{background:none;padding:0}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.note{border-left:3px solid var(--warn);background:var(--warn-soft);padding:12px 16px;border-radius:0 8px 8px 0}
+.note strong{color:var(--warn)}
+.check{border-left:3px solid var(--ok);background:var(--ok-soft);padding:12px 16px;border-radius:0 8px 8px 0}
+.check strong{color:var(--ok)}
+
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.flow div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:.92rem;line-height:1.4}
+.flow b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:4px;color:var(--accent)}
+@media (max-width:640px){.flow{grid-template-columns:1fr 1fr}}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 .72rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--code-bg)}
+td:first-child{font-weight:600}
+.tag{display:inline-block;font:600 .7rem/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.notes div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.notes span{display:block;font:600 .72rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.notes i{display:block;border-bottom:1.5px dashed var(--line);height:1.6em}
+
+.steps{list-style:none;padding:0;gap:0;counter-reset:s}
+.steps>li{counter-increment:s;display:grid;grid-template-columns:52px minmax(0,1fr);gap:0 16px;padding-bottom:36px;position:relative}
+.steps>li::before{content:counter(s);grid-row:1/3;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  font:800 1.2rem/1 var(--display);background:var(--accent);color:var(--bg)}
+.steps>li::after{content:"";position:absolute;left:21px;top:50px;bottom:6px;width:2px;background:var(--line)}
+.steps>li:last-child::after{display:none}
+.steps>li>h3{align-self:center;min-height:44px;display:flex;align-items:center}
+.steps>li>div{display:flex;flex-direction:column;gap:12px;min-width:0}
+.where{font:600 .78rem/1 var(--mono);color:var(--muted)}
+
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.keys div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.keys kbd{font:600 .8rem var(--mono);color:var(--accent);display:block}
+
+dl{margin:0;display:flex;flex-direction:column;gap:14px}
+dt{font-weight:600}
+dd{margin:2px 0 0;color:var(--muted)}
+details{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+details>summary{cursor:pointer;font-weight:600}
+details[open]>summary{margin-bottom:12px}
+details>div{display:flex;flex-direction:column;gap:12px}
+footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);padding-top:20px}
+.shots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);display:block}.shots img.wide{grid-column:1/-1}@media (max-width:640px){.shots{grid-template-columns:1fr}}
+img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+</style></head><body>
+
+<div class="wrap">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <span class="eyebrow">Guía de Artwork Studio · Biblioteca Chinoppo · <a href="artwork-en.html">English</a></span>
+  <h1>Artwork Studio</h1>
+  <p class="lede">Con Artwork Studio decides cómo se ve cada película en el Chinoppo: el póster del muro con su banda de formato, el estuche 4K o Blu-ray de la página de la película con su disco, el fondo y el logo. Se instala solo junto con la Biblioteca; esta guía explica cómo usarlo.</p>
+</header>
+
+<section class="shots"><img class="wide" src="img/aw_resultado.jpg" alt="Página de 1917 en el Chinoppo con su estuche 4K y el disco saliendo"></section>
+
+<section>
+  <h2>Antes de empezar</h2>
+  <ul>
+    <li>Ábrelo en <code>http://IP-DEL-NAS:3001</code>, o desde el enlace <b class="ui">Abrir Artwork Studio</b> de la página <code>:8095</code> de la Biblioteca.</li>
+    <li>Para los <b>discos</b> necesitas tu clave gratuita de fanart.tv en <code>FANART_API_KEY</code> del <code>compose.yaml</code> (paso 2 y 6 de la guía principal). Sin ella, todo lo demás funciona, pero no hay discos para elegir.</li>
+    <li>Todo lo que apliques se guarda en la Biblioteca. Para ver cómo queda sin prender el Chinoppo, usa la <b class="ui">Vista previa</b> de la página <code>:8095</code>.</li>
+    <li>Tus archivos de película nunca se tocan: solo cambian las imágenes que muestra la Biblioteca.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Pasos</h2>
+  <ol class="steps">
+
+    <li><h3>Elige la película</h3><div>
+      <span class="where">Pantalla principal</span>
+      <p>A la izquierda, en <b>Mi contenido</b>, están las mismas secciones del menú de tu Biblioteca (ATMOS, Movies, Series…). Elige una y da clic en la película. Arriba tienes el buscador y los filtros <b>Todos</b>, <b>Con Overlay</b> (las que ya tienen banda) y <b>Originales</b> (las que no).</p>
+      <img class="shot" src="img/aw_lista.jpg" alt="Lista de películas de una sección en Artwork Studio">
+    </div></li>
+
+    <li><h3>Póster, banda y estuche</h3><div>
+      <span class="where">Pestaña Póster Principal</span>
+      <ul>
+        <li><b>Póster:</b> elige uno de <b>Alternativas de TMDb</b> o usa <b class="ui">Subir carátula desde el PC</b> para poner uno tuyo.</li>
+        <li><b>Banners y overlays:</b> la banda de arriba del póster (por ejemplo “UHDBD with DV and Atmos”). Artwork te <b>propone</b> la que corresponde al formato que detectó la Biblioteca; puedes cambiarla o elegir “Sin Overlay”. La banda se ve en el <b>muro</b>.</li>
+        <li><b>Formato (caja):</b> <b>4K · caja negra</b> o <b>HD · caja azul</b>. El estuche sale en la <b>página de la película</b>, con el póster sin banda, y con estuche el <b>disco sale de la caja</b>. <b>Quitar caja</b> la elimina y <b>Sin cambios</b> deja la que tenga.</li>
+        <li><b class="ui">Descargar Arte Fusionado</b> baja a tu PC el póster con su banda, por si lo quieres para otra cosa.</li>
+      </ul>
+      <img class="shot" src="img/aw_poster.jpg" alt="Pestaña Póster Principal con la banda UHDBD with DV and Atmos y la caja 4K elegida">
+    </div></li>
+
+    <li><h3>Fondo</h3><div>
+      <span class="where">Pestaña Fondos (Backdrops)</span>
+      <p>El fondo es la imagen grande detrás de la página de la película. Da clic en <b class="ui">Elegir fondo</b> en el que te guste: se marca con <b>✓ Elegido</b> (otro clic lo desmarca). Los botones <b>PNG/JPG 1080p</b> solo lo descargan a tu PC; con la casilla de degradado, sale oscurecido abajo, a la medida de la barra de íconos del Chinoppo.</p>
+      <img class="shot" src="img/aw_fondos.jpg" alt="Pestaña Fondos con varios fondos para elegir">
+    </div></li>
+
+    <li><h3>Logo</h3><div>
+      <span class="where">Pestaña Logos</span>
+      <p>El logo del título, con fondo transparente, que sale en la página de la película en vez del nombre escrito. Da clic en <b class="ui">Elegir logo</b>; aparecen primero los que están en español. <b>Descargar PNG</b> lo baja a tu PC.</p>
+      <img class="shot" src="img/aw_logos.jpg" alt="Pestaña Logos con logos en varios idiomas">
+    </div></li>
+
+    <li><h3>Disco</h3><div>
+      <span class="where">Pestaña Discos</span>
+      <p>El arte del disco, de fanart.tv. Da clic en <b class="ui">Elegir este disco</b>. Se ve en el Chinoppo <b>solo si la película tiene estuche</b> (paso 2), porque es el disco que sale de la caja. Solo hay discos para películas, no para series. Si dice que falta la clave, revisa <code>FANART_API_KEY</code> en el compose.</p>
+    </div></li>
+
+    <li><h3>Aplicar Cambios</h3><div>
+      <span class="where">Abajo, en cualquier pestaña</span>
+      <p>Cuando termines de elegir, pulsa <b class="ui">Aplicar Cambios</b>. Aplica todo junto: póster, banda, estuche, fondo, logo y disco. A la izquierda del botón ves qué elegiste en las otras pestañas. <b>Cancelar</b> cierra sin aplicar nada.</p>
+      <p class="check"><strong>Listo.</strong> Abre la Vista previa (<code>:8095</code>) o la Biblioteca en el Chinoppo para ver el resultado.</p>
+    </div></li>
+
+  </ol>
+</section>
+
+<section>
+  <h2>Series: pósters por temporada</h2>
+  <p>En las series aparece la pestaña <b>Temporadas</b>. Elige la temporada y luego un póster de TMDb con <b class="ui">Usar esta</b>, o súbelo desde el PC. Aquí se aplica <b>al momento</b>, sin pasar por Aplicar Cambios. Ese póster sale en la fila de temporadas de la serie en el Chinoppo.</p>
+  <img class="shot" src="img/aw_temporadas.jpg" alt="Pestaña Temporadas de Game of Thrones con pósters por temporada">
+</section>
+
+<section>
+  <h2>Película mal reconocida: Metadatos</h2>
+  <p>Si una película salió con el póster o la sinopsis de otra, ve a la pestaña <b>Metadatos</b>, busca el título (puedes poner el año) y en el correcto da <b class="ui">Usar esta</b>. Queda fijada en la Biblioteca y no se vuelve a cambiar sola. También se aplica al momento.</p>
+  <img class="shot" src="img/aw_metadatos.jpg" alt="Pestaña Metadatos con el buscador de TMDb">
+</section>
+
+<section>
+  <h2>Bueno saber</h2>
+  <dl>
+    <dt>La banda solo sale en el muro y el estuche solo en la página de la película</dt>
+    <dd>Así el muro se ve ordenado y la página de la película luce el estuche con el póster limpio.</dd>
+    <dt>¿Quiero quitar todo?</dt>
+    <dd>Elige “Sin Overlay” y <b>Quitar caja</b>, y Aplicar Cambios. La película vuelve a su póster de TMDb.</dd>
+    <dt>Cambié las fotos de los estuches</dt>
+    <dd>El estuche de cada película se crea al aplicarlo: vuelve a elegir la caja y Aplicar Cambios en las películas que quieras actualizar.</dd>
+  </dl>
+</section>
+
+<footer>Este producto usa la API de TMDb, pero TMDb no lo respalda ni lo certifica. Los discos vienen de fanart.tv.</footer>
+</div>
+
+</body></html>
