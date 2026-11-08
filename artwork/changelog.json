@@ -1,0 +1,26 @@
+[
+  {
+    "id": "2026.11.08",
+    "date": "2026-11-08",
+    "title": {
+      "es": "Claves dentro de Artwork, estilos de etiquetas y avisos de actualización",
+      "en": "Keys inside Artwork, badge styles and update notices"
+    },
+    "changes": {
+      "es": [
+        "Las claves de TMDb y fanart.tv se pegan en una ventana de Artwork (con el enlace para conseguirlas); se guardan en tu NAS y la Biblioteca recibe la de TMDb sola. Ya no van en el compose.",
+        "Estilo de etiquetas de formato: 12 estilos de Badger más uno propio, y todos se guardan solos en tu NAS.",
+        "Un solo botón Aplicar Cambios en todas las pestañas, y pósters de fanart.tv junto a los de TMDb.",
+        "Este aviso: Artwork te dice cuándo hay una versión nueva, qué cambió y cómo actualizar."
+      ],
+      "en": [
+        "The TMDb and fanart.tv keys are pasted in an Artwork window (with the link to get them); they are saved on your NAS and the Biblioteca gets the TMDb one by itself. They no longer go in the compose file.",
+        "Format badge style: 12 Badger styles plus our own, and all of them are saved on your NAS automatically.",
+        "A single Apply Changes button on every tab, and fanart.tv posters next to the TMDb ones.",
+        "This notice: Artwork tells you when there is a new version, what changed and how to update."
+      ]
+    },
+    "compose": true,
+    "usb": false
+  }
+]

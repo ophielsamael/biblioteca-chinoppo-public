@@ -108,6 +108,8 @@ All you need is your Chinoppo with the jailbroken RU 65-0131 firmware, a NAS wit
 
 ## Desarrollo · Development
 
+Al publicar cambios, agrega una entrada **arriba** de `artwork/changelog.json` (id con la fecha, qué cambió en español e inglés, y si cambió el compose o la USB): es lo que Artwork Studio muestra como aviso de versión nueva. · *When publishing changes, add an entry at the **top** of `artwork/changelog.json`: it is what Artwork Studio shows as the new-version notice.*
+
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt pytest
 python -m pytest tests -q
