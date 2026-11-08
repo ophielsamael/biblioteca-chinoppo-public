@@ -263,9 +263,9 @@ export default function Home() {
         fetchTmdbBackdrops(movie.tmdbId, movie.media),
         fetchTmdbLogos(movie.tmdbId, movie.media),
         // fanart.tv keys series by TVDB id, not TMDb: discs are for films only
-        movie.media === 'tv' ? Promise.resolve({ hasKey: true, discs: [] }) : fetchFanartDiscs(movie.tmdbId)
+        movie.media === 'tv' ? Promise.resolve({ hasKey: true, discs: [], posters: [] as string[] }) : fetchFanartDiscs(movie.tmdbId)
       ]).then(([posters, backdrops, logos, fanartDiscs]) => {
-        setTmdbAlternatives(posters);
+        setTmdbAlternatives([...posters, ...(fanartDiscs.posters || [])]);   // TMDb first, then fanart.tv
         setTmdbBackdrops(backdrops);
         setTmdbLogos(logos);
         setDiscs(fanartDiscs);
@@ -933,7 +933,8 @@ export default function Home() {
                         <div className="w-full max-h-[320px] overflow-y-auto overflow-x-hidden pr-2 border border-gray-800/50 rounded-lg p-2 bg-gray-900/30">
                           <div className="grid grid-cols-3 gap-3 w-full auto-rows-max">
                             {tmdbAlternatives.map((posterPath, index) => {
-                              const originalUrl = `https://image.tmdb.org/t/p/original${posterPath}`;
+                              const fromFanart = posterPath.startsWith('https://');   // fanart.tv posters come as full URLs
+                              const originalUrl = fromFanart ? posterPath : `https://image.tmdb.org/t/p/original${posterPath}`;
                               const isSelected = modalPoster === originalUrl;
 
                               return (
@@ -943,10 +944,13 @@ export default function Home() {
                                   className={`relative w-full aspect-[2/3] rounded-md overflow-hidden border border-gray-700/60 hover:border-green-500 cursor-pointer transition-all bg-gray-950 block ${isSelected ? 'border-green-500 shadow-[0_0_15px_rgba(82,181,75,0.4)]' : ''}`}
                                 >
                                   <img 
-                                    src={`https://image.tmdb.org/t/p/w185${posterPath}`} 
-                                    alt="TMDb alternative"
+                                    src={fromFanart ? posterPath.replace('/fanart/', '/preview/') : `https://image.tmdb.org/t/p/w185${posterPath}`} 
+                                    alt={fromFanart ? "fanart.tv poster" : "TMDb alternative"}
                                     className="absolute inset-0 w-full h-full object-cover block m-0 p-0"
                                   />
+                                  {fromFanart && (
+                                    <span className="absolute bottom-1 right-1 text-[9px] font-bold uppercase bg-black/70 text-gray-200 rounded px-1 py-0.5">fanart</span>
+                                  )}
                                   {isSelected && (
                                     <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center pointer-events-none">
                                       <svg className="w-8 h-8 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">

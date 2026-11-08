@@ -104,7 +104,7 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
   <h2>Before you start</h2>
   <ul>
     <li>Open it at <code>http://NAS-IP:3001</code>, or from the <b class="ui">Abrir Artwork Studio</b> link on the Biblioteca’s <code>:8095</code> page.</li>
-    <li>For <b>discs</b> you need your free fanart.tv key in <code>FANART_API_KEY</code> in <code>compose.yaml</code> (steps 2 and 6 of the main guide). Without it everything else works, but there are no discs to pick.</li>
+    <li>For <b>discs</b> and <b>more posters</b> to pick from you need your free fanart.tv key in <code>FANART_API_KEY</code> in <code>compose.yaml</code> (steps 2 and 6 of the main guide). Without it everything else works, but you only get TMDb posters and no discs.</li>
     <li>Everything you apply is stored in the Biblioteca. To see the result without switching the Chinoppo on, use the <b class="ui">Vista previa</b> (preview) on the <code>:8095</code> page.</li>
     <li>Your movie files are never touched: only the images the Biblioteca shows change.</li>
   </ul>
@@ -114,8 +114,8 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
   <h2>Your keys: TMDb and fanart.tv</h2>
   <p>Artwork Studio needs two free keys. Get them once:</p>
   <ul>
-    <li><b>TMDb</b> (posters, backdrops and logos): create an account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, open your profile → <b>Settings → API</b> and copy the <b>API Key</b>.</li>
-    <li><b>fanart.tv</b> (discs): create an account at <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> and copy your <b>Personal API Key</b> from your profile.</li>
+    <li><b>TMDb</b> (posters, backdrops, logos and each movie’s information: plot, cast, year, rating): create an account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>, open your profile → <b>Settings → API</b> and copy the <b>API Key</b>.</li>
+    <li><b>fanart.tv</b> (more posters to pick from, and the discs): create an account at <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> and copy your <b>Personal API Key</b> from your profile.</li>
   </ul>
   <p><b>Where to put them (recommended):</b> in <code>compose.yaml</code> when installing (step 6 of the main guide): TMDb in <code>TMDB_API_KEY</code> and fanart.tv in <code>FANART_API_KEY</code>. That way they work on any PC or phone you open Artwork from.</p>
   <p><b>Or from Artwork:</b> the <b class="ui">Ajustes</b> (settings) button, top right. There you also switch the language (Spanish or English). Type the missing key and press <b class="ui">Guardar y Recargar</b> (save and reload). This window opens by itself when Artwork can’t find the TMDb key.</p>
@@ -136,7 +136,7 @@ img.shot{width:100%;max-width:100%;border-radius:10px;border:1px solid var(--lin
     <li><h3>Poster, banner and case</h3><div>
       <span class="where">Póster Principal tab (main poster)</span>
       <ul>
-        <li><b>Poster:</b> pick one from <b>Alternativas de TMDb</b> or use <b class="ui">Subir carátula desde el PC</b> (upload from PC) for your own.</li>
+        <li><b>Poster:</b> pick one from the <b>Alternativas</b>: TMDb ones first, then fanart.tv ones (tagged “fanart”, if you set that key). Or use <b class="ui">Subir carátula desde el PC</b> (upload from PC) for your own.</li>
         <li><b>Banners y overlays:</b> the band across the top of the poster (e.g. “UHDBD with DV and Atmos”). Artwork <b>suggests</b> the one matching the format the Biblioteca detected; change it or pick “Sin Overlay” (none). The banner shows on the <b>wall</b>.</li>
         <li><b>Formato (case):</b> <b>4K · caja negra</b> (black 4K case) or <b>HD · caja azul</b> (blue Blu-ray case). The case shows on the <b>movie page</b> with the poster without banner, and with a case the <b>disc slides out of the box</b>. <b>Quitar caja</b> removes it, <b>Sin cambios</b> keeps the current one.</li>
         <li><b class="ui">Descargar Arte Fusionado</b> downloads the poster with its banner to your PC.</li>
