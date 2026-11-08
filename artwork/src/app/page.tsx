@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import OverlaySelector, { overlayOptions } from "../components/OverlaySelector";
 import { fetchLibraryItems, fetchLibraries } from "../actions/library";
@@ -142,7 +142,8 @@ export default function Home() {
     fetchLibraries().then(libs => {
       if (libs && libs.length > 0) {
         setLibraries(libs);
-        setActiveLibraryId(libs[0].id);
+        const want = new URLSearchParams(window.location.search).get('lib');   // deep link: ?lib=&item=&tab=
+        setActiveLibraryId((libs.find((l: Library) => l.id === want) || libs[0]).id);
       }
     });
   }, []);
@@ -164,9 +165,23 @@ export default function Home() {
       const activeLib = libraries.find(l => l.id === activeLibraryId);
       fetchLibraryItems(activeLibraryId).then(items => {
         setMovies(items || []);
+        // deep link (?item=ID&tab=backdrop): open that title once, e.g. from a guide or a screenshot script
+        const q = new URLSearchParams(window.location.search);
+        const it = (items || []).find((m: Movie) => String(m.id) === q.get('item'));
+        if (it && !deepLinked.current) {
+          deepLinked.current = true;
+          openModal(it);
+          const tab = q.get('tab');
+          if (tab && ['poster', 'backdrop', 'logo', 'disc', 'meta', 'seasons'].includes(tab)) setActiveTab(tab as any);
+          if (tab === 'seasons' && it.seasons?.length) {
+            setSeason(it.seasons[0]);
+            fetchTmdbSeasonPosters(it.tmdbId || '', it.seasons[0]).then(setSeasonAlts);
+          }
+        }
       });
     }
   }, [activeLibraryId, libraries]);
+  const deepLinked = useRef(false);
 
   // Modal Interactive States
   const [modalPoster, setModalPoster] = useState<string>("");
