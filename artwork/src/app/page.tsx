@@ -130,6 +130,8 @@ export default function Home() {
   const [showUpdate, setShowUpdate] = useState(false);
   const [dismissedUpdate, setDismissedUpdate] = useState<string>('');
   const [version, setVersion] = useState('');
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const checkNow = () => { setCheckingUpdate(true); checkForUpdates(true).then(info => { setUpdateInfo(info); setCheckingUpdate(false); }); };
   const dismissUpdate = () => {
     if (updateInfo) { try { localStorage.setItem('artwork_update_dismissed', updateInfo.latest); } catch (e) {} setDismissedUpdate(updateInfo.latest); }
     setShowUpdate(false);
@@ -1413,7 +1415,12 @@ export default function Home() {
                 )}
                 <div>
                   <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t.yourVersion} · v{version}</div>
-                  {!updateInfo && <p className="text-emerald-300 mb-3">{t.noNewerVersion}</p>}
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    {!updateInfo && <p className="text-emerald-300">{t.noNewerVersion}</p>}
+                    <button onClick={checkNow} disabled={checkingUpdate} className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-gray-200 disabled:opacity-60">
+                      {checkingUpdate ? t.checkingUpdate : t.checkNow}
+                    </button>
+                  </div>
                   <div className="flex flex-col gap-4">
                     {releases.map((r) => (
                       <div key={r.id}>
