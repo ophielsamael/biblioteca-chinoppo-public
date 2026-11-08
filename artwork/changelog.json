@@ -1,5 +1,25 @@
 [
   {
+    "id": "2026.11.10",
+    "date": "2026-11-10",
+    "title": {
+      "es": "Buscar actualizaciones al momento",
+      "en": "Check for updates right away"
+    },
+    "changes": {
+      "es": [
+        "En la ventana de la versión hay un botón «Buscar actualizaciones ahora»: consulta GitHub en ese instante, sin esperar.",
+        "El aviso automático ahora revisa cada 15 minutos (antes cada hora)."
+      ],
+      "en": [
+        "The version window has a “Check for updates now” button: it asks GitHub right then, without waiting.",
+        "The automatic notice now checks every 15 minutes (it was every hour)."
+      ]
+    },
+    "compose": false,
+    "usb": false
+  },
+  {
     "id": "2026.11.09",
     "date": "2026-11-09",
     "title": {

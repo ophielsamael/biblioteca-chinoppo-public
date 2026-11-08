@@ -22,14 +22,14 @@ export async function installedVersion(): Promise<string> {
   return (installed as Release[])[0]?.id || '';
 }
 
-// Compares this install with the changelog published on GitHub (asked at most once an hour). The
+// Compares this install with the changelog published on GitHub (asked at most every 15 minutes; force=true asks right now, bypassing the cache). The
 // only thing sent is the request for that file. Returns null when up to date or when GitHub can't
 // be reached (never an error on screen). UPDATE_CHECK=off turns it off.
-export async function checkForUpdates(): Promise<UpdateInfo> {
+export async function checkForUpdates(force = false): Promise<UpdateInfo> {
   if (process.env.UPDATE_CHECK === 'off') return null;
   const mine = await installedVersion();
   try {
-    const r = await fetch(SOURCE, { next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) });
+    const r = await fetch(SOURCE, force ? { cache: 'no-store', signal: AbortSignal.timeout(8000) } : { next: { revalidate: 900 }, signal: AbortSignal.timeout(8000) });
     if (!r.ok) return null;
     const remote = (await r.json()) as Release[];
     if (!Array.isArray(remote) || !remote.length) return null;
