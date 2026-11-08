@@ -4,6 +4,7 @@ services:
   biblioteca:
     build: .
     image: biblioteca-chinoppo:latest
+    pull_policy: build          # always rebuild from these files (an update never reuses the old image)
     container_name: biblioteca-chinoppo
     network_mode: host          # habla con el Chinoppo por la red de casa
     user: "0:0"                 # para poder leer tus carpetas con los permisos del NAS (solo lectura, ver volumes)
@@ -31,6 +32,7 @@ services:
   artwork:
     build: ./artwork
     image: chinoppo-artwork-studio:latest
+    pull_policy: build
     container_name: chinoppo-artwork-studio
     network_mode: host
     environment:
