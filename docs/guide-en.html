@@ -86,6 +86,7 @@ details>summary{cursor:pointer;font-weight:600}
 details[open]>summary{margin-bottom:12px}
 details>div{display:flex;flex-direction:column;gap:12px}
 footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);padding-top:20px}
+.shots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);display:block}.shots img.wide{grid-column:1/-1}@media (max-width:640px){.shots{grid-template-columns:1fr}}
 </style></head><body>
 
 <div class="wrap">
@@ -95,6 +96,8 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
   <h1>Biblioteca Chinoppo</h1>
   <p class="lede">Today, to watch a movie, you open <b>Network</b> on the Chinoppo and browse to the folder on your NAS. With this guide, a wall of movie posters appears when you switch it on, like on R_volution players: pick one with the remote and the movie starts. No programming and no command line needed.</p>
 </header>
+
+<section class="shots"><img class="wide" src="img/muro.jpg" alt="Poster wall"><img src="img/pelicula.jpg" alt="Movie page"><img src="img/serie.jpg" alt="TV show page with its seasons"><img src="img/episodios.jpg" alt="Episodes of a season"></section>
 
 <section>
   <h2>How it works</h2>
