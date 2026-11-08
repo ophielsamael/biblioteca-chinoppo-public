@@ -206,7 +206,7 @@ TZ: "<b>Europe/London</b>"               ← your time zone: Europe/Rome, Americ
 ...
 - <b>/volume1/Plex</b>:/media/Plex:ro    ← folder as the NAS sees it; keep :/media/Plex:ro as is</code></pre>
           Keep the quotes.</li>
-        <li>Save and start (on Synology: <b class="ui">Next</b> until <b class="ui">Done</b>). The first time it takes 5 to 15 minutes to get ready. When it says <b>running</b>, continue.</li>
+        <li>Save and start (on Synology: <b class="ui">Next</b> until <b class="ui">Done</b>). The first time it <b>takes a while: 10 to 30 minutes</b>, depending on your NAS. It builds two programs, and the slow one is Artwork Studio (the build window shows <code>npm ci</code> and <code>npm run build</code> for quite some time). Yellow warnings saying <code>deprecated</code> are normal, not errors. Don't close or cancel; when it says <b>running</b>, continue.</li>
       </ol>
       <p class="note"><strong>If you got something wrong:</strong> stop the application, fix <code>compose.yaml</code> in your Docker app’s editor and start it again.</p>
     </div></li>
