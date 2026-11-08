@@ -20,7 +20,7 @@ Biblioteca de películas y series al estilo de los reproductores R_volution para
 
 ### 👉 Guía paso a paso
 
-**[Abre la guía para principiantes](docs/guia.html)** (en GitHub se ve como código: descarga el archivo y ábrelo en el navegador).
+**[Abre la guía para principiantes](https://ophielsamael.github.io/biblioteca-chinoppo-public/guia.html)**
 
 Solo necesitas tu Chinoppo con el firmware liberado RU 65-0131, un NAS con NFS y una app para Docker (Container Manager, Container Station, Portainer…), una memoria USB y una cuenta gratis de TMDb. No hay que programar ni usar la terminal.
 
@@ -74,7 +74,7 @@ An R_volution-style movie and TV library for the **Chinoppo M9201**, a disc-less
 
 ### 👉 Step-by-step guide
 
-**[Open the beginner's guide](docs/guide-en.html)** (GitHub shows it as code: download the file and open it in your browser).
+**[Open the beginner's guide](https://ophielsamael.github.io/biblioteca-chinoppo-public/guide-en.html)**
 
 All you need is your Chinoppo with the jailbroken RU 65-0131 firmware, a NAS with NFS and a Docker app (Container Manager, Container Station, Portainer…), a USB stick and a free TMDb account. No programming, no command line. The Biblioteca's own screens and web page are in Spanish; the guide translates every button.
 
