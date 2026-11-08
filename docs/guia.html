@@ -123,11 +123,12 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
       <tr><td>Cuenta en TMDb</td><td>Gratis. De ahí salen las carátulas y sinopsis.</td><td><span class="tag">Necesario</span></td></tr>
     </tbody>
   </table></div>
-  <p>Ten a mano papel; vas a anotar cinco datos en los primeros pasos:</p>
+  <p>Ten a mano papel; vas a anotar seis datos en los primeros pasos:</p>
   <div class="notes">
     <div><span>IP del Chinoppo</span><i></i></div>
     <div><span>IP del NAS</span><i></i></div>
     <div><span>Clave de TMDb</span><i></i></div>
+    <div><span>Clave de fanart.tv (discos)</span><i></i></div>
     <div><span>Carpeta como la ve el Chinoppo (NFS)</span><i></i></div>
     <div><span>Carpeta como la ve el NAS</span><i></i></div>
   </div>
@@ -152,6 +153,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
         <li>Crea una cuenta gratis en <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a> y confirma tu correo.</li>
         <li>Entra a tu perfil → <b class="ui">Configuración</b> → <b class="ui">API</b> y solicita una clave (uso personal). Llena el formulario con datos sencillos.</li>
         <li>Copia la <b>Clave de la API</b> (un texto de 32 letras y números) y anótala. No la compartas.</li>
+        <li><b>Para los discos (recomendado):</b> crea también una cuenta gratis en <a href="https://fanart.tv" target="_blank" rel="noopener">fanart.tv</a> y, en tu perfil, copia tu <b>Personal API Key</b>. Sin esta clave, Artwork Studio no muestra discos para elegir y el disco no sale de la caja. Anótala junto a la de TMDb.</li>
       </ol>
     </div></li>
 
@@ -203,7 +205,9 @@ NFS_SERVER: "<b>IP del NAS</b>"
 NFS_FOLDER: "<b>volume1/Plex</b>"        ← carpeta como la ve el Chinoppo, SIN la / del inicio
 TZ: "<b>America/Mexico_City</b>"         ← tu zona: Europe/Madrid, Europe/Rome, America/Bogota…
 ...
-- <b>/volume1/Plex</b>:/media/Plex:ro    ← carpeta como la ve el NAS; deja igual lo de :/media/Plex:ro</code></pre>
+- <b>/volume1/Plex</b>:/media/Plex:ro    ← carpeta como la ve el NAS; deja igual lo de :/media/Plex:ro
+...
+FANART_API_KEY: "<b>tu clave de fanart.tv</b>"   ← más abajo, en la parte de artwork: para los discos</code></pre>
           Deja las comillas.</li>
         <li>Guarda e inicia (en Synology: <b class="ui">Siguiente</b> hasta <b class="ui">Listo</b>). La primera vez <b>tarda bastante: entre 10 y 30 minutos</b>, según tu NAS. Construye dos programas, y el más lento es Artwork Studio (en la ventana de construcción verás <code>npm ci</code> y <code>npm run build</code> un buen rato). Los avisos amarillos que dicen <code>deprecated</code> son normales, no son errores. No cierres ni canceles; cuando diga que está <b>en ejecución</b>, sigue.</li>
       </ol>
