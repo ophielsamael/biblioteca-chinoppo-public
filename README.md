@@ -2,6 +2,13 @@
 
 **[Español](#español) · [English](#english)**
 
+![Muro de carátulas / Poster wall](docs/img/muro.jpg)
+
+| | |
+|---|---|
+| ![Película / Movie](docs/img/pelicula.jpg) | ![Serie / TV show](docs/img/serie.jpg) |
+| ![Episodios / Episodes](docs/img/episodios.jpg) | *Capturas de la vista previa en `http://IP:8095/preview`, idéntica a lo que dibuja el Chinoppo.*<br>*Screenshots from the preview page at `http://IP:8095/preview`, matching what the Chinoppo draws.* |
+
 > Proyecto de la comunidad, sin relación con Oppo, Dolby ni TMDb. Úsalo bajo tu propio riesgo.
 > *Community project, not affiliated with Oppo, Dolby or TMDb. Use at your own risk.*
 

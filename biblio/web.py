@@ -45,6 +45,12 @@ def _service_url() -> str:
     return f"http://{host}:{current_app.config['SETTINGS'].port}"
 
 
+@web_bp.get("/preview")
+def preview():
+    """The disc's screens drawn in the browser (same /d/ API): to look at, and for screenshots."""
+    return render_template("preview.html")
+
+
 @web_bp.get("/usb.zip")
 def usb_zip():
     s = current_app.config["SETTINGS"]

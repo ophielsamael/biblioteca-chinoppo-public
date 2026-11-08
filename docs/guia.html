@@ -86,6 +86,7 @@ details>summary{cursor:pointer;font-weight:600}
 details[open]>summary{margin-bottom:12px}
 details>div{display:flex;flex-direction:column;gap:12px}
 footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);padding-top:20px}
+.shots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shots img{width:100%;border-radius:8px;border:1px solid var(--line);display:block}.shots img.wide{grid-column:1/-1}@media (max-width:640px){.shots{grid-template-columns:1fr}}
 </style></head><body>
 
 <div class="wrap">
@@ -95,6 +96,8 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
   <h1>Biblioteca Chinoppo</h1>
   <p class="lede">Hoy, para ver una película, entras a <b>Red</b> en el Chinoppo y buscas la carpeta en tu NAS. Con esta guía, al encenderlo te aparece un muro de carátulas, como en los reproductores R_volution: eliges con el control y empieza la película. No hace falta saber programar ni usar la terminal.</p>
 </header>
+
+<section class="shots"><img class="wide" src="img/muro.jpg" alt="Muro de carátulas"><img src="img/pelicula.jpg" alt="Página de una película"><img src="img/serie.jpg" alt="Página de una serie con sus temporadas"><img src="img/episodios.jpg" alt="Episodios de una temporada"></section>
 
 <section>
   <h2>Cómo funciona</h2>
