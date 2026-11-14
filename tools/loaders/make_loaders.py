@@ -10,14 +10,18 @@ Biblioteca disc opens (>40 s after a cold boot). Their lengths are in biblio/pla
 (LOADER_SECONDS): the service tells "the loader is still playing" from "the movie started" by it.
 
 Needs Pillow and ffmpeg:   python tools/loaders/make_loaders.py [--font file.ttf] [--lang en]
+With your own library's posters instead of the drawn ones (the repo keeps the drawn ones: no film art):
+    python tools/loaders/make_loaders.py --posters http://IP-OF-THE-SERVICE:8095 --out some/folder
 """
 import argparse
+import io
 import math
 import os
 import random
 import shutil
 import subprocess
 import tempfile
+import urllib.request
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -85,6 +89,32 @@ def poster(seed, w=150, h=225):
     return out
 
 
+def library_posters(base: str, n: int = 5, w: int = 150, h: int = 225, seed: int | None = None) -> list:
+    """n posters of titles in the Biblioteca at base (its disc API), rounded like the drawn ones.
+    Only titles TMDb knows (a rating): the others have no real poster to show."""
+    get = lambda path: urllib.request.urlopen(base.rstrip("/") + path, timeout=30).read()
+    rows = lambda raw: [l.split("\t") for l in raw.decode("utf-8").splitlines() if l]
+    ids = []
+    for folder in rows(get("/d/folders")):
+        ids += [r[0] for r in rows(get(f"/d/items?folder={folder[0]}"))[1:] if len(r) > 3 and r[3] != "series"]
+    r = random.Random(seed)
+    r.shuffle(ids)
+    out = []
+    for i in ids:
+        info = {l[0]: (l[1] if len(l) > 1 else "") for l in rows(get(f"/d/item?id={i}"))}
+        if info.get("rating") in (None, "", "None", "0", "0.0"):
+            continue
+        im = Image.open(io.BytesIO(get(f"/d/img/poster?id={i}&w={w}&h={h}"))).convert("RGB").resize((w, h), Image.LANCZOS)
+        mask = Image.new("L", (w, h), 0)
+        ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], 12, fill=255)
+        card = im.convert("RGBA")
+        card.putalpha(mask)
+        out.append(card)
+        if len(out) == n:
+            return out
+    raise SystemExit(f"only {len(out)} posters found at {base}")
+
+
 def label(im, fnt, text, t, y):
     dots = "." * int(t * 2 % 4)   # 0..3 dots, one step per 0.5 s: 2 s a cycle, which divides BASE
     d = ImageDraw.Draw(im)
@@ -113,13 +143,15 @@ def main():
     ap.add_argument("--font")
     ap.add_argument("--lang", default="es", choices=sorted(TEXT))
     ap.add_argument("--out", default=str(ROOT / "static" / "usb"))
+    ap.add_argument("--posters", help="the Biblioteca's address (http://IP:8095): use its posters")
+    ap.add_argument("--seed", type=int, help="which posters (same seed, same five)")
     a = ap.parse_args()
     FFMPEG = os.environ.get("FFMPEG") or shutil.which("ffmpeg") or "ffmpeg"
     fnt = font(a.font, 44)
     t_movie, t_library = TEXT[a.lang]
     discs = disc_frames()
     dw, dh = discs[0].size
-    posters = [poster(s) for s in (11, 27, 42, 63, 85)]
+    posters = library_posters(a.posters, seed=a.seed) if a.posters else [poster(s) for s in (11, 27, 42, 63, 85)]
 
     def movie(t):
         im = Image.new("RGB", (W, H), (0, 0, 0))
