@@ -13,6 +13,7 @@ AUTOSCRIPT = ROOT / "tools" / "autoscript" / "AutoScript"
 PLACEHOLDER = b"BIBLIO_URL=http://0.0.0.0:8095"
 SLOT = 200   # bytes rewritten at each placeholder (the file is 4 KB of spaces after it)
 FILES = ["AutoScript", "AutoScript.TSS", "arrancar.sh", "vigilante.sh", "consola"]
+LOADERS = ["cargando_pelicula.mp4", "cargando_biblioteca.mp4"]   # tools/loaders/make_loaders.py
 
 
 def patch_iso(iso: bytes, url: str) -> bytes:
@@ -29,16 +30,21 @@ def patch_iso(iso: bytes, url: str) -> bytes:
     return bytes(out)
 
 
-def build_zip(url: str, chinoppo_ip: str) -> bytes:
+def build_zip(url: str, chinoppo_ip: str, nfs_server: str = "192.168.1.17", nfs_library: str = "") -> bytes:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("Biblioteca.iso", patch_iso(ISO.read_bytes(), url))
+        for video in LOADERS:   # the loading videos: the player plays them from the stick
+            if (ISO.parent / video).exists():
+                z.write(ISO.parent / video, video, zipfile.ZIP_STORED)   # already compressed
         for name in FILES:
             data = (AUTOSCRIPT / name).read_bytes()
             if name != "consola":
                 data = data.replace(b"\r\n", b"\n")   # the player's shell wants LF
             if name == "vigilante.sh":
-                data = data.replace(b"CHINOPPO_IP=192.168.1.16", f"CHINOPPO_IP={chinoppo_ip}".encode())
+                data = (data.replace(b"CHINOPPO_IP=192.168.1.16", f"CHINOPPO_IP={chinoppo_ip}".encode())
+                        .replace(b"NFS_SERVER=192.168.1.17", f"NFS_SERVER={nfs_server}".encode())
+                        .replace(b"NFS_LIBRARY=volume1/Plex/Library", f"NFS_LIBRARY={nfs_library}".encode()))
             info = zipfile.ZipInfo(f"AutoScript/{name}", (2026, 1, 1, 0, 0, 0))
             info.external_attr = (0o755 if name.endswith(".sh") or name == "consola" else 0o644) << 16
             info.compress_type = zipfile.ZIP_DEFLATED

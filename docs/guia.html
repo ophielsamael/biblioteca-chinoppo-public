@@ -144,6 +144,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
         <li>Entra a <b class="ui">Configuración → Red</b> y pon <b class="ui">Acceso red BD-Live</b> en <b class="ui">Activado</b>. Sin esto, el disco no puede pedir las carátulas.</li>
         <li>En esa misma sección busca la <b>información de red</b> y anota la <b>dirección IP</b> (algo como <code>192.168.1.16</code>).</li>
         <li>Recomendado: en tu módem o router, “reserva” esa IP para el Chinoppo, para que no cambie. Si no sabes hacerlo, sigue; solo recuerda que si un día deja de funcionar, puede ser porque cambió la IP.</li>
+        <li>En <b class="ui">Configuración → Reproducción</b> pon <b class="ui">Rean. autom.</b> en <b class="ui">Desactivado</b>. Si no, los vídeos de “Cargando…” empiezan a mitad. Tus películas siguen recordando por dónde ibas: eso lo lleva la Biblioteca.</li>
       </ul>
     </div></li>
 
@@ -235,6 +236,7 @@ TZ: "<b>America/Mexico_City</b>"         ← tu zona: Europe/Madrid, Europe/Rome
         <li>Espera: la primera vez busca las carátulas de toda tu colección. Con cientos de películas puede tardar un buen rato. La columna <b>Títulos</b> va subiendo.</li>
       </ol>
       <p class="note"><strong>Series:</strong> organízalas como <code>Nombre de la serie/Season 01/episodio.mkv</code> para que salgan por temporadas.</p>
+      <p class="note"><strong>Pon todas tus carpetas dentro de una misma carpeta</strong> que solo tenga películas y series, por ejemplo <code>Library/Películas</code>, <code>Library/4K</code>, <code>Library/Series</code>. Al encender, el Chinoppo monta esa carpeta común una sola vez y después cualquier película arranca rápido. No pongas ahí dentro descargas ni carpetas con miles de archivos: el Chinoppo las leería todas al encender y tardaría muchísimo. La página te dice qué carpeta se va a montar. Si tus carpetas no comparten una carpeta común, funciona igual, pero cada vez que cambias de carpeta espera unos 40 segundos.</p>
     </div></li>
 
     <li><h3>Prepara la memoria USB</h3><div>
@@ -244,20 +246,22 @@ TZ: "<b>America/Mexico_City</b>"         ← tu zona: Europe/Madrid, Europe/Rome
         <li>Descomprime el ZIP y copia lo que trae a la <b>raíz</b> de la memoria USB (no dentro de otra carpeta). Debe quedar así:
 <pre><code>USB/
 ├── Biblioteca.iso
+├── cargando_biblioteca.mp4
+├── cargando_pelicula.mp4
 └── AutoScript/</code></pre></li>
         <li>Expulsa la USB con seguridad.</li>
       </ol>
-      <p style="color:var(--muted);font-size:.92rem">Si un día cambia la IP del NAS o del Chinoppo, corrige el compose (paso 6) y vuelve a descargar este ZIP.</p>
+      <p style="color:var(--muted);font-size:.92rem">Si un día cambia la IP del NAS o del Chinoppo, corrige el compose (paso 6) y vuelve a descargar este ZIP. También si cambias tus carpetas en la página: la carpeta que se monta al encender va dentro de la USB (la página te avisa).</p>
     </div></li>
 
     <li><h3>Conecta y enciende</h3><div>
       <span class="where">En el Chinoppo</span>
       <ol>
         <li>Con el Chinoppo apagado, conecta la memoria USB y déjala puesta para siempre.</li>
-        <li>Enciéndelo. Entre 20 y 40 segundos después aparece la Biblioteca sola.</li>
+        <li>Enciéndelo. Durante casi un minuto verás el menú del Chinoppo: es lo que tarda en estar listo para reproducir, no se puede acortar. Después sale el vídeo <b>“Cargando biblioteca”</b> mientras se conecta a tus carpetas (unos 40 segundos) y aparece la Biblioteca sola.</li>
         <li>Si sales al menú principal, el ícono <b class="ui">Disco</b> vuelve a abrirla.</li>
       </ol>
-      <p class="check"><strong>Listo.</strong> Elige una película con las flechas y <b>OK</b>. La primera de cada carpeta tarda unos 40 segundos en empezar; las siguientes, poco.</p>
+      <p class="check"><strong>Listo.</strong> Elige una película con las flechas y <b>OK</b>. Arranca en pocos segundos, con el vídeo <b>“Cargando película”</b> mientras tanto (en ISO y carpetas de disco verás casi solo negro: es el Chinoppo cargando el disco). Al pararla vuelves a la Biblioteca.</p>
       <div class="keys">
         <div><kbd>Flechas</kbd>Moverse por el muro</div>
         <div><kbd>OK</kbd>Ver detalle / reproducir</div>
@@ -311,8 +315,10 @@ TZ: "<b>America/Mexico_City</b>"         ← tu zona: Europe/Madrid, Europe/Rome
 <section>
   <h2>Lo que hay que saber</h2>
   <dl>
-    <dt>La primera película de cada carpeta tarda unos 40 segundos</dt>
-    <dd>El Chinoppo tiene que “conectarse” a la carpeta antes de reproducir, y solo puede tener una conectada a la vez. Dentro de la misma carpeta, las siguientes arrancan rápido.</dd>
+    <dt>Una sola conexión para todas tus carpetas</dt>
+    <dd>El Chinoppo tiene que “conectarse” a una carpeta antes de reproducir (unos 40 segundos) y solo puede tener una conectada. Por eso, al encender, se conecta a la carpeta que contiene todas las tuyas, y después todo arranca rápido. Si un día entras por <b>Red</b> en el menú del Chinoppo, esa conexión cambia: la siguiente película de la Biblioteca tarda esos 40 segundos y las demás vuelven a ir rápido.</dd>
+    <dt>Los vídeos de “Cargando…”</dt>
+    <dd>Están en la USB y tapan el menú del Chinoppo mientras trabaja. El porcentaje de “Cargando” que sale encima lo pone el propio Chinoppo. Si no los quieres, agrega <code>LOADING_VIDEOS: "off"</code> en el <code>environment</code> de la biblioteca del compose y reconstruye; con <code>MOUNT_ROOT: "off"</code> vuelve a conectarse carpeta por carpeta.</dd>
     <dt>Apagar a media película</dt>
     <dd>El standby del Chinoppo es un apagado real. Al volver a encender, la Biblioteca se abre sola otra vez.</dd>
     <dt>Un “play” a la vez</dt>

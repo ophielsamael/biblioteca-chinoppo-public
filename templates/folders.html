@@ -12,10 +12,23 @@
     Abrir la Biblioteca al encender el Chinoppo</label>
 </form>
 <h2>Archivos para la memoria USB</h2>
-<p>Descarga el ZIP, descomprímelo y copia su contenido (<code>Biblioteca.iso</code> y la carpeta <code>AutoScript</code>)
-  a la raíz de una memoria USB en FAT32. Ya va configurado con este servidor (<code>{{ service_url }}</code>) y
-  con tu Chinoppo (<code>{{ chinoppo_ip }}</code>). Si cambias alguna de esas IPs, vuelve a descargarlo.</p>
+<p>Descarga el ZIP, descomprímelo y copia su contenido (<code>Biblioteca.iso</code>, los vídeos
+  <code>cargando_*.mp4</code> y la carpeta <code>AutoScript</code>) a la raíz de una memoria USB en FAT32. Ya va
+  configurado con este servidor (<code>{{ service_url }}</code>), con tu Chinoppo (<code>{{ chinoppo_ip }}</code>)
+  y con tus carpetas. Si cambias alguna de esas IPs o las carpetas de abajo, vuelve a descargarlo.</p>
+<p style="color:#aaa">En el Chinoppo, menú de configuración → Reproducción, pon <b>Rean. autom.</b> en
+  <b>Desactivado</b>: si no, los vídeos de carga empiezan a mitad.</p>
 <p><a href="/usb.zip" style="display:inline-block;background:#2b5cd6;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:600">Descargar archivos para la USB</a></p>
+{% if usb_outdated %}<p style="background:#5a3b00;padding:10px 14px;border-radius:8px">⚠ Tu USB no está al día con tus carpetas
+  (o es de una versión anterior): vuelve a descargar el ZIP y cópialo a la USB, para que al encender monte
+  {% if library %}<code>{{ library }}</code>{% else %}lo correcto{% endif %}.</p>{% endif %}
+{% if library %}<p>Al encender, el Chinoppo monta una sola vez <code>{{ library }}</code>, la carpeta que contiene todas
+  las de la lista de abajo: así cualquier película arranca rápido, sin esperar ~40 s al cambiar de carpeta.
+  Esa carpeta solo debe tener tus películas y series: si dentro hay descargas o miles de archivos más, el Chinoppo
+  tarda muchísimo en leerla al encender.</p>
+{% else %}<p>Tus carpetas no están dentro de una misma carpeta, así que el Chinoppo monta una por una (unos 40 s cada
+  vez que cambias de carpeta). Para que todo arranque rápido, ponlas dentro de una carpeta común que solo tenga
+  películas y series (por ejemplo <code>Library/Películas</code>, <code>Library/Series</code>).</p>{% endif %}
 
 <p><a href="/preview" style="color:#8ab4ff">Vista previa: ver la Biblioteca como en el Chinoppo</a>
   · <a href="#" onclick="location.href = location.protocol + '//' + location.hostname + ':3001'; return false" style="color:#8ab4ff">Abrir Artwork Studio (carátulas, bandas, estuches y discos)</a></p>

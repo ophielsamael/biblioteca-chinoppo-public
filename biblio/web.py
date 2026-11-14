@@ -1,4 +1,5 @@
 import io
+import posixpath
 import re
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from PIL import Image, ImageOps
 
 from biblio import badges, formats, images, keys, usbpack
 from biblio.tmdb import TmdbClient
-from biblio.config import Folder, load_folders, save_folders
+from biblio.config import Folder, common_root, load_folders, save_folders
 
 web_bp = Blueprint("web", __name__)
 STATIC_ICONS = Path(__file__).resolve().parent.parent / "static" / "icons"
@@ -19,10 +20,20 @@ def index():
     s, cat = current_app.config["SETTINGS"], current_app.config["CATALOG"]
     folders = [(f, cat.count(f.id)) for f in load_folders(s.data_dir)]
     gallery = sorted(p.name for p in STATIC_ICONS.glob("*.png"))
+    library = _nfs_library()
     return render_template("folders.html", folders=folders, gallery=gallery,
                            autoopen=cat.get_state("autoopen") != "0",
                            service_url=_service_url(), chinoppo_ip=s.chinoppo_ip,
-                           no_key=not s.tmdb_key, media_problem=_media_problem(Path(s.media_root)))
+                           no_key=not s.tmdb_key, media_problem=_media_problem(Path(s.media_root)),
+                           library=library, usb_outdated=cat.get_state("usb_library") != library)
+
+
+def _nfs_library() -> str:
+    """The NAS folder mounted once at power-on, holding every folder of the menu (e.g.
+    volume1/Plex/Library); '' when they share none (then one folder per title, as before)."""
+    s = current_app.config["SETTINGS"]
+    root = common_root(load_folders(s.data_dir)) if s.mount_root == "auto" else s.mount_root.strip("/")
+    return posixpath.join(s.nfs_folder, root) if root else ""
 
 
 def _media_problem(root: Path) -> str:
@@ -123,7 +134,9 @@ def usb_zip():
     url = _service_url()
     if url.split("//")[1].startswith("127."):
         abort(400, "Abre esta página con la IP del servidor (no localhost) y vuelve a descargar.")
-    data = usbpack.build_zip(url, s.chinoppo_ip)
+    library = _nfs_library()
+    data = usbpack.build_zip(url, s.chinoppo_ip, s.nfs_server, library)
+    current_app.config["CATALOG"].set_state("usb_library", library)   # what the stick mounts: the page warns when it changes
     return Response(data, mimetype="application/zip",
                     headers={"Content-Disposition": "attachment; filename=Biblioteca-USB.zip"})
 

@@ -176,6 +176,137 @@ def test_watcher_waits_before_reopening_library(settings, catalog, box, item):
     assert ("sleep", SETTLE) in events[:i]        # seen live: reopening right at STOP shows "No se puede reproducir"
 
 
+LOADER_MOVIE_PATH, LOADER_LIBRARY_PATH = "/mnt/sda1/cargando_pelicula.mp4", "/mnt/sda1/cargando_biblioteca.mp4"
+
+
+def test_loading_video_covers_the_home_on_the_fast_path(player, box, item):
+    box.usb, box.state = True, "bdmv"
+    mounted(player, box)                                                   # the folder is already mounted
+    assert player._sequence(item, False) == "ok"
+    assert box.calls[0] == ("play_file", LOADER_MOVIE_PATH)               # first thing: the video, over the open disc
+    assert ("send_key", "STP") not in box.calls and ("send_key", "HOM") not in box.calls
+    assert not any(c[0] == "mount_nfs" for c in box.calls)
+    assert box.calls[-1] == ("play_file", SWAN) and box.state == "playing"
+    assert player.launched_by_library == item.id
+
+
+def test_movie_order_waits_until_the_loading_video_runs(settings, catalog, box, item):
+    # seen live 2026-11-11: an order 40 ms after the video's replaced it unseen, and an ISO then hung
+    from biblio.player import LOADER_SETTLE
+    events = []
+    p = Player(settings, catalog, box, sleep=lambda s: events.append(("sleep", s)))
+    box.usb, box.state = True, "bdmv"
+    mounted(p, box)
+    real = box.play_file
+    box.play_file = lambda path, server, t: events.append(("play_file", path)) or real(path, server, t)
+    assert p._sequence(item, False) == "ok"
+    i, j = events.index(("play_file", LOADER_MOVIE_PATH)), events.index(("play_file", SWAN))
+    assert ("sleep", LOADER_SETTLE) in events[i:j]
+
+
+LIBRARY_ROOT = "volume1/Plex/Library"
+
+
+def test_one_mount_for_every_folder_plays_without_mounting(settings, catalog, box, item, nested):
+    # measured 2026-11-11: Library mounted once (power-on), titles of ATMOS and Movies play straight away
+    settings.mount_root = "auto"
+    p = Player(settings, catalog, box, sleep=lambda s: None)
+    box.usb, box.state, box.mounted, box.subpath_ok = True, "bdmv", LIBRARY_ROOT, True
+    assert p._sequence(item, False) == "ok"
+    assert box.calls[0] == ("play_file", LOADER_MOVIE_PATH) and not any(c[0] == "mount_nfs" for c in box.calls)
+    assert box.calls[-1] == ("play_file", "/mnt/nfs1/Movies/Black Swan (2010).mkv") and p._mounted == LIBRARY_ROOT
+    box.state = "bdmv"                                                    # back in the library: another folder
+    assert p._sequence(nested, False) == "ok"
+    assert ("play_file", "/mnt/nfs1/ATMOS/Avatar (2009)/Avatar.iso") in box.calls
+    assert not any(c[0] == "mount_nfs" for c in box.calls)
+
+
+def test_one_mount_missing_is_mounted_from_the_home_menu(settings, catalog, box, item):
+    settings.mount_root = "auto"
+    p = Player(settings, catalog, box, sleep=lambda s: None)
+    box.usb, box.state, box.subpath_ok = True, "bdmv", True                # player rebooted: nothing mounted
+    assert p._sequence(item, False) == "ok"
+    assert [c[2] for c in box.calls if c[0] == "mount_nfs"] == [LIBRARY_ROOT]
+    i = box.calls.index(("send_key", "STP"))                              # the video stopped before mounting
+    assert i < next(j for j, c in enumerate(box.calls) if c[0] == "mount_nfs") and box.state == "playing"
+
+
+def test_no_loading_video_when_the_folder_must_be_mounted(player, box, item):
+    # measured 2026-11-11: with a video playing a mount answers "failed" and the movie never starts
+    box.usb, box.state = True, "bdmv"
+    assert player._sequence(item, False) == "ok"
+    assert box.calls[0] == ("send_key", "STP") and not any("cargando_" in str(c) for c in box.calls)
+    assert [c[2] for c in box.calls if c[0] == "mount_nfs"] == [MOVIES] and box.state == "playing"
+
+
+def test_fast_path_that_does_not_start_leaves_the_loading_video_before_mounting(player, box, item):
+    box.usb, box.state, box.start_after = True, "bdmv", 0
+    mounted(player, box)
+    real = box.play_file
+    first = [True]
+    def play(path, server, t):                      # the fast order is refused; the mount path works
+        if path == SWAN and first and first.pop():
+            box.calls.append(("play_file", path))
+            return {"success": False}
+        return real(path, server, t)
+    box.play_file = play
+    assert player._sequence(item, False) == "ok"
+    kinds = [c for c in box.calls if c[0] in ("send_key", "mount_nfs")]
+    assert kinds[0] == ("send_key", "STP") and kinds[-1][0] == "mount_nfs"   # video stopped, then mounted from home
+    assert box.state == "playing" and not player._loading
+
+
+def test_mount_that_answers_failed_but_is_there_still_plays(player, box, item):
+    # seen live 2026-11-11: the service restarted while the player kept the folder mounted: mounting
+    # it again answers "failed" after 20 s, but playing from it works
+    box.state, box.mount_ok, box.mounted = "bdmv", False, MOVIES
+    assert player._sequence(item, False) == "ok" and box.state == "playing"
+    assert player._mounted == MOVIES
+
+
+def test_movie_that_never_starts_is_not_mistaken_for_the_loading_video(player, box, item):
+    box.usb, box.state, box.play_starts = True, "bdmv", False              # the video keeps playing, the movie never does
+    mounted(player, box)
+    assert player._sequence(item, False) == "error:no arrancó"
+
+
+def test_failed_launch_with_loading_video_reopens_the_library(settings, catalog, box, item):
+    p = Player(settings, catalog, box, sleep=lambda s: None)
+    box.usb, box.state, box.play_starts = True, "bdmv", False
+    mounted(p, box)
+    p._start(item, False)
+    time.sleep(0.05)
+    for _ in range(300):
+        if not p._busy.locked():
+            break
+        time.sleep(0.01)
+    assert box.state == "bdmv" and box.calls[-1] == ("play_file", "/mnt/sda1/Biblioteca.iso") and not p._loading
+
+
+def test_no_loading_video_without_stick_or_when_turned_off(settings, catalog, box, item):
+    p = Player(settings, catalog, box, sleep=lambda s: None)
+    box.state = "bdmv"
+    assert p._sequence(item, False) == "ok" and box.calls[0] == ("send_key", "STP")     # no stick: as before
+    box2 = type(box)()
+    box2.usb, box2.state = True, "bdmv"
+    settings.loading_videos = False
+    assert Player(settings, catalog, box2, sleep=lambda s: None)._sequence(item, False) == "ok"
+    assert not any("cargando_" in str(c) for c in box2.calls) and box2.calls[0] == ("send_key", "STP")
+
+
+def test_watcher_covers_the_return_with_the_library_video(settings, catalog, box, item):
+    p = Player(settings, catalog, box, sleep=lambda s: None)
+    box.usb = True
+    p.launched_by_library = item.id
+    box.state = "playing"
+    p.watch_once()
+    box.state = "idle"                                   # the movie ended
+    p.watch_once()
+    paths = [c[1] for c in box.calls if c[0] == "play_file"]
+    assert paths == [LOADER_LIBRARY_PATH, "/mnt/sda1/Biblioteca.iso"]
+    assert ("send_key", "HOM") not in box.calls and box.state == "bdmv"
+
+
 def test_recover_prefers_library_on_usb_stick(player, box):
     box.usb = True
     player._recover()
@@ -257,10 +388,10 @@ def test_disc_does_not_close_aborts_without_mount(player, box, item):
     assert not any(c[0] in ("mount_nfs", "login_nfs") for c in box.calls)
 
 
-def test_mount_failure_aborts_without_play(player, box, item):
+def test_mount_failure_tries_one_order_then_aborts(player, box, item):
     box.mount_ok = False
     assert player._sequence(item, False) == "error:montaje"
-    assert not any(c[0] == "play_file" for c in box.calls)   # nothing mounted, mount failed: no order
+    assert sum(c[0] == "play_file" for c in box.calls) == 1   # one order in case it is mounted anyway; never a blind retry loop
 
 
 def test_mount_preceded_by_xnoppo_handshake(player, box, item):
@@ -406,6 +537,16 @@ def test_autoopen_when_player_powers_on(player, box):
     box.unreachable = False
     player.watch_power()                       # just switched on, idle on its home
     assert box.calls[-1] == ("play_file", LIBRARY)
+
+
+def test_power_on_with_the_stick_is_left_to_its_vigilante(player, box):
+    # seen 2026-11-11: both opening the library let a play start while the vigilante mounted Library
+    box.usb = True
+    box.unreachable = True
+    player.watch_power()
+    box.unreachable = False
+    player.watch_power()
+    assert not any(c[0] == "play_file" for c in box.calls)
 
 
 def test_no_autoopen_when_disabled(player, box, catalog):

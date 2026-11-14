@@ -145,6 +145,7 @@ footer{color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);paddi
         <li>Go to <b class="ui">Setup → Network</b> and set <b class="ui">BD-Live Network Access</b> to <b class="ui">On</b>. Without it, the disc cannot fetch the posters.</li>
         <li>In the same section, find the <b>network information</b> and write down the <b>IP address</b> (something like <code>192.168.1.16</code>).</li>
         <li>Recommended: in your router, “reserve” that IP for the Chinoppo so it never changes. If you don’t know how, carry on; just remember that if it stops working one day, the IP may have changed.</li>
+        <li>In <b class="ui">Setup → Playback</b> set <b class="ui">Auto Resume</b> (“Rean. autom.” in Spanish) to <b class="ui">Off</b>. Otherwise the “Loading…” videos start halfway. Your movies still remember where you left off: the Biblioteca keeps track of that.</li>
       </ul>
     </div></li>
 
@@ -236,6 +237,7 @@ TZ: "<b>Europe/London</b>"               ← your time zone: Europe/Rome, Americ
         <li>Wait: the first time it fetches posters for your whole collection. With hundreds of movies this can take a while. The <b>Títulos</b> (titles) column keeps growing.</li>
       </ol>
       <p class="note"><strong>TV shows:</strong> organize them as <code>Show name/Season 01/episode.mkv</code> so they appear by season.</p>
+      <p class="note"><strong>Put all your folders inside one folder</strong> that holds only movies and shows, for example <code>Library/Movies</code>, <code>Library/4K</code>, <code>Library/Shows</code>. At power-on the Chinoppo connects to that common folder once, and then any movie starts quickly. Don’t keep downloads or folders with thousands of files in there: the Chinoppo would read them all at power-on and take ages. The page tells you which folder will be connected. If your folders share no common folder it still works, but every time you change folder there is a wait of about 40 seconds.</p>
     </div></li>
 
     <li><h3>Prepare the USB stick</h3><div>
@@ -245,20 +247,22 @@ TZ: "<b>Europe/London</b>"               ← your time zone: Europe/Rome, Americ
         <li>Unzip it and copy its contents to the <b>root</b> of the USB stick (not inside another folder). It must look like this:
 <pre><code>USB/
 ├── Biblioteca.iso
+├── cargando_biblioteca.mp4
+├── cargando_pelicula.mp4
 └── AutoScript/</code></pre></li>
         <li>Eject the stick safely.</li>
       </ol>
-      <p style="color:var(--muted);font-size:.92rem">If the IP of the NAS or the Chinoppo ever changes, fix the compose (step 6) and download this ZIP again.</p>
+      <p style="color:var(--muted);font-size:.92rem">If the IP of the NAS or the Chinoppo ever changes, fix the compose (step 6) and download this ZIP again. Also if you change your folders on the page: the folder connected at power-on is written on the stick (the page warns you).</p>
     </div></li>
 
     <li><h3>Plug in and switch on</h3><div>
       <span class="where">On the Chinoppo</span>
       <ol>
         <li>With the Chinoppo off, plug in the USB stick and leave it there for good.</li>
-        <li>Switch it on. The Biblioteca appears by itself 20 to 40 seconds later.</li>
+        <li>Switch it on. For almost a minute you will see the Chinoppo’s menu: that is how long it takes to be ready to play, it can’t be shortened. Then the <b>“Cargando biblioteca”</b> (loading library) video plays while it connects to your folders (about 40 seconds) and the Biblioteca appears by itself.</li>
         <li>If you go back to the home menu, the <b class="ui">Disc</b> icon opens it again.</li>
       </ol>
-      <p class="check"><strong>Done.</strong> Pick a movie with the arrows and <b>OK</b>. The first movie of each folder takes about 40 seconds to start; the next ones, much less.</p>
+      <p class="check"><strong>Done.</strong> Pick a movie with the arrows and <b>OK</b>. It starts in a few seconds, with the <b>“Cargando película”</b> (loading movie) video meanwhile (with ISOs and disc folders you will mostly see black: that is the Chinoppo loading the disc). When you stop it you are back in the Biblioteca.</p>
       <div class="keys">
         <div><kbd>Arrows</kbd>Move around the wall</div>
         <div><kbd>OK</kbd>Details / play</div>
@@ -312,8 +316,10 @@ TZ: "<b>Europe/London</b>"               ← your time zone: Europe/Rome, Americ
 <section>
   <h2>Good to know</h2>
   <dl>
-    <dt>The first movie of each folder takes about 40 seconds</dt>
-    <dd>The Chinoppo has to “connect” to the folder before playing, and can only have one connected at a time. Within the same folder, the next movies start quickly.</dd>
+    <dt>One connection for all your folders</dt>
+    <dd>The Chinoppo has to “connect” to a folder before playing (about 40 seconds) and can only have one connected. So at power-on it connects to the folder that holds all yours, and then everything starts quickly. If you ever open <b>Network</b> in the Chinoppo’s menu, that connection changes: the next Biblioteca movie takes those 40 seconds and the rest are quick again.</dd>
+    <dt>The “Loading…” videos</dt>
+    <dd>They are on the USB stick and hide the Chinoppo’s menu while it works. The “Loading” percentage on top comes from the Chinoppo itself. If you don’t want them, add <code>LOADING_VIDEOS: "off"</code> to the biblioteca’s <code>environment</code> in the compose and rebuild; with <code>MOUNT_ROOT: "off"</code> it connects folder by folder again.</dd>
     <dt>Switching off mid-movie</dt>
     <dd>The Chinoppo’s standby is a real power-off. When you switch it on again, the Biblioteca opens by itself.</dd>
     <dt>One “play” at a time</dt>

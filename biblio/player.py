@@ -13,7 +13,7 @@ import time
 from dataclasses import dataclass
 
 from biblio.chinoppo import ChinoppoError
-from biblio.config import Settings, load_folders
+from biblio.config import Settings, common_root, load_folders
 from biblio.db import Catalog, Item
 
 log = logging.getLogger("biblioteca.player")
@@ -25,6 +25,13 @@ PRE_STP = 2          # let the BD-J disc finish handling the OK press
 REACH_TIMEOUT = 3    # per call while checking the player answers
 AUTO_GRACE = 15      # after power-on, let Xnoppo (Emby -> Chinoppo) act first
 FAST_WAIT = 8        # seconds the direct (no-mount) attempt gets before falling back to mounting
+# loading videos on the stick (tools/loaders/make_loaders.py): the home menu stays out of sight
+# while a movie mounts (~40 s) or the library disc opens. Their lengths tell "the loader still
+# plays" from "the movie started" (measured 2026-11-11: a play order is accepted with the disc
+# open, which it closes; the movie replaces the video; the library opens over it in <1 s).
+LOADER_MOVIE, LOADER_LIBRARY = "cargando_pelicula.mp4", "cargando_biblioteca.mp4"
+LOADER_SECONDS = (120, 60)
+LOADER_SETTLE = 3    # seconds the loading video runs before the movie order replaces it
 RESUME_MIN = 60
 WATCHED_RATIO = 0.95
 
@@ -46,6 +53,28 @@ class Player:
         self._last = (0, 0)
         self._was_on: bool | None = None   # unknown until the first observation
         self._mounted: str | None = None   # folder this service last mounted at /mnt/nfs1
+        self._loading = False              # a loading video is on screen (started by this service)
+
+    def _loader(self, name: str) -> bool:
+        """Play the loading video that sits next to Biblioteca.iso on the stick. True when the
+        player took it (it closes an open disc by itself); False: no stick, no file, or off."""
+        if not self.settings.loading_videos:
+            return False
+        try:
+            try:
+                usb = self.box.usb_path()
+            except ChinoppoError:   # busy with a disc that is loading: the stick is where the library says
+                usb = posixpath.dirname(self.settings.library_usb)
+            if not usb:
+                return False
+            r = self.box.play_file(posixpath.join(usb, name), self.settings.nfs_server, 20)
+        except ChinoppoError as e:
+            log.info("video de carga %s: sin respuesta (%s)", name, e)
+            return False
+        ok = bool(r.get("success"))
+        log.info("video de carga %s -> %s", name, r)
+        self._loading = ok
+        return ok
 
     def _path(self, sub: str) -> str:
         return "/mnt/nfs1/" + sub
@@ -54,9 +83,20 @@ class Player:
         """The configured folder (web page) holding relpath: the only thing ever mounted.
         Seen 2026-11-03: with the share root mounted the player indexes the whole NAS
         (~300k entries) and Red, Películas and new plays stall until it is done."""
-        paths = [f.path.strip("/") for f in load_folders(self.settings.data_dir)]
+        folders = load_folders(self.settings.data_dir)
+        root = self._mount_root(folders)
+        if root and relpath.startswith(root + "/"):
+            return root   # one mount for every folder (measured 2026-11-11: Library mounts in 40 s, all plays then fast)
+        paths = [f.path.strip("/") for f in folders]
         inside = [p for p in paths if relpath.startswith(p + "/")]
         return max(inside, key=len) if inside else posixpath.dirname(relpath)
+
+    def _mount_root(self, folders=None) -> str:
+        """The single folder mounted for every title ('' = one folder per title, as before)."""
+        mr = self.settings.mount_root
+        if mr == "auto":
+            return common_root(folders if folders is not None else load_folders(self.settings.data_dir))
+        return mr.strip("/")
 
     def _wait(self, cond, seconds: int) -> bool:
         for _ in range(seconds):
@@ -113,11 +153,12 @@ class Player:
             try:
                 result = self._sequence(item, resume)
                 log.info("play %s -> %s", item.relpath, result)
-                if result in ("error:montaje", "error:no arrancó"):
+                if result in ("error:montaje", "error:no arrancó") or (self._loading and result != "ok"):
                     self._recover()   # the library disc was already closed: don't strand the user
             except Exception:
                 log.exception("play failed")
             finally:
+                self._loading = False
                 self._busy.release()
         try:
             threading.Thread(target=run, daemon=True).start()
@@ -126,10 +167,36 @@ class Player:
             raise
         return "ok"
 
+    def _started_loader(self, seconds: int) -> bool:
+        """The loading video is on screen (a video of its length is playing)."""
+        def up() -> bool:
+            if not self._safe_info().get("is_video_playing"):
+                return False
+            try:
+                return int(self.box.playing_time().get("total_time") or 0) in LOADER_SECONDS
+            except ChinoppoError:
+                return False
+        return self._wait(up, seconds)
+
     def _started(self, seconds: int) -> bool:
-        return self._wait(lambda: bool(self._safe_info().get("is_video_playing")), seconds)
+        def up() -> bool:
+            if not self._safe_info().get("is_video_playing"):
+                return False
+            if not self._loading:
+                return True
+            try:   # the loading video is a video too: wait for something that is not it
+                return int(self.box.playing_time().get("total_time") or 0) not in LOADER_SECONDS
+            except ChinoppoError:
+                return False
+        return self._wait(up, seconds)
 
     def _recover(self) -> None:
+        try:
+            self._reopen_library()
+        finally:
+            self._loading = False   # the disc replaced the loading video, or nothing will
+
+    def _reopen_library(self) -> None:
         """Reopen Biblioteca.iso: from the USB stick if one is plugged in (instant, leaves the
         NAS mount alone), else from its own NAS folder, mounting it only if needed (~40 s)."""
         s = self.settings
@@ -205,6 +272,7 @@ class Player:
         except ChinoppoError:
             pass
 
+
     def _walk(self, sub: str) -> bool:
         """List each folder from the mount down to the title's folder, like the Chinoppo's
         browser does: measured 2026-11-03, a subfolder path only plays after that walk.
@@ -233,7 +301,33 @@ class Player:
             info = self._info()
         except ChinoppoError:
             return "error:sin respuesta"
-        if (info.get("is_bdmv_playing") or info.get("is_video_playing")) and not self._close_disc():
+        self._loading = False
+        # some discs (Avatar) are accepted through a subfolder but only start from their own
+        # folder: remember them so the next launch skips the 30 s fast attempt
+        slow_key = "needs_mount:" + item.relpath
+        base = self._base(item.relpath)
+        sub = item.relpath[len(base):].lstrip("/")
+        mnt = posixpath.join(s.nfs_folder, base)
+        parent, name = posixpath.split(item.relpath)
+        own = posixpath.join(s.nfs_folder, parent)
+        closed = lambda: not self._safe_info().get("is_bdmv_playing", True)
+        # The loading video only covers the fast path (folder already mounted). Measured 2026-11-11: with
+        # a video playing, mounting a folder answers "failed" after 20 s and the player then accepts the
+        # movie but never starts it; mounting needs the home menu (40 s there, and it works).
+        # With one mount for everything the vigilante mounts it at power-on: unknown here (service just
+        # (re)started) counts as mounted; if the fast path fails it mounts from the home menu as before.
+        fast = self.catalog.get_state(slow_key) is None and (
+            self._mounted == mnt or (self._mounted is None and base == self._mount_root() != ""))
+        if info.get("is_bdmv_playing") and fast and s.loading_videos:
+            # seen live 2026-11-11: an order sent while the disc is still handling the OK press is not
+            # answered (20 s timeout), the same reason as PRE_STP before the STP key
+            self.sleep(PRE_STP)
+        if info.get("is_bdmv_playing") and fast and self._loader(LOADER_MOVIE) and self._wait(closed, CLOSE_WAIT):
+            # seen live 2026-11-11: a movie order 40 ms after the video's replaced it before it showed, and
+            # an ISO then did not start (home menu, second try). Measured fine: order once it runs a few s.
+            self._started_loader(10)
+            self.sleep(LOADER_SETTLE)
+        elif (info.get("is_bdmv_playing") or info.get("is_video_playing")) and not self._close_disc():
             return "error:el disco no se cerró"
 
         def order(path: str) -> bool:
@@ -245,34 +339,36 @@ class Player:
             log.info("orden de reproducir %s (%.1fs) -> %s", path, time.monotonic() - t0, r)
             return bool(r.get("success"))
 
-        # some discs (Avatar) are accepted through a subfolder but only start from their own
-        # folder: remember them so the next launch skips the 30 s fast attempt
-        slow_key = "needs_mount:" + item.relpath
-        base = self._base(item.relpath)
-        sub = item.relpath[len(base):].lstrip("/")
-        mnt = posixpath.join(s.nfs_folder, base)
-        parent, name = posixpath.split(item.relpath)
-        own = posixpath.join(s.nfs_folder, parent)
-
         # fast path (measured 2026-11-03): with the folder already mounted, the path inside it
         # plays directly, like the Chinoppo's own browser; no ~40 s remount. An accepted order
         # gets the full start time (big UHD ISOs like Avatar load for >8 s); a rejected one
         # falls back to mounting at once.
-        accepted = (self.catalog.get_state(slow_key) is None and self._mounted == mnt
-                    and self._walk(sub) and order(self._path(sub)))
+        accepted = fast and self._walk(sub) and order(self._path(sub))
         if accepted and self._started(START_WAIT):
+            self._mounted = mnt
             log.info("camino rápido: sin montar")
         else:
             # never mount with a disc left open (loading screen, error dialog): close it first
             if self._safe_info().get("is_bdmv_playing") and not self._close_disc():
                 return "error:el disco no se cerró"
+            if self._loading:   # the fast path did not start the movie: mounting needs the home menu
+                box.send_key("STP")
+                self._loading = False
+                self._show_home()
+                self.sleep(SETTLE)
             started = False
             # mount the title's configured folder: it stays mounted, so the next titles of
             # that folder take the fast path
             if not accepted and self.catalog.get_state(slow_key) is None:
-                if not self._mount(mnt):
-                    return "error:montaje"
-                started = self._walk(sub) and order(self._path(sub)) and self._started(START_WAIT)
+                if self._mount(mnt):
+                    started = self._walk(sub) and order(self._path(sub)) and self._started(START_WAIT)
+                else:
+                    # seen live 2026-11-11: mounting a folder the player already has (after this service
+                    # restarted) answers "failed" after 20 s, though it is there: try playing from it
+                    started = order(self._path(sub)) and self._started(START_WAIT)
+                    if not started:
+                        return "error:montaje"
+                    self._mounted = mnt
                 if not started and self._safe_info().get("is_bdmv_playing") and not self._close_disc():
                     return "error:el disco no se cerró"
             if not started:   # last resort, e.g. Avatar once: mount the title's own folder
@@ -311,7 +407,8 @@ class Player:
             # the movie left its folder mounted; the library ISO lives in its own one
             if self._busy.acquire(blocking=False):
                 try:
-                    self._show_home()
+                    if not self._loader(LOADER_LIBRARY):   # else the firmware home shows meanwhile
+                        self._show_home()
                     # seen live: reopening right at STOP shows "No se puede reproducir el disco"
                     self.sleep(SETTLE)
                     self._recover()
@@ -343,6 +440,10 @@ class Player:
             # only open if idle on its home — the vigilante handles that too, but this is harmless.
             had_movie = self.launched_by_library is not None
             if not had_movie and not self._idle():
+                return
+            # With the stick in, its vigilante opens the library after mounting it under the loading
+            # video. Seen 2026-11-11: opening it from here too let a play start mid-mount: both failed.
+            if not had_movie and self.box.usb_path():
                 return
         except ChinoppoError:
             return

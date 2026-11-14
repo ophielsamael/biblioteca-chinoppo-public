@@ -70,7 +70,7 @@ class FakeChinoppo:
                 self.state = "playing"
         # "menu": a disc is open (error screen / loading) but no video runs yet
         return {"is_bdmv_playing": self.state in ("bdmv", "menu"),
-                "is_video_playing": self.state in ("bdmv", "playing")}
+                "is_video_playing": self.state in ("bdmv", "playing", "loader")}
 
     def playing_time(self):
         self._check()
@@ -85,9 +85,16 @@ class FakeChinoppo:
         if path.startswith("/mnt/sd"):               # USB stick: plays if plugged in, at its mount
             if not path.startswith(self.usb_mount + "/"):
                 return {"success": False}
+            if "/cargando_" in path:                 # measured 2026-11-11: accepted with a disc open, which it closes
+                if not self.usb:
+                    return {"success": False}
+                self.state, self.total = "loader", 120 if "pelicula" in path else 60
+                self._disc_closed.set()
+                return {"success": True}
             if self.state in ("bdmv", "menu") or not self.usb:
                 return {"success": False}
             self.state = "bdmv"
+            self.total = 0 if self.total in (60, 120) else self.total
             return {"success": True}
         rel = path[len("/mnt/nfs1/"):]
         parent = path.rsplit("/", 1)[0]
@@ -104,6 +111,8 @@ class FakeChinoppo:
             return {"success": True}
         if not valid:
             return {"success": False}
+        if self.play_starts and self.state == "loader":
+            self.total = 7200                       # the movie replaces the loading video
         if self.play_starts and self.start_after:
             self._pending = self.start_after
         elif self.play_starts:
@@ -129,6 +138,8 @@ class FakeChinoppo:
         if key == "STP" and self.on_key_stp == "ignore_first":
             self.on_key_stp = "closes_disc_and_runs_queue"   # seen live: STP right after OK is dropped
             return {"success": True}
+        if key == "STP" and self.state == "loader":      # stops the loading video: back to the home menu
+            self.state, self.total = "idle", 0
         if key == "STP" and self.on_key_stp == "closes_disc_and_runs_queue" and self.state in ("bdmv", "menu"):
             self.state = "idle"
             self._disc_closed.set()

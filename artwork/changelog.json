@@ -1,5 +1,35 @@
 [
   {
+    "id": "2026.11.14",
+    "date": "2026-11-14",
+    "title": {
+      "es": "Vídeos de carga y películas más rápidas",
+      "en": "Loading videos and faster movie starts"
+    },
+    "changes": {
+      "es": [
+        "Al encender, el Chinoppo se conecta una sola vez a la carpeta que contiene todas las de tu menú (por ejemplo Library): después cualquier película arranca rápido, sin esperar ~40 s al cambiar de carpeta.",
+        "Para eso, todas tus carpetas deben estar dentro de una misma carpeta que solo tenga películas y series (nada de descargas ni miles de archivos). La página de la Biblioteca (:8095) te dice qué carpeta se conecta.",
+        "Vídeos de carga en lugar del menú del Chinoppo: «Cargando biblioteca» al encender, al despertar, con el icono Disco y al parar una película; «Cargando película» al darle Reproducir. En ISO y carpetas de disco verás casi solo negro: es el Chinoppo cargando el disco.",
+        "Importante: en el Chinoppo, Configuración → Reproducción, pon «Rean. autom.» en Desactivado; si no, los vídeos de carga empiezan a mitad.",
+        "Tras encender, el Chinoppo necesita casi un minuto antes de poder reproducir nada: es un límite del propio reproductor.",
+        "Si cambias tus carpetas en la página, vuelve a descargar el ZIP de la USB (la página te avisa).",
+        "Se pueden apagar en compose.yaml con LOADING_VIDEOS: \"off\" (vídeos) y MOUNT_ROOT: \"off\" (conexión carpeta por carpeta, como antes)."
+      ],
+      "en": [
+        "At power-on the Chinoppo connects once to the folder that holds every folder of your menu (e.g. Library): any movie then starts quickly, without a ~40 s wait when you change folder.",
+        "For that, keep all your folders inside one folder that holds only movies and shows (no downloads or thousands of other files). The Biblioteca page (:8095) shows which folder is connected.",
+        "Loading videos instead of the Chinoppo's menu: “Loading library” at power-on, on wake, with the Disc icon and when a movie stops; “Loading movie” when you press Play. With ISOs and disc folders you will mostly see black: that is the Chinoppo loading the disc.",
+        "Important: on the Chinoppo, Setup → Playback, set “Auto Resume” to Off, or the loading videos start halfway.",
+        "After power-on the Chinoppo needs almost a minute before it can play anything: a limit of the player itself.",
+        "If you change your folders on the page, download the USB ZIP again (the page warns you).",
+        "They can be turned off in compose.yaml with LOADING_VIDEOS: \"off\" (videos) and MOUNT_ROOT: \"off\" (folder by folder, as before)."
+      ]
+    },
+    "compose": false,
+    "usb": true
+  },
+  {
     "id": "2026.11.12",
     "date": "2026-11-12",
     "title": {

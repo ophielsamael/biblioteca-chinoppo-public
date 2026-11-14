@@ -27,6 +27,11 @@ class Settings:
     library_iso: str = "Biblioteca/Biblioteca.iso"
     library_usb: str = "/mnt/sda1/Biblioteca.iso"       # copy on a stick left in the player
     port: int = 8095
+    loading_videos: bool = True   # cargando_*.mp4 on the stick cover the home menu; LOADING_VIDEOS=off
+    # Mount the folder holding every library folder ("Library") once, instead of one folder per
+    # title: then every title plays without a 40 s remount. "auto": their common parent; a path:
+    # that folder; "": one folder per title (as before). MOUNT_ROOT=off in compose.yaml turns it off.
+    mount_root: str = ""
 
 
 DEFAULT_FOLDERS = [
@@ -48,7 +53,20 @@ def load_settings(env: Mapping[str, str]) -> Settings:
         chinoppo_ip=env.get("CHINOPPO_IP", Settings.chinoppo_ip),
         nfs_server=env.get("NFS_SERVER", Settings.nfs_server),
         nfs_folder=env.get("NFS_FOLDER", Settings.nfs_folder),
+        loading_videos=env.get("LOADING_VIDEOS", "on").strip().lower() != "off",
+        mount_root="" if env.get("MOUNT_ROOT", "auto").strip().lower() in ("", "off") else env.get("MOUNT_ROOT", "auto").strip("/ "),
     )
+
+
+def common_root(folders: list[Folder]) -> str:
+    """The folder holding every configured folder ("Library" for Library/ATMOS, Library/Movies...);
+    '' when they share none (the share root is never mounted: the player indexes all of it)."""
+    import posixpath
+    paths = [f.path.strip("/") for f in folders if f.path.strip("/")]
+    try:
+        return posixpath.commonpath(paths) if paths else ""
+    except ValueError:
+        return ""
 
 
 def load_folders(data_dir: Path) -> list[Folder]:

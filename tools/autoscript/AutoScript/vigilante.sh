@@ -15,6 +15,8 @@
 # is mounted, and its reappearance is the "woke up" signal.
 # Stop it: create a file named PARAR on the stick.
 CHINOPPO_IP=192.168.1.16   # EDIT THIS: your player's fixed IP
+NFS_SERVER=192.168.1.17    # EDIT THIS: your NAS
+NFS_LIBRARY=volume1/Plex/Library   # the folder holding every library folder, mounted once at power-on ('' = no)
 PIDF=/tmp/vigilante.pid
 API=http://127.0.0.1:436
 D=/tmp/vigilante
@@ -26,11 +28,54 @@ stick() {  # mount point of our stick, if it is in
   local d
   for d in /mnt/sd*; do [ -e "$d/Biblioteca.iso" ] && [ -d "$d/AutoScript" ] && { echo "$d"; return; }; done
 }
+up_since() {  # seconds since uptime $1 (the clock jumps from 2016 at boot: no date maths)
+  local u; read u _ < /proc/uptime; echo $(( ${u%.*} - ${1%.*} ))
+}
 log() { [ -n "$USB" ] && [ -d "$USB" ] && echo "$(date '+%F %T') $*" >> "$USB/vigilante.log"; }
 
 wake() {  # after a cold boot :436 stays closed until this UDP packet arrives (bash /dev/udp)
   local h; for h in 127.0.0.1 $CHINOPPO_IP; do printf 'NOTIFY OREMOTE LOGIN' > /dev/udp/$h/7624; done
   sleep 2
+}
+
+play_loader() {  # "Cargando biblioteca" video from the stick: the home menu stays out of sight while the
+  # disc opens (a cold BD-J takes >40 s). Measured 2026-11-11: the open order is accepted over it
+  # and the disc replaces it in <1 s. No file on the stick: nothing changes.
+  [ -e "$USB/cargando_biblioteca.mp4" ] || return
+  local inner q r i
+  # Measured 2026-11-11: after power-on nothing plays before ~55 s of uptime (the API answers at
+  # ~20 s; any order or listing waits until then), with the remote too. So the video shows then.
+  local t0
+  inner="\"path\":\"$USB/cargando_biblioteca.mp4\",\"index\":0,\"type\":1,\"appDeviceType\":2,\"extraNetPath\":\"\",\"playMode\":0"
+  q=$(printf '%s' "$inner" | sed 's/"/%22/g; s/:/%3A/g; s/,/%2C/g')
+  # Wait for the answer, however slow (-m 90): seen 2026-11-11 after a cold boot, an order that
+  # timed out stayed queued and fired later, replacing the disc that had opened by then.
+  read t0 _ < /proc/uptime
+  r=$(curl -g -s -m 90 "$API/playnormalfile?{$q}")
+  log "video de carga: $(up_since $t0)s, $r"
+  case "$r" in *'"success":true'*) ;; *) return ;; esac
+  # Seen 2026-11-11 after a cold boot: the disc order sent in the same second as the video's was
+  # accepted but the disc never opened. It worked 6 s into the video: wait for it to run.
+  for ((i = 0; i < 10; i++)); do
+    curl -s -m 2 "$API/getglobalinfo" | grep -q '"is_video_playing":true' && break
+    sleep 1
+  done
+  sleep 3
+}
+
+mount_library() {  # the whole library folder, once, while the loading video plays: then every movie
+  # starts without a 40 s mount on the home menu. Measured 2026-11-11 right after power-on: 40 s,
+  # success. Not when it is already there: mounting it again answers "failed" and confuses the player.
+  [ -n "$NFS_LIBRARY" ] || return
+  grep -q ":/$NFS_LIBRARY /mnt/nfs" /proc/mounts && return
+  local q r
+  curl -s -m 10 "$API/loginNfsServer?%7B%22serverName%22%3A%20%22$NFS_SERVER%22%7D" > /dev/null   # Xnoppo's handshake
+  curl -s -m 15 "$API/getNfsShareFolderlist" > /dev/null
+  sleep 2
+  curl -s -m 10 "$API/getsetupmenu" > /dev/null
+  q=$(printf '%s' "\"server\":\"$NFS_SERVER\",\"folder\":\"$NFS_LIBRARY\"" | sed 's/"/%22/g; s/:/%3A/g; s/,/%2C/g')
+  r=$(curl -g -s -m 90 "$API/mountNfsSharedFolder?{$q}")
+  log "montaje $NFS_LIBRARY: rc=$? $r"
 }
 
 open_library() {
@@ -39,6 +84,9 @@ open_library() {
   log "abriendo la Biblioteca ($1)"   # with the line below: how long the player takes to accept
   q=$(printf '%s' "$inner" | sed 's/"/%22/g; s/:/%3A/g; s/,/%2C/g')   # same encoding the service uses
   curl -s -m 1 "$API/getglobalinfo" | grep -q success || wake          # 2 s, only after a cold boot
+  # The video first (a few s after power-on, see play_loader), the mount under it.
+  play_loader
+  [ "$1" = Disco ] || mount_library   # power-on / wake: nothing mounted yet
   # Exactly ONE play order (-g: literal braces like the service): a retry after a slow
   # answer queued a second open that fired later by itself and jammed the player API.
   r=$(curl -g -s -m 90 "$API/playnormalfile?{$q}")   # cold BD-J after boot: >40 s
@@ -48,6 +96,7 @@ open_library() {
 open_when_ready() {  # power-on / wake: once the API answers and nothing is playing
   local i
   for ((i = 0; i < 30; i++)); do curl -s -m 2 "$API/getglobalinfo" | grep -q success && break; wake; sleep 1; done
+  log "la API contesta (encendido hace $(up_since 0)s)"
   sleep 5   # let the home menu finish loading
   curl -s -m 3 "$API/getglobalinfo" | grep -q '"is_bdmv_playing":true\|"is_video_playing":true' \
     || open_library "$1"
