@@ -112,7 +112,14 @@ def library_posters(base: str, n: int = 5, w: int = 150, h: int = 225, seed: int
     rows = lambda raw: [l.split("\t") for l in raw.decode("utf-8").splitlines() if l]
     ids = []
     for folder in rows(get("/d/folders")):
-        ids += [r[0] for r in rows(get(f"/d/items?folder={folder[0]}"))[1:] if len(r) > 3 and r[3] != "series"]
+        offset = 0
+        while True:   # /d/items answers 1000 titles at most: first line = how many the folder has, then a page
+            page = rows(get(f"/d/items?folder={folder[0]}&offset={offset}"))
+            count, page = int(page[0][0]), page[1:]
+            ids += [r[0] for r in page if len(r) > 3 and r[3] != "series"]
+            offset += len(page)
+            if not page or offset >= count:
+                break
     r = random.Random(seed)
     r.shuffle(ids)
     out = []
