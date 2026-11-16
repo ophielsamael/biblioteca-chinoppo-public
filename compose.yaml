@@ -15,6 +15,7 @@ services:
       NFS_SERVER: "192.168.1.17"                   # <-- IP de tu NAS
       NFS_FOLDER: "volume1/Plex"                   # <-- la carpeta como la ves en el Chinoppo (Red > NFS), sin la / del inicio
       TZ: "America/Mexico_City"                    # <-- tu zona horaria: Europe/Madrid, Europe/Rome, America/Bogota...
+      LOADER_SETTLE: "3"                           # segundos que se ve el vídeo «Cargando película» antes de mandar la película (1 a 20); sube el número si solo ves pantalla negra
     volumes:
       - biblioteca_data:/app/data
       # La misma carpeta, como la ve el NAS, en solo lectura (el servicio nunca escribe en ella).

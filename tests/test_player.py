@@ -192,7 +192,6 @@ def test_loading_video_covers_the_home_on_the_fast_path(player, box, item):
 
 def test_movie_order_waits_until_the_loading_video_runs(settings, catalog, box, item):
     # seen live 2026-11-11: an order 40 ms after the video's replaced it unseen, and an ISO then hung
-    from biblio.player import LOADER_SETTLE
     events = []
     p = Player(settings, catalog, box, sleep=lambda s: events.append(("sleep", s)))
     box.usb, box.state = True, "bdmv"
@@ -201,7 +200,20 @@ def test_movie_order_waits_until_the_loading_video_runs(settings, catalog, box, 
     box.play_file = lambda path, server, t: events.append(("play_file", path)) or real(path, server, t)
     assert p._sequence(item, False) == "ok"
     i, j = events.index(("play_file", LOADER_MOVIE_PATH)), events.index(("play_file", SWAN))
-    assert ("sleep", LOADER_SETTLE) in events[i:j]
+    assert ("sleep", settings.loader_settle) in events[i:j]
+
+
+def test_the_loading_video_stays_as_long_as_the_setting_says(settings, catalog, box, item):
+    settings.loader_settle = 7.0
+    events = []
+    p = Player(settings, catalog, box, sleep=lambda s: events.append(("sleep", s)))
+    box.usb, box.state = True, "bdmv"
+    mounted(p, box)
+    real = box.play_file
+    box.play_file = lambda path, server, t: events.append(("play_file", path)) or real(path, server, t)
+    p._sequence(item, False)
+    i, j = events.index(("play_file", LOADER_MOVIE_PATH)), events.index(("play_file", SWAN))
+    assert ("sleep", 7.0) in events[i:j]
 
 
 LIBRARY_ROOT = "volume1/Plex/Library"
@@ -305,6 +317,23 @@ def test_watcher_covers_the_return_with_the_library_video(settings, catalog, box
     paths = [c[1] for c in box.calls if c[0] == "play_file"]
     assert paths == [LOADER_LIBRARY_PATH, "/mnt/sda1/Biblioteca.iso"]
     assert ("send_key", "HOM") not in box.calls and box.state == "bdmv"
+
+
+def test_the_library_video_stays_as_long_as_the_movie_one_before_the_disc_replaces_it(settings, catalog, box, item):
+    # measured 2026-11-16: it showed ~5 s after STOP and the disc replaced it 1.4 s later (black before)
+    settings.loader_settle = 7.0
+    events = []
+    p = Player(settings, catalog, box, sleep=lambda s: events.append(("sleep", s)))
+    box.usb = True
+    p.launched_by_library = item.id
+    box.state = "playing"
+    p.watch_once()
+    box.state = "idle"
+    real = box.play_file
+    box.play_file = lambda path, server, t: events.append(("play_file", path)) or real(path, server, t)
+    p.watch_once()
+    i, j = events.index(("play_file", LOADER_LIBRARY_PATH)), events.index(("play_file", "/mnt/sda1/Biblioteca.iso"))
+    assert ("sleep", 7.0) in events[i:j]
 
 
 def test_recover_prefers_library_on_usb_stick(player, box):

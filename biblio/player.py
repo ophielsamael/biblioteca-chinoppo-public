@@ -31,7 +31,7 @@ FAST_WAIT = 8        # seconds the direct (no-mount) attempt gets before falling
 # open, which it closes; the movie replaces the video; the library opens over it in <1 s).
 LOADER_MOVIE, LOADER_LIBRARY = "cargando_pelicula.mp4", "cargando_biblioteca.mp4"
 LOADER_SECONDS = (120, 60)
-LOADER_SETTLE = 3    # seconds the loading video runs before the movie order replaces it
+LOADER_SETTLE = 3    # default of Settings.loader_settle (LOADER_SETTLE in compose.yaml): seconds the loading video runs before the movie order replaces it
 RESUME_MIN = 60
 WATCHED_RATIO = 0.95
 
@@ -326,7 +326,7 @@ class Player:
             # seen live 2026-11-11: a movie order 40 ms after the video's replaced it before it showed, and
             # an ISO then did not start (home menu, second try). Measured fine: order once it runs a few s.
             self._started_loader(10)
-            self.sleep(LOADER_SETTLE)
+            self.sleep(self.settings.loader_settle)
         elif (info.get("is_bdmv_playing") or info.get("is_video_playing")) and not self._close_disc():
             return "error:el disco no se cerró"
 
@@ -407,10 +407,15 @@ class Player:
             # the movie left its folder mounted; the library ISO lives in its own one
             if self._busy.acquire(blocking=False):
                 try:
-                    if not self._loader(LOADER_LIBRARY):   # else the firmware home shows meanwhile
+                    if self._loader(LOADER_LIBRARY):
+                        # measured 2026-11-16: the video only shows ~5 s after STOP (black before), and the
+                        # disc order replaced it 1.4 s later: let it run as long as the movie's one
+                        self._started_loader(10)
+                        self.sleep(self.settings.loader_settle)
+                    else:   # the firmware home shows meanwhile
                         self._show_home()
-                    # seen live: reopening right at STOP shows "No se puede reproducir el disco"
-                    self.sleep(SETTLE)
+                        # seen live: reopening right at STOP shows "No se puede reproducir el disco"
+                        self.sleep(SETTLE)
                     self._recover()
                 finally:
                     self._busy.release()
