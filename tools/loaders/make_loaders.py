@@ -12,6 +12,7 @@ Biblioteca disc opens (>40 s after a cold boot). Their lengths are in biblio/pla
 Needs Pillow and ffmpeg:   python tools/loaders/make_loaders.py [--font file.ttf] [--lang en]
 With your own library's posters instead of the drawn ones (the repo keeps the drawn ones: no film art):
     python tools/loaders/make_loaders.py --posters http://IP-OF-THE-SERVICE:8095 --out some/folder
+    python tools/loaders/make_loaders.py --poster-files a.jpg b.webp c.png d.jpg e.jpg --out some/folder
 """
 import argparse
 import io
@@ -89,6 +90,21 @@ def poster(seed, w=150, h=225):
     return out
 
 
+def _card(im, w: int = 150, h: int = 225):
+    """A poster image as a rounded card of the loader's size."""
+    im = im.convert("RGB").resize((w, h), Image.LANCZOS)
+    mask = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], 12, fill=255)
+    card = im.convert("RGBA")
+    card.putalpha(mask)
+    return card
+
+
+def file_posters(paths: list[str], w: int = 150, h: int = 225) -> list:
+    """The poster images you give, in that order (left to right)."""
+    return [_card(Image.open(p), w, h) for p in paths]
+
+
 def library_posters(base: str, n: int = 5, w: int = 150, h: int = 225, seed: int | None = None) -> list:
     """n posters of titles in the Biblioteca at base (its disc API), rounded like the drawn ones.
     Only titles TMDb knows (a rating): the others have no real poster to show."""
@@ -104,12 +120,7 @@ def library_posters(base: str, n: int = 5, w: int = 150, h: int = 225, seed: int
         info = {l[0]: (l[1] if len(l) > 1 else "") for l in rows(get(f"/d/item?id={i}"))}
         if info.get("rating") in (None, "", "None", "0", "0.0"):
             continue
-        im = Image.open(io.BytesIO(get(f"/d/img/poster?id={i}&w={w}&h={h}"))).convert("RGB").resize((w, h), Image.LANCZOS)
-        mask = Image.new("L", (w, h), 0)
-        ImageDraw.Draw(mask).rounded_rectangle([0, 0, w - 1, h - 1], 12, fill=255)
-        card = im.convert("RGBA")
-        card.putalpha(mask)
-        out.append(card)
+        out.append(_card(Image.open(io.BytesIO(get(f"/d/img/poster?id={i}&w={w}&h={h}"))), w, h))
         if len(out) == n:
             return out
     raise SystemExit(f"only {len(out)} posters found at {base}")
@@ -145,13 +156,19 @@ def main():
     ap.add_argument("--out", default=str(ROOT / "static" / "usb"))
     ap.add_argument("--posters", help="the Biblioteca's address (http://IP:8095): use its posters")
     ap.add_argument("--seed", type=int, help="which posters (same seed, same five)")
+    ap.add_argument("--poster-files", nargs=5, metavar="IMG", help="five poster images, left to right")
     a = ap.parse_args()
     FFMPEG = os.environ.get("FFMPEG") or shutil.which("ffmpeg") or "ffmpeg"
     fnt = font(a.font, 44)
     t_movie, t_library = TEXT[a.lang]
     discs = disc_frames()
     dw, dh = discs[0].size
-    posters = library_posters(a.posters, seed=a.seed) if a.posters else [poster(s) for s in (11, 27, 42, 63, 85)]
+    if a.poster_files:
+        posters = file_posters(a.poster_files)
+    elif a.posters:
+        posters = library_posters(a.posters, seed=a.seed)
+    else:
+        posters = [poster(s) for s in (11, 27, 42, 63, 85)]
 
     def movie(t):
         im = Image.new("RGB", (W, H), (0, 0, 0))
