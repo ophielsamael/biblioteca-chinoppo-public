@@ -17,6 +17,7 @@
 CHINOPPO_IP=192.168.1.16   # EDIT THIS: your player's fixed IP
 NFS_SERVER=192.168.1.17    # EDIT THIS: your NAS
 NFS_LIBRARY=volume1/Plex/Library   # the folder holding every library folder, mounted once at power-on ('' = no)
+LOADER_SETTLE=3   # whole seconds the loading video runs before the disc order replaces it (LOADER_SETTLE in compose.yaml; the page's ZIP sets it)
 PIDF=/tmp/vigilante.pid
 API=http://127.0.0.1:436
 D=/tmp/vigilante
@@ -60,7 +61,8 @@ play_loader() {  # "Cargando biblioteca" video from the stick: the home menu sta
     curl -s -m 2 "$API/getglobalinfo" | grep -q '"is_video_playing":true' && break
     sleep 1
   done
-  sleep 3
+  # seen 2026-11-16 with the Disco icon: 3 s here and the TV (it needs ~4 s to lock onto the video) showed only black
+  sleep $LOADER_SETTLE
 }
 
 mount_library() {  # the whole library folder, once, while the loading video plays: then every movie

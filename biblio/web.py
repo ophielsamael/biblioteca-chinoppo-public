@@ -135,7 +135,7 @@ def usb_zip():
     if url.split("//")[1].startswith("127."):
         abort(400, "Abre esta página con la IP del servidor (no localhost) y vuelve a descargar.")
     library = _nfs_library()
-    data = usbpack.build_zip(url, s.chinoppo_ip, s.nfs_server, library)
+    data = usbpack.build_zip(url, s.chinoppo_ip, s.nfs_server, library, s.loader_settle)
     current_app.config["CATALOG"].set_state("usb_library", library)   # what the stick mounts: the page warns when it changes
     return Response(data, mimetype="application/zip",
                     headers={"Content-Disposition": "attachment; filename=Biblioteca-USB.zip"})

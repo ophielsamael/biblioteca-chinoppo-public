@@ -17,3 +17,11 @@ def test_network_from_env():
 def test_roundtrip(tmp_path):
     save_folders(tmp_path, [Folder("x", "Mis 4K", "atmos.png", "Library/ATMOS", "movies", 0)])
     assert load_folders(tmp_path)[0].name == "Mis 4K"
+
+
+def test_loader_settle_is_a_bounded_number_of_seconds():
+    assert load_settings({}).loader_settle == 3.0
+    assert load_settings({"LOADER_SETTLE": "7"}).loader_settle == 7.0
+    assert load_settings({"LOADER_SETTLE": "999"}).loader_settle == 20.0
+    assert load_settings({"LOADER_SETTLE": "0"}).loader_settle == 1.0
+    assert load_settings({"LOADER_SETTLE": "mucho"}).loader_settle == 3.0

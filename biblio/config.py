@@ -32,6 +32,11 @@ class Settings:
     # title: then every title plays without a 40 s remount. "auto": their common parent; a path:
     # that folder; "": one folder per title (as before). MOUNT_ROOT=off in compose.yaml turns it off.
     mount_root: str = ""
+    # Seconds a loading video ("Cargando película", and "Cargando biblioteca" after a movie) runs once it
+    # plays, before the next order replaces it. The TV needs ~3 s to lock onto the video's mode (seen
+    # 2026-11-16: with 3 s only black showed, with 7 s it does); more shows it longer and delays what
+    # follows that much. LOADER_SETTLE in compose.yaml (1 to 20).
+    loader_settle: float = 3.0
 
 
 DEFAULT_FOLDERS = [
@@ -55,7 +60,15 @@ def load_settings(env: Mapping[str, str]) -> Settings:
         nfs_folder=env.get("NFS_FOLDER", Settings.nfs_folder),
         loading_videos=env.get("LOADING_VIDEOS", "on").strip().lower() != "off",
         mount_root="" if env.get("MOUNT_ROOT", "auto").strip().lower() in ("", "off") else env.get("MOUNT_ROOT", "auto").strip("/ "),
+        loader_settle=_seconds(env.get("LOADER_SETTLE"), 3.0),
     )
+
+
+def _seconds(raw, default: float) -> float:
+    try:
+        return min(20.0, max(1.0, float(raw)))
+    except (TypeError, ValueError):
+        return default
 
 
 def common_root(folders: list[Folder]) -> str:
