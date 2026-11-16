@@ -51,3 +51,9 @@ def test_vigilante_gets_the_nas_and_the_folder_to_mount():
     assert b"NFS_SERVER=10.0.0.5" in vig and b"NFS_LIBRARY=volume2/Cine/Library" in vig
     off = zipfile.ZipFile(io.BytesIO(usbpack.build_zip("http://10.0.0.7:8095", "10.0.0.9", "10.0.0.5", "")))
     assert b"NFS_LIBRARY= " in off.read("AutoScript/vigilante.sh")   # one folder per title: nothing mounted at power-on
+
+
+def test_zip_carries_the_loading_video_wait_to_the_stick_script():
+    z = zipfile.ZipFile(io.BytesIO(usbpack.build_zip("http://10.0.0.7:8095", "10.0.0.9", loader_settle=7.0)))
+    script = z.read("AutoScript/vigilante.sh").decode()
+    assert "LOADER_SETTLE=7 " in script and "sleep $LOADER_SETTLE" in script

@@ -30,7 +30,8 @@ def patch_iso(iso: bytes, url: str) -> bytes:
     return bytes(out)
 
 
-def build_zip(url: str, chinoppo_ip: str, nfs_server: str = "192.168.1.17", nfs_library: str = "") -> bytes:
+def build_zip(url: str, chinoppo_ip: str, nfs_server: str = "192.168.1.17", nfs_library: str = "",
+              loader_settle: float = 3.0) -> bytes:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("Biblioteca.iso", patch_iso(ISO.read_bytes(), url))
@@ -44,7 +45,8 @@ def build_zip(url: str, chinoppo_ip: str, nfs_server: str = "192.168.1.17", nfs_
             if name == "vigilante.sh":
                 data = (data.replace(b"CHINOPPO_IP=192.168.1.16", f"CHINOPPO_IP={chinoppo_ip}".encode())
                         .replace(b"NFS_SERVER=192.168.1.17", f"NFS_SERVER={nfs_server}".encode())
-                        .replace(b"NFS_LIBRARY=volume1/Plex/Library", f"NFS_LIBRARY={nfs_library}".encode()))
+                        .replace(b"NFS_LIBRARY=volume1/Plex/Library", f"NFS_LIBRARY={nfs_library}".encode())
+                        .replace(b"LOADER_SETTLE=3 ", f"LOADER_SETTLE={round(loader_settle)} ".encode()))   # the shell's sleep wants whole seconds
             info = zipfile.ZipInfo(f"AutoScript/{name}", (2026, 1, 1, 0, 0, 0))
             info.external_attr = (0o755 if name.endswith(".sh") or name == "consola" else 0o644) << 16
             info.compress_type = zipfile.ZIP_DEFLATED
