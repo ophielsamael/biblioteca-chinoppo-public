@@ -1,5 +1,29 @@
 [
   {
+    "id": "2026.11.16",
+    "date": "2026-11-16",
+    "title": {
+      "es": "Cargas con menos negro",
+      "en": "Loading with less black screen"
+    },
+    "changes": {
+      "es": [
+        "Al parar una película, «Cargando biblioteca» se queda unos segundos más antes de reabrir el disco: antes solo se veía un instante, porque la tele tarda ~3 s en engancharse al vídeo.",
+        "Nuevo ajuste LOADER_SETTLE en compose.yaml (1 a 20 segundos, por defecto 3): cuánto se ve el vídeo de carga antes de la siguiente orden. Si solo ves pantalla negra, sube el número (7 funcionó bien en pruebas). No hace falta tocarlo: sin él todo sigue como antes.",
+        "El disco de la USB pinta su propia pantalla «Cargando biblioteca» animada en cuanto arranca, en vez de quedarse en negro hasta que llegan las carátulas. Descarga otra vez el ZIP de la USB y cópialo.",
+        "Los vídeos de carga pueden llevar las carátulas de tu biblioteca: python tools/loaders/make_loaders.py --posters http://IP:8095 (aleatorias) o --poster-files con cinco imágenes tuyas, de izquierda a derecha."
+      ],
+      "en": [
+        "When a movie stops, “Loading library” stays a few seconds longer before the disc reopens: it used to flash by, because the TV needs ~3 s to lock onto the video.",
+        "New LOADER_SETTLE setting in compose.yaml (1 to 20 seconds, default 3): how long the loading video shows before the next order. If you only see black, raise it (7 worked well in tests). You do not need to touch it: without it everything stays as before.",
+        "The USB disc now paints its own animated “Loading library” screen as soon as it starts, instead of staying black until the posters arrive. Download the USB ZIP again and copy it over.",
+        "The loading videos can use your own library's posters: python tools/loaders/make_loaders.py --posters http://IP:8095 (random ones) or --poster-files with five of your images, left to right."
+      ]
+    },
+    "compose": false,
+    "usb": true
+  },
+  {
     "id": "2026.11.14",
     "date": "2026-11-14",
     "title": {
