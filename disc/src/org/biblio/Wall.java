@@ -23,22 +23,11 @@ public class Wall implements Screen {
     private final Image[] posters = new Image[PAGE];
     private int generation;
     private String message = "Cargando...";
-    // the loading picture (LoadingArt) until the first posters are in, or an error is to be shown
-    private volatile boolean loading = true;
-    private final long t0 = System.currentTimeMillis();
 
-    public Wall(final BibliotecaXlet host) {
+    public Wall(BibliotecaXlet host) {
         this.host = host;
         background(new Runnable() {
             public void run() { start(); }
-        });
-        background(new Runnable() {
-            public void run() {
-                while (loading) {
-                    host.repaint(LoadingArt.x0(1920) - 30, 280, 1000, 480);   // only the animated block
-                    try { Thread.sleep(120); } catch (InterruptedException e) { return; }
-                }
-            }
         });
     }
 
@@ -65,7 +54,6 @@ public class Wall implements Screen {
             openFolder(f, (String) st.get("item"));
         } catch (IOException e) {
             message = Net.message(e);
-            loading = false;
             host.repaint();
         }
     }
@@ -90,9 +78,7 @@ public class Wall implements Screen {
         items = its;
         message = its.length == 0 ? "Esta carpeta no tiene peliculas" : null;
         pageLoaded = -1;
-        if (its.length == 0) loading = false;
         loadPage();
-        loading = false;
     }
 
     private synchronized void loadPage() {
@@ -110,7 +96,6 @@ public class Wall implements Screen {
             if (idx >= items.length) break;
             Image img = Img.load("/d/img/poster?id=" + items[idx][0] + "&w=" + PW + "&h=" + PH, host.component());
             if (gen == generation) posters[i] = img; else Img.free(img);
-            if (i == 0) loading = false;   // the wall replaces the loading picture with its first poster
             host.repaint();
         }
     }
@@ -162,10 +147,6 @@ public class Wall implements Screen {
     }
 
     public void paint(Graphics g, int w, int h) {
-        if (loading) {
-            LoadingArt.paint(g, w, h, System.currentTimeMillis() - t0);
-            return;
-        }
         g.setColor(BG);
         g.fillRect(0, 0, w, h);
         g.setColor(SIDE);
