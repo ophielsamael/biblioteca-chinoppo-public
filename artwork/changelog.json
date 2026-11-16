@@ -10,14 +10,12 @@
       "es": [
         "Con el icono Disco del menú del Chinoppo y al parar una película, el vídeo «Cargando biblioteca» ahora se ve unos segundos antes de que se abra el disco. Antes, en muchas teles, solo se veía negro: la tele tarda unos 3 s en engancharse al vídeo y el disco lo reemplazaba antes.",
         "Nuevo ajuste LOADER_SETTLE en compose.yaml (1 a 20 segundos, por defecto 3): cuánto se queda el vídeo de carga antes de abrir el disco o la película. Si solo ves pantalla negra, sube el número (7 funcionó bien en pruebas, a costa de esperar unos segundos más). Al cambiarlo, vuelve a descargar el ZIP de la USB: el icono Disco lo lee de ahí.",
-        "Los vídeos de carga pueden llevar las carátulas de tu biblioteca: python tools/loaders/make_loaders.py --posters http://IP:8095 (aleatorias) o --poster-files con cinco imágenes tuyas, de izquierda a derecha.",
-        "El disco de la USB pinta su propia pantalla «Cargando biblioteca» al arrancar. Se nota poco: casi todo el negro de después del vídeo es el propio Chinoppo abriendo el disco. Descarga otra vez el ZIP de la USB y cópialo."
+        "Los vídeos de carga pueden llevar las carátulas de tu biblioteca: python tools/loaders/make_loaders.py --posters http://IP:8095 (aleatorias) o --poster-files con cinco imágenes tuyas, de izquierda a derecha."
       ],
       "en": [
         "With the Disc icon on the Chinoppo menu and when a movie stops, the “Loading library” video now shows for a few seconds before the disc opens. Before, on many TVs you only saw black: the TV needs about 3 s to lock onto the video and the disc replaced it sooner.",
         "New LOADER_SETTLE setting in compose.yaml (1 to 20 seconds, default 3): how long the loading video stays before the disc or movie opens. If you only see black, raise it (7 worked well in tests, at the cost of a few more seconds' wait). After changing it, download the USB ZIP again: the Disc icon reads it from there.",
-        "The loading videos can use your own library's posters: python tools/loaders/make_loaders.py --posters http://IP:8095 (random ones) or --poster-files with five of your images, left to right.",
-        "The USB disc paints its own “Loading library” screen on start. It is hardly noticeable: most of the black after the video is the Chinoppo itself opening the disc. Download the USB ZIP again and copy it over."
+        "The loading videos can use your own library's posters: python tools/loaders/make_loaders.py --posters http://IP:8095 (random ones) or --poster-files with five of your images, left to right."
       ]
     },
     "compose": false,
